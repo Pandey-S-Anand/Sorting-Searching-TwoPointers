@@ -1,0 +1,105 @@
+//Bruteforce Approach
+
+class Solution {
+    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
+        if (m > n) {
+            return countPairs(arr2, arr1, n, m, target);
+        }
+
+        int count = 0;
+        for (int val1 : arr1) {
+            for (int val2 : arr2) {
+                if ((val1 + val2) == target) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+
+// Better Approach
+
+class Solution {
+    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
+        if (m > n) {
+            return countPairs(arr2, arr1, n, m, target);
+        }
+
+        int count = 0;
+
+        for (int val : arr1) {
+            if (binarySearch(arr2, target - val)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private static boolean binarySearch(int[] arr, int key) {
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == key) {
+                return true;
+            } else if (key < arr[mid]) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return false;// key doesnot exists
+    }
+}
+
+// Good Approach
+
+class Solution {
+    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
+        if (m > n) {
+            return countPairs(arr2, arr1, n, m, target);
+        }
+
+        int count = 0;
+        Set<Integer> set = new HashSet<>();
+
+        for (int val : arr2) {
+            set.add(val);
+        }
+
+        for (int val : arr1) {
+            if (set.contains(target - val)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
+        int i = 0, j = n - 1, count = 0;
+
+        while (i < m & j >= 0) {
+            int sum = arr1[i] + arr2[j];
+
+            if (sum == target) {
+                count++;
+                i++;
+                j--;
+            } else if (sum < target) {
+                i++;
+            } else { // (sum>target)
+                j--;
+            }
+        }
+
+        return count;
+    }
+}
