@@ -1,0 +1,94 @@
+//Bruteforce Approach
+
+class Solution {
+    public static List<Integer> intersectionOfThreeSortedArrays(int[] arr1, int[] arr2, int[] arr3) {
+        List<Integer> intersection12 = intersectionOfTwoSortedArrays(arr1, arr2);
+
+        int len = intersection12.size();
+        int[] intersectionArray = new int[len];
+
+        for (int i = 0; i < len; i++) {
+            intersectionArray[i] = intersection12.get(i);
+        }
+
+        return intersectionOfTwoSortedArrays(intersectionArray, arr3);
+    }
+
+    public static List<Integer> intersectionOfTwoSortedArrays(int[] arr1, int[] arr2) {
+        List<Integer> intersection = new ArrayList<>();
+        int i = 0, j = 0;
+
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] == arr2[j]) {
+                intersection.add(arr1[i]);
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+
+        return intersection;
+    }
+}
+
+// Better Approach
+
+class Solution {
+    public static List<Integer> intersectionOfThreeSortedArrays(int[] arr1, int[] arr2, int[] arr3) {
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        List<Integer> intersection = new ArrayList<>();
+
+        for (int val : arr1) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        for (int val : arr2) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        for (int val : arr3) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        for (int key : frequencyMap.keySet()) {
+            if (frequencyMap.get(key) == 3) {
+                intersection.add(key);
+            }
+        }
+
+        return intersection;
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    public static List<Integer> intersectionOfThreeSortedArrays(int[] arr1, int[] arr2, int[] arr3) {
+        int i = 0, j = 0, k = 0;
+        List<Integer> intersection = new ArrayList<>();
+
+        while (i < arr1.length && j < arr2.length && k < arr3.length) {
+            if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
+                intersection.add(arr1[i]);
+                i++;
+                j++;
+                k++;
+            } else {
+                int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
+
+                if (min == arr1[i]) {
+                    i++;
+                } else if (min == arr2[j]) {
+                    j++;
+                } else if (min == arr3[k]) {
+                    k++;
+                }
+            }
+        }
+
+        return intersection;
+    }
+}
