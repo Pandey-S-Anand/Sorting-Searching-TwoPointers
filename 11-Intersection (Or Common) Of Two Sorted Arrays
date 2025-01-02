@@ -1,0 +1,77 @@
+//Bruteforce Approach
+
+class Solution {
+    public static List<Integer> intersectionOfTwoSortedArrays(int[] arr1, int[] arr2) {
+        List<Integer> intersection = new ArrayList<>();
+
+        for (int val : arr1) {
+            if (binarySearch(arr2, 0, arr2.length - 1, val)) {
+                intersection.add(val);
+            }
+        }
+
+        return intersection;
+    }
+
+    public static boolean binarySearch(int[] arr, int low, int high, int key) {
+        if (low > high) {
+            return false;
+        }
+
+        int mid = low + (high - low) / 2;
+
+        if (arr[mid] == key) {
+            return true;
+        } else if (key < arr[mid]) {
+            return binarySearch(arr, low, mid - 1, key);
+        } else { // if(key>arr[mid])
+            return binarySearch(arr, mid + 1, high, key);
+        }
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public static List<Integer> intersectionOfTwoSortedArrays(int[] arr1, int[] arr2) {
+        List<Integer> intersection = new ArrayList<>();
+        Set<Integer> arr2Elements = new HashSet<>();
+
+        for (int val : arr2) {
+            arr2Elements.add(val);
+        }
+
+        for (int val : arr1) {
+            if (arr2Elements.contains(val)) {
+                intersection.add(val);
+            }
+        }
+
+        return intersection;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public static List<Integer> intersectionOfTwoSortedArrays(int[] arr1, int[] arr2) {
+        List<Integer> intersection = new ArrayList<>();
+        int i = 0, j = 0;
+
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] == arr2[j]) {
+                intersection.add(arr1[i]);
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+
+        return intersection;
+    }
+}
