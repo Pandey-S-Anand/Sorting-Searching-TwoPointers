@@ -1,0 +1,163 @@
+//Bruteforce Approach
+
+class Solution {
+    public static ArrayList<Integer> findUnion(int arr1[], int arr2[], int n, int m) {
+        int newLen1 = removeDuplicatesFromSortedArray(arr1, n);
+        int newLen2 = removeDuplicatesFromSortedArray(arr2, m);
+        return unionOfTwoSortedArrays(arr1, newLen1, arr2, newLen2);
+    }
+
+    private static int removeDuplicatesFromSortedArray(int[] arr, int n) {
+        int index = 0;
+        for (int i = 0; i < (n - 1); i++) {
+            if (arr[i] != arr[i + 1]) {
+                arr[index++] = arr[i];
+            }
+        }
+
+        arr[index++] = arr[n - 1];
+
+        return index;
+    }
+
+    private static ArrayList<Integer> unionOfTwoSortedArrays(int[] arr1, int m, int[] arr2, int n) {
+        int i = 0, j = 0;
+        ArrayList<Integer> union = new ArrayList<>();
+
+        while (i < m && j < n) {
+            if (arr1[i] == arr2[j]) {
+                union.add(arr1[i]);
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                union.add(arr1[i++]);
+            } else {
+                union.add(arr2[j++]);
+            }
+        }
+
+        while (i < m) {
+            union.add(arr1[i++]);
+        }
+
+        while (j < n) {
+            union.add(arr2[j++]);
+        }
+
+        return union;
+    }
+}
+
+// Better Approach
+
+class Solution {
+    public static List<Integer> unionOfTwoSortedArraysContainingDuplicates(int[] arr1, int[] arr2) {
+        Set<Integer> set = new TreeSet<>();
+
+        for (int val : arr1) {
+            set.add(val);
+        }
+
+        for (int val : arr2) {
+            set.add(val);
+        }
+
+        return new ArrayList<>(set);
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    public static ArrayList<Integer> findUnion(int arr1[], int arr2[], int n, int m) {
+        int i = 0, j = 0, prev1 = Integer.MIN_VALUE, prev2 = Integer.MIN_VALUE;
+        ArrayList<Integer> union = new ArrayList<>();
+
+        while (i < n && j < m) {
+            while (i < n && prev1 == arr1[i]) {
+                i++;
+            }
+
+            while (j < m && prev2 == arr2[j]) {
+                j++;
+            }
+
+            if (i < n && j < m) {
+                if (arr1[i] == arr2[j]) {
+                    union.add(arr1[i]);
+                    prev1 = arr1[i++];
+                    prev2 = arr2[j++];
+                } else if (arr1[i] < arr2[j]) {
+                    union.add(arr1[i]);
+                    prev1 = arr1[i++];
+                } else {
+                    union.add(arr2[j]);
+                    prev2 = arr2[j++];
+                }
+            }
+        }
+
+        while (i < n) {
+            if (arr1[i] != prev1) {
+                union.add(arr1[i]);
+            }
+            prev1 = arr1[i++];
+        }
+
+        while (j < m) {
+            if (arr2[j] != prev2) {
+                union.add(arr2[j]);
+            }
+            prev2 = arr2[j++];
+        }
+
+        return union;
+    }
+}
+
+// Aliter
+
+class Solution {
+    public static ArrayList<Integer> findUnion(int arr1[], int arr2[], int n, int m) {
+        int i = 0, j = 0;
+        ArrayList<Integer> union = new ArrayList<>();
+
+        while (i < n && j < m) {
+            if (arr1[i] == arr2[j]) {
+                if (union.isEmpty() || union.get(union.size() - 1) != arr1[i]) {
+                    union.add(arr1[i]);
+                }
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                if (union.isEmpty() || union.get(union.size() - 1) != arr1[i]) {
+                    union.add(arr1[i]);
+                }
+                i++;
+            } else {
+                if (union.isEmpty() || union.get(union.size() - 1) != arr2[j]) {
+                    union.add(arr2[j]);
+                }
+                j++;
+            }
+        }
+
+        // Add remaining elements from arr1
+        while (i < n) {
+            if (union.isEmpty() || union.get(union.size() - 1) != arr1[i]) {
+                union.add(arr1[i]);
+            }
+            i++;
+        }
+
+        // Add remaining elements from arr2
+        while (j < m) {
+            if (union.isEmpty() || union.get(union.size() - 1) != arr2[j]) {
+                union.add(arr2[j]);
+            }
+            j++;
+        }
+
+        return union;
+    }
+}
