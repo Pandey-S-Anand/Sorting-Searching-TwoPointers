@@ -1,0 +1,73 @@
+//Intuitive Implementation
+
+class Solution {
+    static int[] calSum(int arr1[], int arr2[], int m, int n) {
+        List<Integer> sum = new ArrayList<>();
+        int i = m - 1, j = n - 1, carry = 0, base;
+
+        while (i >= 0 && j >= 0) {
+            base = (arr1[i] + arr2[j] + carry) % 10;
+            carry = (arr1[i] + arr2[j] + carry) / 10;
+            sum.add(0, base);
+
+            i--;
+            j--;
+        }
+
+        while (i >= 0) {
+            base = (arr1[i] + carry) % 10;
+            carry = (arr1[i] + carry) / 10;
+            sum.add(0, base);
+            i--;
+        }
+
+        while (j >= 0) {
+            base = (arr2[j] + carry) % 10;
+            carry = (arr2[j] + carry) / 10;
+            sum.add(0, base);
+            j--;
+        }
+
+        if (carry == 1) {
+            sum.add(0, carry);
+        }
+
+        // Note : if(carry==0) then sum.size() == Math.max(m,n) and if(carry==1) then sum.size() == (Math.max(m,n) +1)
+        i = 0;
+        int[] arraySum = new int[sum.size()];
+
+        for (int val : sum) {
+            arraySum[i++] = val;
+        }
+
+        return arraySum;
+    }
+}
+
+
+
+//Optimal Implementation
+
+class Solution {
+    static int[] calSum(int arr1[], int arr2[], int m, int n) {
+        List<Integer> sum = new ArrayList<>();
+        int i = m - 1, j = n - 1, carry = 0;
+
+        while (i >= 0 || j >= 0 || carry > 0) {
+            int digit1 = (i >= 0) ? arr1[i--] : 0;
+            int digit2 = (j >= 0) ? arr2[j--] : 0;
+            int base = digit1 + digit2 + carry;
+            sum.add(0, base % 10);
+            carry = base / 10;
+        }
+
+        i = 0;
+        int[] arraySum = new int[sum.size()];
+
+        for (int val : sum) {
+            arraySum[i++] = val;
+        }
+
+        return arraySum;
+    }
+}
