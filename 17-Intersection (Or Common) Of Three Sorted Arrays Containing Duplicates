@@ -1,0 +1,125 @@
+//Bruteforce Approach
+
+class Solution {
+    ArrayList<Integer> commonElements(int arr1[], int arr2[], int arr3[], int m, int n, int o) {
+        int len1 = removeDuplicatesFromSortedArray(arr1, m);
+        int len2 = removeDuplicatesFromSortedArray(arr2, n);
+        int len3 = removeDuplicatesFromSortedArray(arr3, o);
+
+        return intersectionOfThreeSortedArrays(arr1, len1, arr2, len2, arr3, len3);
+    }
+
+    public int removeDuplicatesFromSortedArray(int[] arr, int n) {
+        int idx = 0;
+
+        for (int i = 0; i < (n - 1); i++) {
+            if (arr[i] != arr[i + 1]) {
+                arr[idx++] = arr[i];
+            }
+        }
+
+        arr[idx++] = arr[n - 1];
+
+        return idx;
+    }
+
+    public ArrayList<Integer> intersectionOfThreeSortedArrays(int[] arr1, int m, int[] arr2, int n, int[] arr3, int o) {
+        int i = 0, j = 0, k = 0;
+        ArrayList<Integer> intersection = new ArrayList<>();
+
+        while (i < m && j < n && k < o) {
+            if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
+                intersection.add(arr1[i]);
+                i++;
+                j++;
+                k++;
+            } else {
+                int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
+
+                if (min == arr1[i]) {
+                    i++;
+                } else if (min == arr2[j]) {
+                    j++;
+                } else { // if(min==arr3[k])
+                    k++;
+                }
+            }
+        }
+
+        return intersection;
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    ArrayList<Integer> commonElements(int arr1[], int arr2[], int arr3[], int m, int n, int o) {
+        int i = 0, j = 0, k = 0, prev1 = Integer.MIN_VALUE, prev2 = Integer.MIN_VALUE, prev3 = Integer.MIN_VALUE;
+        ArrayList<Integer> intersection = new ArrayList<>();
+
+        while (i < m && j < n && k < o) {
+            while (i < m && prev1 == arr1[i]) {
+                i++;
+            }
+
+            while (j < n && prev2 == arr2[j]) {
+                j++;
+            }
+
+            while (k < o && prev3 == arr3[k]) {
+                k++;
+            }
+
+            if (i < m && j < n && k < o) {
+                if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
+                    intersection.add(arr1[i]);
+                    prev1 = arr1[i++];
+                    prev2 = arr2[j++];
+                    prev3 = arr3[k++];
+                } else {
+                    int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
+                    if (min == arr1[i]) {
+                        prev1 = arr1[i++];
+                    } else if (min == arr2[j]) {
+                        prev2 = arr2[j++];
+                    } else { // if(min==arr3[k])
+                        prev3 = arr3[k++];
+                    }
+                }
+            }
+        }
+
+        return intersection;
+    }
+}
+
+// Aliter
+
+class Solution {
+    ArrayList<Integer> commonElements(int arr1[], int arr2[], int arr3[], int m, int n, int o) {
+        int i = 0, j = 0, k = 0;
+        ArrayList<Integer> intersection = new ArrayList<>();
+
+        while (i < m && j < n && k < o) {
+            if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
+                if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != arr1[i]) {
+                    intersection.add(arr1[i]);
+                }
+                i++;
+                j++;
+                k++;
+            } else {
+                int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
+                if (min == arr1[i]) {
+                    i++;
+                } else if (min == arr2[j]) {
+                    j++;
+                } else { // if(min==arr3[k])
+                    k++;
+                }
+            }
+        }
+
+        return intersection;
+    }
+}
