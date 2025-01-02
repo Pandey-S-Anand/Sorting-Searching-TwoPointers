@@ -1,0 +1,106 @@
+//Intuitive Approach
+
+class Solution {
+    public int[] intersection(int[] arr1, int[] arr2) {
+        Set<Integer> uniqueElementsInArr2 = new HashSet<>();
+        List<Integer> intersection = new ArrayList<>();
+
+        for (int val : arr2) {
+            uniqueElementsInArr2.add(val);
+        }
+
+        for (int val : arr1) {
+            if (uniqueElementsInArr2.contains(val)) {
+                intersection.add(val);
+                uniqueElementsInArr2.remove(val);
+            }
+        }
+
+        int[] result = new int[intersection.size()];
+        int idx = 0;
+
+        for (int val : intersection) {
+            result[idx++] = val;
+        }
+
+        return result;
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    public int[] intersection(int[] arr1, int[] arr2) {
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+
+        int i = 0, j = 0, prev1 = Integer.MIN_VALUE, prev2 = Integer.MIN_VALUE;
+        List<Integer> intersection = new ArrayList<>();
+
+        while (i < arr1.length && j < arr2.length) {
+            while (i < arr1.length && prev1 == arr1[i]) {
+                i++;
+            }
+
+            while (j < arr2.length && prev2 == arr2[j]) {
+                j++;
+            }
+
+            if (i < arr1.length && j < arr2.length) {
+                if (arr1[i] == arr2[j]) {
+                    intersection.add(arr1[i]);
+                    prev1 = arr1[i++];
+                    prev2 = arr2[j++];
+                } else if (arr1[i] < arr2[j]) {
+                    prev1 = arr1[i++];
+                } else {
+                    prev2 = arr2[j++];
+                }
+            }
+        }
+
+        int[] result = new int[intersection.size()];
+        i = 0;
+
+        for (int val : intersection) {
+            result[i++] = val;
+        }
+
+        return result;
+    }
+}
+
+// Aliter
+
+class Solution {
+    public int[] intersection(int[] arr1, int[] arr2) {
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+
+        int i = 0, j = 0;
+        List<Integer> intersection = new ArrayList<>();
+
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] == arr2[j]) {
+                if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != arr1[i]) {
+                    intersection.add(arr1[i]);
+                }
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+
+        int[] result = new int[intersection.size()];
+        i = 0;
+
+        for (int val : intersection) {
+            result[i++] = val;
+        }
+
+        return result;
+    }
+}
