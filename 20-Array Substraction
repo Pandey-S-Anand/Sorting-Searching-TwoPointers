@@ -1,0 +1,92 @@
+//Intuitive Implementation
+
+class Solution {
+    public static void substract(int[] arr1, int[] arr2) { // arr2[] -arr1[] = ?
+        int difference[] = new int[arr2.length];
+        int i = arr1.length - 1, j = arr2.length - 1, k = arr2.length - 1, borrow = 0;
+
+        while (i >= 0 && j >= 0) {
+            if ((arr2[j] - borrow - arr1[i]) >= 0) {
+                difference[k] = arr2[j] - borrow - arr1[i];
+                borrow = 0;
+            } else {
+                difference[k] = arr2[j] + 10 - borrow - arr1[i];
+                borrow = 1;
+            }
+
+            i--;
+            j--;
+            k--;
+        }
+
+        while (j >= 0) {
+            if ((arr2[j] - borrow) >= 0) {
+                difference[k] = arr2[j] - borrow;
+                borrow = 0;
+            } else {
+                difference[k] = arr2[j] + 10 - borrow;
+                borrow = 1;
+            }
+
+            j--;
+            k--;
+        }
+
+        // Removing leading zeroes (if any)
+        k = 0;
+        while (k < arr2.length && difference[k] == 0) {
+            k++;
+        }
+
+        // Printing the difference
+        while (k < arr2.length) {
+            System.out.println(difference[k++]);
+        }
+    }
+}
+
+// Optimal Implementation
+
+class Solution {
+    public static void substract(int[] arr1, int[] arr2) { // arr2[] -arr1[] = ?
+        int difference[] = new int[arr2.length];
+        int i = arr1.length - 1, j = arr2.length - 1, k = arr2.length - 1, borrow = 0;
+
+        while (i >= 0 && j >= 0) {
+            int diff = arr2[j--] - borrow - arr1[i--];
+
+            if (diff >= 0) {
+                borrow = 0;
+            } else {
+                diff += 10;
+                borrow = 1;
+            }
+
+            difference[k--] = diff;
+        }
+
+        while (j >= 0) {
+            int diff = arr2[j--] - borrow;
+
+            if (diff >= 0) {
+                borrow = 0;
+            } else {
+                diff += 10;
+                borrow = 1;
+            }
+
+            difference[k--] = diff;
+        }
+
+        // Removing leading zeroes (if any)
+        k = 0;
+        while (k < arr2.length && difference[k] == 0) {
+            k++;
+        }
+
+        // Printing the difference
+        while (k < arr2.length) {
+            System.out.println(difference[k++]);
+        }
+    }
+}
