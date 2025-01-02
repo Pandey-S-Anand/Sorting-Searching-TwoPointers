@@ -1,0 +1,86 @@
+//Bruteforce Approach
+
+class Solution {
+    void segregate0and1(int[] arr, int n) {
+       int count0=0,k=arr.length-1;
+       int[]temp=new int[arr.length];
+             
+       for(int val:arr){
+         if(val==1){
+            temp[k--]=1;
+         }
+       }
+       
+       System.arraycopy(temp,0,arr,0,arr.length);
+    }
+}
+
+
+//Improved Approach
+
+class Solution {
+    void segregate0and1(int[] arr, int n) {
+      int count0=0;
+      for(int val:arr){
+         if(val==0){
+            count0++;
+         }
+      }
+      
+      Arrays.fill(arr,0,count0,0);
+      Arrays.fill(arr,count0,arr.length,1);
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    void segregate0and1(int[] arr, int n) {
+      int start=0,end=(n-1);
+      
+       while(start<end){
+          while(start<n && arr[start]==0){
+            start++;
+          }
+            
+          while(end>=0 && arr[end]==1){
+            end--;
+          }
+            
+          if(start<end){
+             swap(arr,start,end);
+             start++;
+             end--;
+          }
+       }
+    }
+    
+    private void swap(int[]arr,int start,int end){
+      int temp=arr[start];
+      arr[start]=arr[end];
+      arr[end]=temp;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+   void segregate0and1(int[] arr, int n) {
+       int track1=0;
+       
+       for(int i=0;i<n;i++){
+          if(arr[i]==0){
+             swap(arr,i,track1);
+             track1++;
+          }
+       }
+   }
+    
+   private void swap(int[]arr,int i,int j){
+       int temp=arr[i];
+       arr[i]=arr[j];
+       arr[j]=temp;
+   }
+}
