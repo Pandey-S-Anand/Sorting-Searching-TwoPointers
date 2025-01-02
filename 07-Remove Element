@@ -1,0 +1,36 @@
+//Bruteforce Approach
+
+class Solution {
+    public int removeElement(int[] arr, int target) {
+        int index = 0;
+        for (int val : arr) {
+            if (val != target) {
+                arr[index++] = val;
+            }
+        }
+
+        return index;
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    public int removeElement(int[] arr, int target) {
+        return segregateTarget(arr, target);
+    }
+
+    private int segregateTarget(int[] arr, int target) {
+        int nonTargetTracker = 0;
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] != target) {
+                int temp = arr[i];
+                arr[i] = arr[nonTargetTracker];
+                arr[nonTargetTracker] = temp;
+                nonTargetTracker++;
+            }
+        }
+
+        return nonTargetTracker;
+    }
+}
