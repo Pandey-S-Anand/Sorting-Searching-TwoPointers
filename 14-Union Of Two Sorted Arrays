@@ -1,0 +1,91 @@
+//Bruteforce Approach
+
+class Solution {
+    public static List<Integer> unionOfTwoSortedArrays(int[] arr1, int[] arr2) {
+        List<Integer> union = new ArrayList<>();
+
+        for (int val : arr1) {
+            union.add(val);
+        }
+
+        for (int val : arr2) {
+            if (!binarySearch(arr1, 0, arr1.length - 1, val)) {
+                union.add(val);
+            }
+        }
+
+        Collections.sort(union);
+
+        return union;
+    }
+
+    public static boolean binarySearch(int[] arr, int low, int high, int key) {
+        if (low > high) {
+            return false;
+        }
+
+        int mid = low + (high - low) / 2;
+
+        if (arr[mid] == key) {
+            return true;
+        } else if (key < arr[mid]) {
+            return binarySearch(arr, low, mid - 1, key);
+        } else {
+            return binarySearch(arr, mid + 1, high, key);
+        }
+    }
+}
+
+// Better Approach
+
+class Solution {
+    public static List<Integer> unionOfTwoSortedArray(int[] arr1, int[] arr2) {
+        Set<Integer> uniqueElements = new TreeSet<>();
+        List<Integer> union = new ArrayList<>();
+
+        for (int val : arr1) {
+            uniqueElements.add(val);
+        }
+
+        for (int val : arr2) {
+            uniqueElements.add(val);
+        }
+
+        for (int val : uniqueElements) {
+            union.add(val);
+        }
+
+        return union;
+    }
+}
+
+// Optimal Approach
+
+class Solution {
+    public static List<Integer> unionOfTwoSortedArray(int[] arr1, int[] arr2) {
+        int i = 0, j = 0;
+        List<Integer> union = new ArrayList<>();
+
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] == arr2[j]) {
+                union.add(arr1[i]);
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                union.add(arr1[i++]);
+            } else {
+                union.add(arr2[j++]);
+            }
+        }
+
+        while (i < arr1.length) {
+            union.add(arr1[i++]);
+        }
+
+        while (j < arr2.length) {
+            union.add(arr2[j++]);
+        }
+
+        return union;
+    }
+}
