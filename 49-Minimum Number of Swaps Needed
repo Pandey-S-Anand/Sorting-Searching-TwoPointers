@@ -1,0 +1,80 @@
+class Solution {
+    int countSwaps(int arr[], int n) {
+        return countInversion(arr, n);
+    }
+
+    int countInversion(int arr[], int n) {
+        return mergeSort(arr, 0, (n - 1));
+    }
+
+    int mergeSort(int arr[], int lb, int ub) {
+        int inversionCount = 0;
+        if (lb < ub) {
+            int mid = lb + (ub - lb) / 2;
+            inversionCount += mergeSort(arr, lb, mid);
+            inversionCount += mergeSort(arr, mid + 1, ub);
+            inversionCount += merge(arr, lb, mid, ub);
+        }
+        return inversionCount;
+    }
+
+    int merge(int arr[], int lb, int mid, int ub) {
+        int inversionCount = 0;
+        int i = 0, j = 0, k = lb, leftSize = (mid - lb + 1), rightSize = (ub - mid);
+        int[] left = new int[leftSize];
+        int[] right = new int[rightSize];
+
+        System.arraycopy(arr, lb, left, 0, leftSize);
+        System.arraycopy(arr, mid + 1, right, 0, rightSize);
+
+        while (i < leftSize && j < rightSize) {
+            if (left[i] <= right[j]) {
+                arr[k++] = left[i++];
+            } else {
+                arr[k++] = right[j++];
+                inversionCount += (leftSize - i);
+            }
+        }
+
+        System.arraycopy(left, i, arr, k, leftSize - i);
+        System.arraycopy(right, j, arr, k, rightSize - j);
+
+        return inversionCount;
+    }
+}
+
+/*
+
+This Problem is very similar to Find the number of reverse Pairs in an array (i<j => arr[i]>arr[j]) All these reverse pairs needed to be swapped in order to sort the array in 
+Ascending order,and that count (number of reverse Pairs in an array)  will be the minimum number of adjacent swaps to sort the array in ascending order.
+
+Example :
+
+arr[]={2,20,15,6,10};
+
+Reverse Pairs are :
+(20,15)
+(20,6)
+(20,10)
+(15,6)
+(15,10)
+
+Swap(20,15);
+arr[]={2,15,20,6,10};
+
+Swap(20,6);
+arr[]={2,15,6,20,10};
+
+Swap(20,10);
+arr[]={2,15,6,10,20};
+
+Swap(15,6);
+arr[]={2,6,15,10,20};
+
+Swap(15,10);
+arr[]={2,6,10,15,20}; ==>Sorted Array(Ascending Order)
+
+Note :
+* A Sorted array (Ascending order) has no Reverse Pairs coz for every i<j => arr[i] < arr[j] so no inversions are Formed.
+* A Sorted array (Descending order) has Maximum Reverse Pairs coz for every i<j => arr[i] > arr[j] so Maximum inversions are Formed.
+*/
