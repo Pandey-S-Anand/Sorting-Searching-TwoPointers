@@ -1,0 +1,33 @@
+class Solution {
+    public int countFrequency(int[] arr, int key) {
+        int firstIndex = findBound(arr, key, true); // Find the first occurrence of key
+        if (firstIndex == -1) {
+            return 0; // Key not present
+        }
+        int lastIndex = findBound(arr, key, false); // Find the last occurrence of key
+        return lastIndex - firstIndex + 1;
+    }
+
+    private int findBound(int[] arr, int key, boolean searchFirst) {
+        int low = 0, high = arr.length - 1, bound = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == key) {
+                bound = mid;
+                if (searchFirst) {
+                    high = mid - 1; // Narrow search to the left
+                } else {
+                    low = mid + 1; // Narrow search to the right
+                }
+            } else if (key < arr[mid]) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return bound;
+    }
+}
