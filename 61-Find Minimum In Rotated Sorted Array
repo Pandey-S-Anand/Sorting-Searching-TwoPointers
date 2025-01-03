@@ -1,0 +1,128 @@
+//Bruteforce Approach
+
+class Solution {
+    public int findMin(int[] arr) {
+        Arrays.sort(arr);
+        return arr[0]; //Minimum element
+    }
+}
+
+
+//Good Approach
+
+class Solution {
+    public int findMin(int[] arr) {
+        int minimum = Integer.MAX_VALUE, low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            minimum = Math.min(minimum, Math.min(arr[low++], arr[high--]));
+        }
+
+        return minimum;
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public int findMin(int[] arr) {
+        int partitionIndex = findPartitionIndex(arr);
+        // Array is sorted but not rotated so smallest element will be the first element
+        if (partitionIndex == arr.length - 1) {
+            return arr[0];
+        }
+
+        return arr[partitionIndex + 1];
+    }
+
+    private int findPartitionIndex(int[] arr) {
+        /*
+          Note :
+          1: If the array(with distinct elements) is sorted and rotated by any position
+             (either left or right) the first element will always be
+             greater than the last element.
+          
+          2: If the array(with distinct elements) is sorted and not rotated the
+             first element will always be less than the last element. 
+
+          3: Why mid never reaches arr.length - 1 ?
+             When (arr[mid] > arr[mid + 1]),it means mid points to the maximum element in the rotated sorted array it is the rotation point.
+             Since the array is rotated, mid will not be the last element (arr.length - 1), because after rotation, elements wrap 
+             around to the beginning of the array. Thus, mid is always less than arr.length - 1.
+         */
+        if (arr.length == 1 || arr[0] < arr[arr.length - 1]) {
+            return arr.length - 1;
+        }
+
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // Check if mid is the partition point
+            if (arr[mid] > arr[mid + 1]) {
+                return mid;
+            }
+
+            // Decide which half to continue the search in
+            /*
+               Why arr[low] <= arr[mid] not arr[low] < arr[mid] ?  given the array contains distinct elements !
+               Since the array contains distinct elements, arr[low] will never be equal to arr[mid] unless low == mid.
+               When low == mid, the condition arr[low] <= arr[mid] ensures that we do not miss the target and adjust the search bounds properly.
+               Ex: 
+               nums =[3,1]
+               partitionIndex : 0
+
+               Ex:
+               nums =[15,16,19,20,25,1,3,4,5,7,10,14] 
+               partitionIndex : 4
+            */
+            if (arr[low] <= arr[mid]) {
+                // Left half is sorted, so the rotation point must be in the right half
+                low = mid + 1;
+            } else {
+                // Right half is sorted, so the rotation point must be in the left half
+                high = mid - 1;
+            }
+        }
+
+        // This return statement is never reached
+        return -1;
+    }
+}
+
+
+//Optimal Approach
+
+
+class Solution {
+    public int findMin(int[] arr) {
+        if (arr.length == 1 || arr[0] < arr[arr.length - 1]) {
+            return arr[0]; //Minimum element
+        }
+
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // Check if mid is the partition point
+            if (arr[mid] > arr[mid + 1]) {
+                return arr[mid + 1]; //Minimum element
+            }
+
+            // Decide which half to continue the search in
+            if (arr[low] <= arr[mid]) {
+                // Left half is sorted, so the rotation point must be in the right half
+                low = mid + 1;
+            } else {
+                // Right half is sorted, so the rotation point must be in the left half
+                high = mid - 1;
+            }
+        }
+
+        // This return statement is never reached
+        return -1;
+    }
+}
