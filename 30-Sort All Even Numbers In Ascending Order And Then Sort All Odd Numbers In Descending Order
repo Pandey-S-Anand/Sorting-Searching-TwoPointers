@@ -1,0 +1,50 @@
+//Method 1
+
+class Solution {
+    public void rearrange(int[] arr, int n) {
+        int countOdd = segregateEvenOdd(arr, n);
+        Arrays.sort(arr, 0, countOdd);
+        for (int i = 0; i < (countOdd / 2); i++) {
+            swap(arr, i, countOdd - 1 - i);
+        }
+        Arrays.sort(arr, countOdd, n);
+    }
+
+    private int segregateEvenOdd(int[] arr, int n) {
+        int evenTracker = 0;
+        for (int i = 0; i < n; i++) {
+            if ((arr[i] % 2) != 0) {
+                swap(arr, i, evenTracker);
+                evenTracker++;
+            }
+        }
+        return evenTracker;
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+// Method 2 : This method will not work when input array contains negative numbers.
+
+class Solution {
+    public void rearrange(int[] arr, int n) {
+        for (int i = 0; i < n; i++) {
+            if ((arr[i] & 1) == 1) { // Checking For Odd Number
+                arr[i] *= -1;
+            }
+        }
+
+        Arrays.sort(arr);
+
+        for (int i = 0; i < n; i++) {
+            if (arr[i] < 0) {
+                arr[i] *= -1;
+            }
+        }
+    }
+}
