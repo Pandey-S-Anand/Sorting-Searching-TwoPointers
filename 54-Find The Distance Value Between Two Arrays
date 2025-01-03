@@ -1,0 +1,98 @@
+//Bruteforce Approach
+
+class Solution {
+    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {
+        int distance = 0;
+
+        for (int val1 : arr1) {
+            boolean lessThanD = false;
+            for (int val2 : arr2) {
+                if (Math.abs(val1 - val2) <= d) {
+                    lessThanD = true;
+                    break;
+                }
+            }
+
+            if (!lessThanD) {
+                distance++;
+            }
+        }
+        return distance;
+    }
+}
+
+
+/* Optimal Approach :
+   
+The math rule is: |x| <= d equals to -d <= x <= d. Check it and you'll see that it's correct. So:
+
+the Given inequality is: |arr1[i] - arr2[j]| <= d
+
+according to the rule: -d <= (arr1[i] - arr2[j]) <= d
+
+then add - arr1[i] to the all sides of inequality: (-d - arr1[i]) <= (arr1[i] - arr2[j]) - arr1[i] <= (d - arr1[i])
+                                                 => - (d + arr1[i]) <= - arr2[j]  <= - (arr1[i] -d )
+
+then multiply it by -1 (remembering to reverse the inequality signs): (d + arr1[i]) >= arr2[j] >= (arr1[i] - d)
+
+that's the same as: (arr1[i] - d) <= arr2[j] <= (arr1[i] + d)
+
+Expression |arr1[i] - arr2[j]| <= d equals to (arr1[i] - d) <= arr2[j] <= (arr1[i] + d)  
+
+So for every value val in the array arr1 we need to check (using binary search) if the array arr2 contains any value in range from val - d to val + d. If not, increment distance.
+*/
+
+//Better Approach
+
+class Solution {
+    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {
+        int distance = 0;
+
+        for (int val1 : arr1) {
+            boolean presentInRange = false;
+            for (int val2 : arr2) {
+                if ((val1 - d) <= val2 && val2 <= (val1 + d)) {
+                    presentInRange = true;
+                    break;
+                }
+            }
+
+            if (!presentInRange) {
+                distance++;
+            }
+        }
+        return distance;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {
+        int distance = 0;
+        Arrays.sort(arr2);
+
+        for (int val : arr1) {
+            if (isNotInRange(arr2, 0, arr2.length - 1, val - d, val + d)) {
+                distance++;
+            }
+        }
+        return distance;
+    }
+
+    private boolean isNotInRange(int[] arr, int low, int high, int fromValue, int toValue) {
+        if (low > high) {
+            return true; // arr2 doesn't contain any value in range (from <= value <= to) so return true
+        }
+
+        int mid = low + (high - low) / 2;
+        if (arr[mid] >= fromValue && arr[mid] <= toValue) {
+            return false; // arr2 contains value in range (from <= value <= to) so return false
+        } else if (arr[mid] < fromValue) {
+            return isNotInRange(arr, mid + 1, high, fromValue, toValue);
+        } else {// if (arr[mid] > toValue)
+            return isNotInRange(arr, low, mid - 1, fromValue, toValue);
+        }
+    }
+}
