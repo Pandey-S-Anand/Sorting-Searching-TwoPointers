@@ -1,0 +1,44 @@
+//Bruteforce Approach 
+
+class Solution {
+    public int missingNumberInSortedArray(int[] arr) {
+        int i;
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i] != (i + 1)) {
+                break;
+            }
+        }
+
+        return i + 1;
+    }
+}
+
+
+// Optimal Approach
+
+class Solution {
+    public int missingNumberInSortedArray(int[] arr) {
+        return modifiedBinarySearch(arr);
+    }
+
+    private int modifiedBinarySearch(int[] arr) {
+        int low = 0, high = arr.length - 1, result = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] != (mid + 1)) {
+                if (mid == 0 || arr[mid - 1] == mid) {
+                    result = (mid + 1);
+                    break;
+                } else {
+                    high = mid - 1;
+                }
+            } else { // if(arr[mid]==(mid+1))
+                low = mid + 1;
+            }
+        }
+
+        return result;
+    }
+}
