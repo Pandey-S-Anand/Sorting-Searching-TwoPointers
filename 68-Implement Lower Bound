@@ -1,0 +1,55 @@
+//Bruteforce Approach
+
+public class Solution {
+    public static int lowerBound(int[] arr, int n, int x) {
+        for (int i = 0; i < n; i++) {
+            if (arr[i] >= x) {
+                return i;
+            }
+        }
+
+        return n;
+    }
+}
+
+
+//Optimal Approach
+
+public class Solution {
+    public static int lowerBound(int[] arr, int n, int x) {
+        int low = 0, high = n - 1, lowerBound = n;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] >= x) {
+                lowerBound = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return lowerBound;
+    }
+}
+
+//Aliter
+
+public class Solution {
+    public static int lowerBound(int[] arr, int n, int x) {
+        int low = 0, high = n - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] >= x) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return low;
+    }
+}
