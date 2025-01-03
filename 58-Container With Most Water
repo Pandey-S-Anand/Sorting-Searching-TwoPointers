@@ -1,0 +1,53 @@
+//Bruteforce Approach
+
+class Solution {
+    public int maxArea(int[] heights) {
+        int maxArea = 0;
+
+        for (int left = 0; left < heights.length - 1; left++) {
+            for (int right = left + 1; right < heights.length; right++) {
+                int width = right - left;
+                int minHeight = Math.min(heights[left], heights[right]);
+                int area = width * minHeight;
+
+                maxArea = Math.max(area, maxArea);
+            }
+        }
+
+        return maxArea;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int maxArea(int[] heights) {
+        int left = 0, right = heights.length - 1, maxArea = 0;
+
+        while (left < right) {
+            int width = right - left;
+            int minHeight = Math.min(heights[left], heights[right]);
+            int area = width * minHeight;
+            maxArea = Math.max(maxArea, area);
+
+            if (heights[left] < heights[right]) {
+                left++;
+            } else if (heights[right] < heights[left]) {
+                right--;
+            } else { // heights[left]==heights[right]
+                left++;
+                right--;
+            }
+        }
+
+        return maxArea;
+    }
+}
+
+/*
+We know that water container is a rectangle so area will be simply l(height)xb(breadth) = area so either we need to increase the length or the breadth to maximise the area . 
+Placing the pointer at two ends maximises the breadth 
+now the interesting part if you move any of the two pointer then you are reducing the breadth so to balance it you must increase the height. 
+There are two pointer pointing to two different height now obviously we need to move that pointer which has less height among the two,in hope of getting a taller line hence greater area. 
+*/
