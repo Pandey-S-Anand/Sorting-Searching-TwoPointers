@@ -1,0 +1,59 @@
+// Method 1 (Using Extra Space)
+
+class Solution {
+    public int removeDuplicates(int[] arr) {
+        int idx = 0;
+        int[] auxArray = new int[arr.length];
+
+        for (int i = 0; i < (arr.length - 1); i++) {
+            if (arr[i] != arr[i + 1]) {
+                auxArray[idx++] = arr[i];
+            }
+        }
+
+        auxArray[idx++] = arr[arr.length - 1];
+
+        System.arraycopy(auxArray, 0, arr, 0, idx);
+
+        return idx;
+    }
+}
+
+
+// Method 2 (Using Extra Space)
+
+class Solution {
+    public int removeDuplicates(int[] arr) {
+        int idx = 0;
+        Set<Integer> uniqueElements = new LinkedHashSet<>();
+
+        for (int val : arr) {
+            uniqueElements.add(val);
+        }
+
+        for (int val : uniqueElements) {
+            arr[idx++] = val;
+        }
+
+        return idx;
+    }
+}
+
+
+// Method 3 (Without Using Extra Space)
+
+class Solution {
+    public int removeDuplicates(int[] arr) {
+        int idx = 0;
+
+        for (int i = 0; i < (arr.length - 1); i++) {
+            if (arr[i] != arr[i + 1]) {
+                arr[idx++] = arr[i];
+            }
+        }
+
+        arr[idx++] = arr[arr.length - 1];
+
+        return idx;
+    }
+}
