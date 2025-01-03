@@ -1,0 +1,36 @@
+//Traditional Linear Search
+
+class Solution {
+    public int linearSearch(int[] arr, int key) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == key) {
+                return i; // First occurence of 'key' is Found at index 'i' in the given array
+            }
+        }
+
+        return -1; // 'key' doesnot exists in the given array
+    }
+}
+
+//Optimised Linear Search(using 2 pointers)
+
+class Solution {
+    public int linearSearch(int[] arr, int key) {
+        int start = 0, end = arr.length - 1;
+
+        while (start <= end) {
+            if (arr[start] == key) {
+                return start; // 'key' is Found at index 'start' in the given array
+            }
+            
+            if (arr[end] == key) {
+                return end; // 'key' is Found at index 'end' in the given array
+            }
+
+            start++;
+            end--;
+        }
+
+        return -1; // 'key' doesnot exists in the given array
+    }
+}
