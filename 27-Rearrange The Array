@@ -1,0 +1,54 @@
+//Using Extra Space
+
+class Solution {
+    void rearrangeArray(int[] arr, int n) {
+        Arrays.sort(arr);
+        int[] temp = new int[n];
+        int i = 0, j = n - 1, k = 0;
+
+        while (i < j) {
+            temp[k++] = arr[i++];
+            temp[k++] = arr[j--];
+        }
+
+        if (n % 2 == 1) {
+            temp[k++] = arr[n / 2];
+        }
+
+        System.arraycopy(temp, 0, arr, 0, n);
+    }
+}
+
+// Without Using Extra Space
+
+class Solution {
+    void rearrangeArray(int[] arr, int n) {
+        Arrays.sort(arr);
+
+        for (int i = 1; i < n - 1; i += 2) {
+            int temp = arr[i];
+            arr[i] = arr[arr.length - 1];
+
+            for (int j = arr.length - 2; j > i; j--) {
+                arr[j + 1] = arr[j];
+            }
+
+            arr[i + 1] = temp;
+        }
+    }
+}
+
+// Aliter
+
+class Solution {
+    void rearrangeArray(int[] arr, int n) {
+        Arrays.sort(arr);
+
+        for (int i = 1; i < n - 1; i += 2) {
+            int temp = arr[i];
+            arr[i] = arr[arr.length - 1];
+            System.arraycopy(arr, i + 1, arr, i + 2, n - 2 - i);
+            arr[i + 1] = temp;
+        }
+    }
+}
