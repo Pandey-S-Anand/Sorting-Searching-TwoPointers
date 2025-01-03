@@ -1,0 +1,133 @@
+//Bruteforce Approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
+        List<List<Integer>> triplets = new ArrayList<>();
+
+        Arrays.sort(arr);
+
+        for (int i = 0; i < arr.length - 2; i++) {
+            if (arr[i] + arr[i + 1] + arr[i + 2] > 0) {
+                break;
+            }
+
+            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < 0) {
+                continue;
+            }
+
+            int remTarget = 0 - arr[i];
+            int j = i + 1;
+            int k = arr.length - 1;
+
+            while (j < k) {
+                if ((arr[j] + arr[k]) == remTarget) {
+                    if (!triplets.contains(Arrays.asList(arr[i], arr[j], arr[k]))) {
+                        triplets.add(Arrays.asList(arr[i], arr[j], arr[k]));
+                    }
+                    j++;
+                    k--;
+                } else if ((arr[j] + arr[k]) > remTarget) {
+                    k--;
+                } else {
+                    j++;
+                }
+            }
+        }
+
+        return triplets;
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
+        Set<List<Integer>> set = new HashSet<>();
+        List<List<Integer>> triplets = new ArrayList<>();
+
+        Arrays.sort(arr);
+
+        for (int i = 0; i < arr.length - 2; i++) {
+            if (arr[i] + arr[i + 1] + arr[i + 2] > 0) {
+                break;
+            }
+
+            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < 0) {
+                continue;
+            }
+
+            int remTarget = 0 - arr[i];
+            int j = i + 1;
+            int k = arr.length - 1;
+
+            while (j < k) {
+                if ((arr[j] + arr[k]) == remTarget) {
+                    set.add(Arrays.asList(arr[i], arr[j], arr[k]));
+                    j++;
+                    k--;
+                } else if ((arr[j] + arr[k]) > remTarget) {
+                    k--;
+                } else {
+                    j++;
+                }
+            }
+        }
+
+        triplets.addAll(set);
+
+        return triplets;
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
+        List<List<Integer>> triplets = new ArrayList<>();
+        Arrays.sort(arr);
+
+        for (int i = 0; i < (arr.length - 2); i++) {
+            if (i > 0 && arr[i] == arr[i - 1]) { // To Avoid Duplicates
+                continue;
+            }
+
+            if (arr[i] + arr[i + 1] + arr[i + 2] > 0) {
+                break;
+            }
+
+            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < 0) {
+                continue;
+            }
+
+            int remTarget = 0 - arr[i];
+            int j = i + 1;
+            int k = arr.length - 1;
+
+            while (j < k) {
+                if ((arr[j] + arr[k]) == remTarget) {
+                    triplets.add(Arrays.asList(arr[i], arr[j], arr[k]));
+                    j++;
+                    k--;
+
+                    while (j < k && arr[j] == arr[j - 1]) { // To Avoid Duplicates
+                        j++;
+                    }
+
+                    while (j < k && arr[k] == arr[k + 1]) { // To Avoid Duplicates
+                        k--;
+                    }
+                } else if ((arr[j] + arr[k]) > remTarget) {
+                    k--;
+                } else {
+                    j++;
+                }
+            }
+        }
+
+        return triplets;
+    }
+}
