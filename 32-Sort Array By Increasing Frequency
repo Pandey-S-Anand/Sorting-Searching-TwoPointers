@@ -1,0 +1,157 @@
+class Solution {
+    public int[] frequencySort(int[] arr) {
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        
+        for (int val : arr) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        int[][] frequencyArray = new int[frequencyMap.size()][2];
+
+        int index = 0;
+        for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
+            frequencyArray[index][0] = entry.getKey();
+            frequencyArray[index][1] = entry.getValue();
+            index++;
+        }
+
+        Arrays.sort(frequencyArray, new FrequencyComparator());
+
+        index = 0;
+
+        for (int i = 0; i < frequencyArray.length; i++) {
+            int frequency = frequencyArray[i][1];
+
+            while (frequency != 0) {
+                arr[index++] = frequencyArray[i][0];
+                frequency--;
+            }
+        }
+
+        return arr;
+    }
+}
+
+// Sort 2D array according to frequency in ascending order if two frequencies are equal sort it according to array elements in descending order
+
+class FrequencyComparator implements Comparator<int[]> {
+    public int compare(int[] arr1, int[] arr2) {
+        if (arr1[1] < arr2[1]) {
+            return -1;
+        } else if (arr1[1] > arr2[1]) {
+            return 1;
+        } else if ((arr1[1] == arr2[1]) && (arr1[0] < arr2[0])) {
+            return 1;
+        } else if ((arr1[1] == arr2[1]) && (arr1[0] > arr2[0])) {
+            return -1;
+        } else {// if((arr1[1]==arr2[1]) && (arr1[0]==arr2[0]))
+            return 0;
+        }
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    public int[] frequencySort(int[] arr) {
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        
+        for (int val : arr) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        int[][] frequencyArray = new int[frequencyMap.size()][2];
+
+        int index = 0;
+        for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
+            frequencyArray[index][0] = entry.getKey();
+            frequencyArray[index][1] = entry.getValue();
+            index++;
+        }
+
+        Arrays.sort(frequencyArray, (arr1, arr2) -> {
+            if (arr1[1] == arr2[1]) {
+                return arr2[0] - arr1[0]; // Sort by value in descending order if frequencies are equal
+            } else {
+                return arr1[1] - arr2[1]; // Sort by frequency in ascending order
+            }
+        });
+
+        index = 0;
+
+        for (int i = 0; i < frequencyArray.length; i++) {
+            int frequency = frequencyArray[i][1];
+
+            while (frequency != 0) {
+                arr[index++] = frequencyArray[i][0];
+                frequency--;
+            }
+        }
+
+        return arr;
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    public int[] frequencySort(int[] arr) {
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        
+        for (int val : arr) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        List<Map.Entry<Integer, Integer>> entryList = new ArrayList<>(frequencyMap.entrySet());
+
+        Collections.sort(entryList, (entry1, entry2) -> {
+            if (entry1.getValue().equals(entry2.getValue())) {
+                return Integer.compare(entry2.getKey(), entry1.getKey()); // Sort by value in descending order if frequencies are equal
+            }
+            return Integer.compare(entry1.getValue(), entry2.getValue()); // Sort by frequency in ascending order
+        });
+
+        int index = 0;
+        for (Map.Entry<Integer, Integer> entry : entryList) {
+            int value = entry.getKey();
+            int frequency = entry.getValue();
+            while (frequency != 0) {
+                arr[index++] = value;
+                frequency--;
+            }
+        }
+
+        return arr;
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    public int[] frequencySort(int[] arr) {
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        
+        for (int val : arr) {
+            frequencyMap.put(val, frequencyMap.getOrDefault(val, 0) + 1);
+        }
+
+        Queue<Map.Entry<Integer, Integer>> minHeap = new PriorityQueue<>((entry1, entry2) -> entry1.getValue().equals(entry2.getValue())? Integer.compare(entry2.getKey(), entry1.getKey()): Integer.compare(entry1.getValue(), entry2.getValue()));
+
+        minHeap.addAll(frequencyMap.entrySet());
+
+        int index = 0;
+        while (!minHeap.isEmpty()) {
+            Map.Entry<Integer, Integer> entry = minHeap.poll();
+            int frequency = entry.getValue();
+            while (frequency != 0) {
+                arr[index++] = entry.getKey();
+                frequency--;
+            }
+        }
+
+        return arr;
+    }
+}
