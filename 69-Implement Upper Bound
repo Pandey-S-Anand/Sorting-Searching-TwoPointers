@@ -1,0 +1,56 @@
+//Bruteforce Approach
+
+public class Solution {
+    public static int upperBound(int []arr, int x, int n){
+       for (int i = 0; i < n; i++) {
+            if (arr[i] > x) {
+                return i;
+            }
+        }
+
+        return n;
+    }
+}
+
+
+//Optimal Approach
+
+public class Solution {
+    public static int upperBound(int[] arr, int x, int n) {
+        int low = 0, high = n - 1, upperBound = n;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] > x) {
+                upperBound = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return upperBound;
+    }
+}
+
+//Aliter
+
+public class Solution {
+    public static int upperBound(int[] arr, int x, int n) {
+        int low = 0, high = n - 1, upperBound = n;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] > x) {
+                upperBound = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return low;
+    }
+}
