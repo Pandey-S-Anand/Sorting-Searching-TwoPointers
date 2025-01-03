@@ -1,0 +1,55 @@
+//Bruteforce Approach
+
+class Solution {
+    public void sortHalves(int arr[], int n) {
+        Arrays.sort(arr);
+    }
+}
+
+
+// Optimal Approach
+
+class Solution {
+    public void sortHalves(int arr[], int n) {
+        int partitionIndex = partition(arr, n);
+
+        if (partitionIndex == -1) {
+            return;
+        }
+
+        int[] left = Arrays.copyOfRange(arr, 0, partitionIndex + 1);
+        int[] right = Arrays.copyOfRange(arr, partitionIndex + 1, arr.length);
+
+        mergeSortedHalves(arr, left, right);
+    }
+
+    private int partition(int[] arr, int n) {
+        for (int i = 0; i < (n - 1); i++) {
+            if (arr[i] > arr[i + 1]) {
+                return i;
+            }
+        }
+
+        return -1; // array is completely sorted
+    }
+
+    private void mergeSortedHalves(int[] arr, int[] left, int[] right) {
+        int i = 0, j = 0, k = 0;
+
+        while (i < left.length && j < right.length) {
+            if (left[i] <= right[j]) {
+                arr[k++] = left[i++];
+            } else {
+                arr[k++] = right[j++];
+            }
+        }
+
+        if (i < left.length) {
+            System.arraycopy(left, i, arr, k, left.length - i);
+        }
+
+        if (j < right.length) {
+            System.arraycopy(right, j, arr, k, right.length - j);
+        }
+    }
+}
