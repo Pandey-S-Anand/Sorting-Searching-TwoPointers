@@ -1,0 +1,116 @@
+/*
+We can easily observe that the number of rotations in an array is equal to the index(0-based index) of its minimum element.
+So, in order to solve this problem, we have to find the index of the minimum element.
+*/
+
+//Bruteforce Approach
+
+class Solution {
+    public int findKRotation(List<Integer> arr) {
+        return findMinimumIndex(arr);
+    }
+
+    private int findMinimumIndex(List<Integer> arr) {
+      int size=arr.size(),minimum=arr.get(0),minimumIndex=0;
+      
+      for(int i=1;i<size;i++){
+        if(arr.get(i)<minimum){
+            minimum=arr.get(i);
+            minimumIndex=i;
+        }
+      }
+      
+      return minimumIndex;
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public int findKRotation(List<Integer> arr) {
+        return findMinimumIndex(arr);
+    }
+
+    private int findMinimumIndex(List<Integer> arr) {
+      int size=arr.size();
+      //Array is sorted but not rotated so minimum element is at index 0
+      if(size==1 || arr.get(0)<arr.get(size-1)){
+          return 0;
+      }
+      
+      for(int i=0;i<size-1;i++){
+        if(arr.get(i)>arr.get(i+1)){
+            return i+1; //index of minimum element in sorted rotated array
+        } 
+      }
+      
+      // This return statement is never reached
+      return -1;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int findKRotation(List<Integer> arr) {
+        return findMinimumIndex(arr);
+    }
+
+    private int findMinimumIndex(List<Integer> arr) {
+         /*
+          Note :
+          1: If the array(with distinct elements) is sorted and rotated by any position
+             (either left or right) the first element will always be
+             greater than the last element.
+          
+          2: If the array(with distinct elements) is sorted and not rotated the
+             first element will always be less than the last element. 
+
+          3: Why mid never reaches arr.length - 1 ?
+             When (arr[mid] > arr[mid + 1]),it means mid points to the maximum element in the rotated sorted array it is the rotation point.
+             Since the array is rotated, mid will not be the last element (arr.length - 1), because after rotation, elements wrap 
+             around to the beginning of the array. Thus, mid is always less than arr.length - 1.
+         */
+        int size = arr.size();
+        if (size == 1 || arr.get(0) < arr.get(size - 1)) {
+            return 0; //Index of minimum element
+        }
+
+        int low = 0, high = arr.size() - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // Check if mid is the partition point
+            if (arr.get(mid) > arr.get(mid + 1)) {
+                return mid + 1; //Index of minimum element
+            }
+
+            // Decide which half to continue the search in
+            /*
+               Why arr[low] <= arr[mid] not arr[low] < arr[mid] ?  given the array contains distinct elements !
+               Since the array contains distinct elements, arr[low] will never be equal to arr[mid] unless low == mid.
+               When low == mid, the condition arr[low] <= arr[mid] ensures that we do not miss the target and adjust the search bounds properly.
+               Ex: 
+               nums =[3,1]
+               partitionIndex : 0
+
+               Ex:
+               nums =[15,16,19,20,25,1,3,4,5,7,10,14] 
+               partitionIndex : 4
+            */
+            if (arr.get(low) <= arr.get(mid)) {
+                // Left half is sorted, so the rotation point must be in the right half
+                low = mid + 1;
+            } else {
+                // Right half is sorted, so the rotation point must be in the left half
+                high = mid - 1;
+            }
+        }
+
+        // This return statement is never reached
+        return -1;
+    }
+}
