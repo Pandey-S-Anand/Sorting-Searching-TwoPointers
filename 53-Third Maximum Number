@@ -1,0 +1,68 @@
+//Bruteforce Approach
+
+class Solution {
+    public int thirdMax(int[] arr) {
+        Arrays.sort(arr);
+        int newSize = removeDuplicatesFromSortedArray(arr);
+        return newSize < 3 ? arr[newSize - 1] : arr[newSize - 3];
+    }
+
+    public int removeDuplicatesFromSortedArray(int[] arr) {
+        int j = 0;
+
+        for (int i = 0; i < (arr.length - 1); i++) {
+            if (arr[i] != arr[i + 1]) {
+                arr[j++] = arr[i];
+            }
+        }
+
+        arr[j++] = arr[arr.length - 1];
+
+        return j;
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    public int thirdMax(int[] arr) {
+        Set<Integer> sorted = new TreeSet<>();
+
+        for (int val : arr) {
+            sorted.add(val);
+        }
+
+        if (sorted.size() >= 3) {
+            sorted.pollLast();
+            sorted.pollLast();
+        }
+
+        return sorted.last();
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int thirdMax(int[] arr) {
+        long max = Long.MIN_VALUE, secondMax = Long.MIN_VALUE, thirdMax = Long.MIN_VALUE;
+
+        for (int val : arr) {
+            if (val > max) {
+                thirdMax = secondMax;
+                secondMax = max;
+                max = val;
+            } else if (val != max && val > secondMax) {
+                thirdMax = secondMax;
+                secondMax = val;
+            } else if (val != max && val != secondMax && val > thirdMax) {
+                thirdMax = val;
+            }
+        }
+
+        return (thirdMax == Long.MIN_VALUE) ? (int) max : (int) thirdMax;
+    }
+}
