@@ -1,0 +1,63 @@
+/*
+We know that Binary Search uses two-pointers 'low' and 'high'. Low points to the 0th index and high points to (n-1)th index (n= size of the array)
+
+But in this case, we are given an infinite sized sorted array, so we don’t know the last index of the element in the array where 'high' we will point to.
+
+Since it has infinite elements. So we will think of a better version of Binary Search by increasing the search space exponentially. 
+
+=> Keep low pointer at 0th index initially 
+=> High at 1th index.
+=> Using a loop check if the key > arr[high], if it is then increase the search space by copying 'high' in 'low' and multiplying 'high' by 2.
+   Now when key < arr[high], that means the element is present between low and high, and apply Binary search.
+=>Return the index of the element if found.
+
+In this case, the loop runs exponentially and has a time complexity of logn. And Binary Search also has the time complexity of logn.
+Therefore, Time Complexity: O(logN) + O(logN) = O(logN)
+
+
+Why exponenetially increase the upper bound ?
+
+It is actually a tradeoff !
+
+Using exponential increase with a factor of 2 ensures efficient handling of infinite arrays while maintaining logarithmic time complexity.The choice of doubling the upper bound is a balanced approach that ensures logarithmic time complexity while keeping the final search space for binary search reasonably small.
+
+Cae 1:
+If we increasing the upper bound by a small fixed margin (such as 1) would lead to a linear number of steps to find the range. This defeats the purpose of having an efficient search algorithm, as it would degrade the overall time complexity to linear.
+ 
+Case2:
+If we increasing the upper bound by a factor larger than 2 (such as 3x or 4x) would result in fewer steps to find the range, but it would create a larger search space for the binary search, potentially making it less efficient.
+
+Note: 
+This implementation assumes that the array is infinite and continues doubling the high index until the target is found within the bounds.
+*/
+
+class Solution {
+    public int searchInInfiniteSortedArray(int[] arr, int target) {
+        int low = 0;
+        int high = 1;
+
+        // Step 1: Exponentially find the high bound
+        while (target > arr[high]) {
+            low = high;
+            high = 2 * high;
+        }
+
+        // Step 2: Perform binary search within the range found
+        return binarySearch(arr, low, high, target);
+    }
+
+    private int binarySearch(int[] arr, int low, int high, int target) {
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                return mid;
+            } else if (target > arr[mid]) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return -1; // Element not found
+    }
+}
