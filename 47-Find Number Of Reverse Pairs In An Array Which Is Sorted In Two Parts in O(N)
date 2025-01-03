@@ -1,0 +1,72 @@
+//Bruteforce Approach
+
+class Solution {
+    public int countInversionSorted(int arr[], int n) {
+        if (n < 2) {
+            return 0;
+        }
+
+        int partitionPoint = -1;
+        for (int i = 0; i < n - 1; i++) {
+            if (arr[i] > arr[i + 1]) {
+                partitionPoint = i;
+                break;
+            }
+        }
+
+        if (partitionPoint == -1) {
+            return 0;
+        }
+
+        int inversionCount = 0;
+        for (int i = 0; i <= partitionPoint; i++) {
+            for (int j = partitionPoint + 1; j < n; j++) {
+                if (arr[i] > arr[j]) {
+                    inversionCount++;
+                }
+            }
+        }
+
+        return inversionCount;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int countInversionSorted(int arr[], int n) {
+        if (n < 2) {
+            return 0;
+        }
+
+        int partitionPoint = -1;
+        for (int i = 0; i < n - 1; i++) {
+            if (arr[i] > arr[i + 1]) {
+                partitionPoint = i;
+                break;
+            }
+        }
+
+        if (partitionPoint == -1) {
+            return 0;
+        }
+
+        return merge(arr, 0, partitionPoint, n - 1);
+    }
+
+    private int merge(int arr[], int lb, int mid, int ub) {
+        int inversionCount = 0, i = 0, j = 0, leftSize = mid - lb + 1, rightSize = ub - mid;
+
+        while (i < leftSize && j < rightSize) {
+            if (arr[i] <= arr[mid + 1 + j]) {
+                i++;
+            } else {
+                inversionCount += (leftSize - i);
+                j++;
+            }
+        }
+
+        return inversionCount;
+    }
+}
