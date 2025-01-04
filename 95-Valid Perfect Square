@@ -39,7 +39,7 @@ class Solution {
             return true;
         }
 
-        long low = 1, high = x - 1;
+        int low = 1, high = x - 1;
 
         while (low <= high) {
             long mid = low + (high - low) / 2;
@@ -47,13 +47,12 @@ class Solution {
             if (mid * mid == x) {
                 return true; // num is a perfect Square Number
             } else if (mid * mid < x) {
-                low = mid + 1;
+                low = (int) mid + 1;
             } else {
-                high = mid - 1;
+                high = (int) mid - 1;
             }
         }
 
         return false; // num is not a perfect Square Number
-
     }
 }
