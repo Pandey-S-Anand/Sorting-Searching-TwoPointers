@@ -1,0 +1,285 @@
+// Bruteforce Approach
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        int[] arr = mergeTwoSortedArrayIntoThirdSortedArray(arr1, arr2);
+
+        if ((arr.length % 2) == 0) {
+            return (double) (arr[(arr.length - 1) / 2] + arr[arr.length / 2]) / 2D;
+        }
+        return (double) arr[arr.length / 2];
+    }
+
+    public int[] mergeTwoSortedArrayIntoThirdSortedArray(int[] arr1, int[] arr2) {
+        int[] arr = new int[arr1.length + arr2.length];
+        int i = 0, j = 0, k = 0;
+
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] <= arr2[j]) {
+                arr[k++] = arr1[i++];
+            } else {
+                arr[k++] = arr2[j++];
+            }
+        }
+
+        if (i < arr1.length) {
+            System.arraycopy(arr1, i, arr, k, arr1.length - i);
+        }
+
+        if (j < arr2.length) {
+            System.arraycopy(arr2, j, arr, k, arr2.length - j);
+        }
+
+        return arr;
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        int i = 0, j = 0, k = 0;
+        int[] arr = new int[arr1.length + arr2.length];
+
+        while (k <= (arr1.length + arr2.length) / 2) {
+            if (i < arr1.length && j < arr2.length) {
+                if (arr1[i] <= arr2[j]) {
+                    arr[k++] = arr1[i++];
+                } else {
+                    arr[k++] = arr2[j++];
+                }
+            } else if (i < arr1.length) {
+                arr[k++] = arr1[i++];
+            } else { // if (j < arr2.length)
+                arr[k++] = arr2[j++];
+            }
+        }
+
+        if ((arr1.length + arr2.length) % 2 != 0) {
+            return (double) arr[k - 1]; // return (double)arr[(arr1.length + arr2.length)/2];
+        }
+        return (double) (arr[k - 1] + arr[k - 2]) / 2D;
+        // return (double)(arr[(arr1.length + arr2.length)/2]+arr[((arr1.length + arr2.length)-1)/2])/2D;
+    }
+}
+
+
+//Good Approach
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        int i = 0, j = 0, currentValue = 0, previousValue = 0;
+
+        for (int k = 0; k <= (arr1.length + arr2.length) / 2; k++) {
+            previousValue = currentValue;
+            if (i < arr1.length && j < arr2.length) {
+                if (arr1[i] <= arr2[j]) {
+                    currentValue = arr1[i++];
+                } else {
+                    currentValue = arr2[j++];
+                }
+            } else if (i < arr1.length) {
+                currentValue = arr1[i++];
+            } else { // if (j < n)
+                currentValue = arr2[j++];
+            }
+        }
+
+        if ((arr1.length + arr2.length) % 2 == 0) {
+            return (double) (currentValue + previousValue) / 2D;
+        }
+
+        return (double) currentValue;
+    }
+}
+
+
+//Optimal Approach
+
+/*
+
+Case 1: When merged array size is Even:
+
+Given,
+arr1[] ={1, 3, 4, 7, 10, 12}
+arr2[]={2, 3, 6, 15}
+
+          0  1 2  3  4  5   6   7   8   9
+merged[]={1, 2, 3, 3, 4, 6, 7, 10, 12, 15};     //only possible valid configuration for merged[] array
+
+median = arr[9/2] + arr[10/2] = (4+6) / 2 = 5
+
+left half = {1, 2, 3, 3, 4} and right half = {6, 7, 10, 12, 15} 
+
+median = (max of left half(i.e 4) + min of right subarray(i.e 6)) / 2 = (4 + 6) / 2 = 5
+
+
+Case 2: When merged array size is Odd :
+
+Given,
+arr1[]={1, 3, 4, 7, 10, 12}
+arr2[]={2, 3, 6, 15, 18}
+
+merged[] = {1, 2, 3, 3, 4, 6, 7, 10, 12, 15, 18}
+
+Let half ={1, 2, 3, 3, 4, 6} and right half ={7, 10, 12, 15, 18}
+
+Median = max left half = 6
+
+Note : 1 : For any two sorted  arrays(that forms odd length merged array on merging), the left half size will be (n/2 + 1)  and right half size will be (n/2)  (where n = size of the merged array)
+           2: For any two sorted arrays (that form even length merged array on merging), both the left half and right half will have equal size (i.e n/2 , where n = size of merged array)
+           3: For any two sorted arrays ,there exists only 1 valid configuration of merged[] array that satisfies the below mentioned conditions.
+             >All the elements of the left part of the merged[] array will be less than or equal to the elements in the right half of the merged array.
+             >To test if all the elements in the left half are smaller than than or equal to the elements in the right half, compare the last element(max of left half)
+               With the first element of the last half (min of right half) since both the left and right half are sorted.
+             >Since we are not actually merging the arrays, so we won’t be having left half and right half in the form of array, to find the max in the left half, we need to 
+                take maximum out of elements chosen from arr1(for left half) and arr2 (for left half),the maximum of two will give us the maximum of left half. Similarly to find the 
+                Minimum of right half we need to take the minimum of elements chosen from arr1(for right half) and arr2(for right half), the minimum of two will give us the minimum of 
+                right half.
+
+==================================================
+Ex: (when merged[] array Is of even length)
+Given,
+arr1[] ={1, 3, 4, 7, 10, 12}
+arr2[]={2, 3, 6, 15}
+
+All possible combination to form merged[] array :
+
+1: 
+=> No. of elements picked picked from arr1 for left half = 0
+>Then remaining no. of elements to be picked picked from arr2 for left half= 4  i.e {2, 3, 6, 15} 
+>Then remaining no. of elements to be picked from arr1  for right half= 6  i.e {1, 3, 4, 7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 0
+
+{}              |  {1, 3, 4, 7, 10, 12}
+{2, 3, 6, 15}   |  {}
+                       
+//Invalid Configuration both left and right half needs to be of size n/2 = 10/2 =5
+
+
+2:
+
+=> No. of elements picked picked from arr1 for left half = 1  I.e {1}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 4  i.e  {2, 3, 6, 15} 
+>Then remaining no. of elements to be picked from arr1  for right half= 5  i.e {3, 4, 7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 0
+
+
+{1}               |  {3, 4, 7, 10, 12}
+{2, 3, 6, 15}     |  {}
+
+merged[]={1, 2, 3, 6, 15 , 3, 4, 7, 10, 12} // not a valid configuration because Max(left part) > Min(right part) I.e  Max({1}, {2, 3, 6, 15}) > Min({3, 4, 7, 10, 12}, {}) or 15>4
+
+
+
+3:
+
+=> No. of elements picked picked from arr1 for left half = 2  I.e {1 ,3}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 3  i.e  {2, 3, 6} 
+>Then remaining no. of elements to be picked from arr1  for right half= 4  i.e {4, 7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 1 I.e {15}
+
+{1, 3}        |  {4, 7, 10, 12}
+{2, 3, 6}     |  {15}
+
+
+merged[]={1, 2, 3, 3, 6, 4, 7, 10, 12, 15}   // In Valid configuration because Max(left part) > Min(right part) I.e Max({1, 3} , {2, 3, 6}) > Min({4, 7, 10, 12},  {15}) or 6 > 4
+
+
+
+4:
+
+=> No. of elements picked picked from arr1 for left half = 3  I.e {1 ,3, 4}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 2  i.e  {2, 3} 
+>Then remaining no. of elements to be picked from arr1  for right half= 3  i.e {7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 2 i.e {6, 15}
+
+{1, 3, 4}    |  {7, 10, 12}
+{2, 3}       |  {6, 15}
+
+
+merged[]={1, 2, 3, 3, 4, 6, 7, 10, 12, 15}   // VALID CONFIGURATION, because Max(left part) < Min(right part) I.e Max({1, 3, 4), {2, 3} ) < Min({7, 10, 12},  {6, 15}) or 4 < 6
+
+Thus median = (max(of left part) + min(of right part))/2 = (4+6)/2 = 5
+
+
+5:
+
+=> No. of elements picked picked from arr1 for left half = 4  i.e {1 ,3, 4, 7}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 1  i.e  {2} 
+>Then remaining no. of elements to be picked from arr1  for right half= 2  i.e {10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 3 i.e {3, 6, 15}
+
+{1, 3, 4, 7}    |  {10, 12}
+{2}             |  {3, 6, 15}
+
+
+merged[]={1, 2, 3, 4, 7, 3, 6, 10, 12, 15}   //Invalid configuration, because Max(left part) > Min(right part) I.e  Max({1, 3, 4, 7}, {2}) > Min( {10, 12},  {3, 6, 15}) or 7 > 3
+
+
+6:
+
+=> No. of elements picked picked from arr1 for left half = 5  i.e {1 ,3, 4, 7, 10}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 0  i.e  {} 
+>Then remaining no. of elements to be picked from arr1  for right half= 1  i.e {12}
+>Then remaining no. of elements to be picked from arr2  for right half= 4 I.e  {2, 3, 6, 15}
+
+{1, 3, 4, 7, 10}    |  {12}
+{}                  |  {2, 3, 6, 15}
+
+
+merged[]={1, 3, 4, 7,10, 2,  3, 6, 12, 15}   //Invalid configuration, because Max(left part) > Min(right part) I.e Max({1, 3, 4, 7, 10}, {}) > Min({12} , {2, 3, 6, 15}) or 10 > 2
+
+
+
+7:
+
+=> No. of elements picked picked from arr1 for left half = 6  I.e {1 ,3, 4, 7, 10, 12}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 0  i.e  {} 
+>Then remaining no. of elements to be picked from arr1  for right half= 0  i.e {}
+>Then remaining no. of elements to be picked from arr2  for right half= 4  I.e {2, 3, 6, 15}
+
+{1 ,3, 4, 7, 10, 12}    |  {}
+{}                      |  {2, 3, 6, 15}
+
+
+//Invalid Configuration both left and right half needs to be of size n/2 = 10/2 =5
+*/
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        if (arr1.length > arr2.length) {
+            return findMedianSortedArrays(arr2, arr1); // ensuring that binary search happens on the smaller array
+        }
+        /*
+          'low' is initialized to '0', it allows the binary search to consider scenario where no elements from arr1 are included in the left part.
+          'high' is intialized to 'arr1.length', it allows the binary search to consider scenario where all elements from arr1 are included in the left part.
+        */
+        int low = 0, high = arr1.length;
+
+        while (low <= high) {
+            int elementsChoosenFromArr1ForLeftPart = low + (high - low) / 2;
+            int elementsChoosenFromArr2ForLeftPart = (arr1.length + arr2.length + 1) / 2 - elementsChoosenFromArr1ForLeftPart;
+
+            int maxInLeftPartFromArr1 = (elementsChoosenFromArr1ForLeftPart == 0) ? Integer.MIN_VALUE : arr1[elementsChoosenFromArr1ForLeftPart - 1];
+            int maxInLeftPartFromArr2 = (elementsChoosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE : arr2[elementsChoosenFromArr2ForLeftPart - 1];
+            int minInRightPartFromArr1 = (elementsChoosenFromArr1ForLeftPart == arr1.length) ? Integer.MAX_VALUE : arr1[elementsChoosenFromArr1ForLeftPart];
+            int minInRightPartFromArr2 = (elementsChoosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE : arr2[elementsChoosenFromArr2ForLeftPart];
+
+            if (maxInLeftPartFromArr1 <= minInRightPartFromArr2 && maxInLeftPartFromArr2 <= minInRightPartFromArr1) {
+                if ((arr1.length + arr2.length) % 2 == 0) {
+                    return (Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2) + Math.min(minInRightPartFromArr1, minInRightPartFromArr2)) / 2.0;
+                }
+                return Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
+
+            } else if (maxInLeftPartFromArr1 > minInRightPartFromArr2) {
+                high = elementsChoosenFromArr1ForLeftPart - 1;
+            } else {
+                low = elementsChoosenFromArr1ForLeftPart + 1;
+            }
+        }
+        // This return statement is never reached
+        return -1;
+    }
+}
