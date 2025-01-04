@@ -1,0 +1,395 @@
+/*
+* Why does lexicographically greater,smaller or equal mean ?
+* 
+* Case1 : List1 and List2 are of same size
+* 
+* 1 :Contain the same elements in the same order,then the two lists are lexicographically equal.
+* 
+* 2:Contain the same elements till certain point in the same order, but
+* afterwards the list1 element is greater than the corresponding element in
+* list2 then the list1 is lexicographically greater than list2
+* 
+* 3:Contain the same elements till certain point in the same order, but
+* afterwards the list1 element is smaller than the corresponding element in
+* list2 then the list1 is lexicographically smaller than list2
+* 
+* Case2: List1 and List2 are of different size (size of list1 > size of list2 )
+* 
+* 1: Contain the same elements (till list2 is exhanusted) in the same order,
+* then the list1 is lexicographically greater than list2
+* 
+* 2: Contain the same elements till certain point in the same order but
+* afterwards the list1 element is greater than the corresponding element in
+* list2 then the list1 is lexicographically greater than list2
+* 
+* 3: Contain the same elements till certain point in the same order but
+* afterwards the list1 element is smaller than the corresponding element in
+* list2 then the list1 is lexicographically smaller than list2
+* 
+* Note : In our case, List<List<Integer>> uniquePermutations will always
+* contain list of same size only.
+*/
+
+//Bruteforce Approach
+
+class Solution {
+    public void nextPermutation(int[] arr) {
+        List<List<Integer>> uniquePermutations = generateUniquePermutations(arr);
+        List<Integer> target = convertArrayToList(arr);
+
+        for (int i = 0; i < uniquePermutations.size(); i++) {
+            if (uniquePermutations.get(i).equals(target)) {
+                List<Integer> nextPermutation;
+                if (i == uniquePermutations.size() - 1) {
+                    nextPermutation = uniquePermutations.get(0);
+                } else {
+                    nextPermutation = uniquePermutations.get(i + 1);
+                }
+
+                copyListToArray(nextPermutation, arr);
+                return;
+            }
+        }
+    }
+
+    private List<List<Integer>> generateUniquePermutations(int[] arr) {
+        List<List<Integer>> uniquePermutations = new ArrayList<>();
+        findUniquePermutations(arr, 0, uniquePermutations);
+
+        Collections.sort(uniquePermutations, new Comparator<List<Integer>>() {
+            @Override
+            public int compare(List<Integer> list1, List<Integer> list2) {
+                for (int i = 0; i < list1.size(); i++) {
+                    if (list1.get(i) < list2.get(i)) {
+                        return -1;
+                    } else if (list1.get(i) > list2.get(i)) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+        });
+        return uniquePermutations;
+    }
+
+    private void findUniquePermutations(int[] arr, int index, List<List<Integer>> uniquePermutations) {
+        if (index == arr.length) {
+            List<Integer> permutation = new ArrayList<>();
+            for (int num : arr) {
+                permutation.add(num);
+            }
+            uniquePermutations.add(permutation);
+            return;
+        }
+        
+        // To keep track of elements used at the current level of recursion
+        Set<Integer> used = new HashSet<>();
+
+        for (int i = index; i < arr.length; i++) {
+            if (used.contains(arr[i])) {
+                continue; // Skip duplicates
+            }
+
+            used.add(arr[i]);
+            swap(arr, index, i);
+            findUniquePermutations(arr, index + 1, uniquePermutations);
+            swap(arr, index, i);
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    private List<Integer> convertArrayToList(int[] arr) {
+        List<Integer> list = new ArrayList<>();
+        for (int num : arr) {
+            list.add(num);
+        }
+        return list;
+    }
+
+    private void copyListToArray(List<Integer> list, int[] arr) {
+        for (int i = 0; i < list.size(); i++) {
+            arr[i] = list.get(i);
+        }
+    }
+}
+
+
+
+//Improved Approach
+
+class Solution {
+    public void nextPermutation(int[] arr) {
+        List<List<Integer>> uniquePermutations = generateUniquePermutations(arr);
+        List<Integer> target = convertArrayToList(arr);
+
+        for (int i = 0; i < uniquePermutations.size(); i++) {
+            if (uniquePermutations.get(i).equals(target)) {
+                List<Integer> nextPermutation;
+                if (i == uniquePermutations.size() - 1) {
+                    nextPermutation = uniquePermutations.get(0);
+                } else {
+                    nextPermutation = uniquePermutations.get(i + 1);
+                }
+
+                copyListToArray(nextPermutation, arr);
+                return;
+            }
+        }
+    }
+
+    private List<List<Integer>> generateUniquePermutations(int[] arr) {
+        int[] sortedArr = arr.clone();
+        Arrays.sort(sortedArr);
+        List<List<Integer>> uniquePermutations = new ArrayList<>();
+        findUniquePermutations(sortedArr, new ArrayList<>(), uniquePermutations, new boolean[sortedArr.length]);
+        return uniquePermutations;
+    }
+
+    private void findUniquePermutations(int[] arr, List<Integer> permutation, List<List<Integer>> uniquePermutations, boolean[] visited) {
+        if (permutation.size() == arr.length) {
+            uniquePermutations.add(new ArrayList<>(permutation));
+            return;
+        }
+
+        for (int i = 0; i < arr.length; i++) {
+            /*
+             * Why are we exactly using !visited[i - 1]?
+             * 
+             * 1: To avoid generating duplicate permutations, we need to ensure that we do
+             * not include the same element multiple times at the same level of recursion.
+             * 2: If arr[i] is the same as arr[i - 1] (i.e., a duplicate) and arr[i - 1] has
+             * not been used (!visited[i - 1]), it means we are at the same level of
+             * recursion and should skip arr[i] to avoid generating a duplicate permutation.
+             * If arr[i] is the same as arr[i - 1] (i.e., a duplicate) and arr[i - 1] has
+             * been used (visited[i - 1]==true) it means we are at different level of
+             * recursion and can proceed with a duplicate element as it generates a new
+             * permutation different from those generated at the same level as arr[i - 1].
+             */
+            if (i > 0 && arr[i - 1] == arr[i] && !visited[i - 1]) {
+                continue;
+            }
+            if (!visited[i]) {
+                visited[i] = true;
+                permutation.add(arr[i]);
+                findUniquePermutations(arr, permutation, uniquePermutations, visited);
+                permutation.remove(permutation.size() - 1);
+                visited[i] = false;
+            }
+        }
+    }
+
+    private List<Integer> convertArrayToList(int[] arr) {
+        List<Integer> list = new ArrayList<>();
+        for (int num : arr) {
+            list.add(num);
+        }
+        return list;
+    }
+
+    private void copyListToArray(List<Integer> list, int[] arr) {
+        for (int i = 0; i < list.size(); i++) {
+            arr[i] = list.get(i);
+        }
+    }
+}
+
+/*
+
+Note 1:
+
+An array/string of length N has N! permutations. 
+
+For example, for arr = [1,2,3.4]
+
+The following are all the permutations of arr: 
+
+[1, 2, 3, 4] 
+[1, 2, 4, 3] 
+[1, 3, 2, 4] 
+[1, 3, 4, 2] 
+[1, 4, 3, 2] 
+[1, 4, 2, 3] 
+[2, 1, 3, 4] 
+[2, 1, 4, 3] 
+[2, 3, 1, 4] 
+[2, 3, 4, 1] 
+[2, 4, 3, 1] 
+[2, 4, 1, 3] 
+[3, 2, 1, 4] 
+[3, 2, 4, 1] 
+[3, 1, 2, 4] 
+[3, 1, 4, 2] 
+[3, 4, 1, 2] 
+[3, 4, 2, 1] 
+[4, 2, 3, 1] 
+[4, 2, 1, 3] 
+[4, 3, 2, 1] 
+[4, 3, 1, 2] 
+[4, 1, 3, 2]
+[4, 1, 2, 3] 
+
+If all the permutations of the array are sorted in ascending order ,then the next permutation of that array is the permutation that follows it in the sorted(Ascending) order.
+
+The following are all the permutations of arr in sorted order: 
+
+[1,2,3,4] 
+[1,2,4,3] 
+[1,3,2,4] 
+[1,3,4,2] 
+[1,4,2,3] 
+[1,4,3,2] 
+[2,1,3,4] 
+[2,1,4,3] 
+[2,3,1,4] 
+[2,3,4,1] 
+[2,4,1,3] 
+[2,4,3,1] 
+[3,1,2,4] 
+[3,1,4,2] 
+[3,2,1,4] 
+[3,2,4,1] 
+[3,4,1,2] 
+[3,4,2,1] 
+[4,1,2,3] 
+[4,1,3,2] 
+[4,2,1,3] 
+[4,2,3,1] 
+[4,3,1,2] 
+[4,3,2,1]
+
+so the next permutation of {1,2,3,4} is {1,2,4,3}
+
+Note 2:
+
+If all the permutations of an array are sorted in ascending order,On careful observation we find that every permutation has the following structure :
+
+same as immediate previous permutation | break point | Sorted in Descending Order 
+
+Ex:
+
+[4,1,2,3]
+   ^  
+   |
+[4,1,3,2]
+4 | 1 | 3, 2
+
+(Immediate previous permutation of [4,1,3,2] is [4,1,2,3])
+
+Note 3:
+
+Approach to solve the problem :
+
+The steps are the following:
+
+1: Find the break-point, break-point means the first index 'i' from the back of the given array where arr[i] becomes smaller than arr[i+1].
+For example, if the given array is {2,1,5,4,3,0,0}, the break-point will be index 1(0-based indexing), traversing from the back, index 1 is the first index where arr[1] (i.e. 1) is smaller than arr[i+1] (i.e. 5).
+
+2:
+If a break-point does not exist i.e.if the array is sorted in decreasing order, the given permutation is the last one in the sorted order of all possible permutations. 
+So, the next permutation will be the first permutation in the sorted order Note that first permutation in the sorted order of all possible permutations is in increasing order.
+
+Optimisation Tip:
+Since the array is already sorted in descending order and an array sorted in descending order can be sorted into ascending order either by using Arrays.sort() or by reversing the array.
+(Note : Reversing the array is the effecient way to sort an array in descending order into ascending order)
+
+3:
+If a break-point exists:
+(Note: In every permutation after breakpoint(index) the sequence is sorted in descending order)
+Find the smallest number in the right half of the breakpoint which is greater than arr[breakPoint] 
+and swap it with arr[breakPoint].
+
+Note : Even after swapping the right half of the break point is still sorted in descending order because.
+
+Now sort the right half of the breakpoint in ascending order.
+(Note: Right half range: (breakpoint+1) to (arr.length-1)) 
+
+Optimisation Tip:
+Since the right half of the breakpoint is already sorted in descending order and an array sorted in descending order can be sorted into ascending order either by using Arrays.sort() or by reversing the array and finally, return the array.
+(Note : Reversing the array is the effecient way to sort an array in descending order into ascending order)
+*/
+
+
+
+//Optimal Approach
+
+//Naive Implementation 
+
+class Solution {
+    public void nextPermutation(int[] arr) {
+        int breakPoint = -1;
+        for (int i = arr.length - 2; i >= 0; i--) {
+            if (arr[i] < arr[i + 1]) {
+                breakPoint = i;
+                break;
+            }
+        }
+
+        if (breakPoint == -1) {
+            Arrays.sort(arr);
+            return;
+        }
+
+        for (int i = arr.length - 1; i >= 0; i--) {
+            if (arr[i] > arr[breakPoint]) {
+                swap(arr, breakPoint, i);
+                break;
+            }
+        }
+
+        Arrays.sort(arr, breakPoint + 1, arr.length);
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Optimal Implementation 
+
+class Solution {
+    public void nextPermutation(int[] arr) {
+        int breakPoint = -1;
+        for (int i = arr.length - 2; i >= 0; i--) {
+            if (arr[i] < arr[i + 1]) {
+                breakPoint = i;
+                break;
+            }
+        }
+
+        if (breakPoint == -1) {
+            reverse(arr, 0, arr.length - 1);
+            return;
+        }
+
+        for (int i = arr.length - 1; i >= 0; i--) {
+            if (arr[i] > arr[breakPoint]) {
+                swap(arr, breakPoint, i);
+                break;
+            }
+        }
+
+        reverse(arr, breakPoint + 1, arr.length - 1);
+    }
+
+    private void reverse(int[] arr, int start, int end) {
+        while (start < end) {
+            swap(arr, start, end);
+            start++;
+            end--;
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
