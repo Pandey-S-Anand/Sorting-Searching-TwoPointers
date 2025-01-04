@@ -1,3 +1,17 @@
+/*
+ * The sum of two numbers is minimized when their most significant digits (higher place values) 
+ * are as small as possible. For example:
+ * 
+ * 23 + 45 = 68 is smaller than 32 + 54 = 86.
+ * This is because the placement of the digits determines their weight (10s, 1s, etc.).
+ *
+ * After sorting:
+ * - Take the smallest digit (index 0) and combine it with the third smallest (index 2) to form the first number.
+ * - Take the second smallest digit (index 1) and combine it with the largest (index 3) to form the second number.
+ * This pairing ensures the weights of the digits (10s and 1s place) are minimized for both numbers.
+ */
+
+
 class Solution {
     public int minimumSum(int num) {
         int[] arr = new int[4];
