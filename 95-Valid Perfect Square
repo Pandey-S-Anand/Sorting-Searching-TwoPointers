@@ -1,0 +1,59 @@
+//Bruteforce Approach
+
+class Solution {
+    public boolean isPerfectSquare(int num) {
+        double sqrt = Math.sqrt(num);
+        return sqrt == Math.floor(sqrt);
+    }
+}
+
+//Aliter 
+
+class Solution {
+    public boolean isPerfectSquare(int num) {
+        double sqrt = Math.sqrt(num);
+        return sqrt == (int) (sqrt);
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    public boolean isPerfectSquare(int num) {
+        double sqrt = Math.sqrt(num);
+        return sqrt == Math.ceil(sqrt);
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public boolean isPerfectSquare(int num) {
+        return mySqrt(num);
+    }
+
+    private boolean mySqrt(int x) {
+        if (x == 0 || x == 1) {
+            return true;
+        }
+
+        int low = 1, high = x - 1, squareRoot = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (mid == (x / mid)) {
+                return true; //num is a perfect Square Number
+            } else if (mid < (x / mid)) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return false; //num is not a perfect Square Number
+
+    }
+}
