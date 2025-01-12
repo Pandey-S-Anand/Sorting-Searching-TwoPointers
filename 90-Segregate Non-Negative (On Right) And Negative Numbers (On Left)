@@ -1,78 +1,78 @@
 //Bruteforce Approach
 
-class Solution{
-   public static void segregatePosAndNeg(int[]arr){
-       int k=0;
-       int temp[]=new int[arr.length];
-             
-       for(int val:arr){
-         if(val<0){
-           temp[k++]=val;
-         }
-       }
+class Solution {
+    public static void segregatePosAndNeg(int[] arr) {
+        int index = 0;
+        int aux[] = new int[arr.length];
 
-       for(int val:arr){
-         if(val>0){
-           temp[k++]=val;
-         }
-       }
-             
-      System.arraycopy(temp,0,arr,0,arr.length);
-   }
+        for (int num : arr) {
+            if (num < 0) {
+                aux[index++] = num;
+            }
+        }
+
+        for (int num : arr) {
+            if (num > 0) {
+                aux[index++] = num;
+            }
+        }
+
+        System.arraycopy(aux, 0, arr, 0, arr.length);
+    }
 }
 
 
 //Better Approach
 
 class Solution {
-   public static void segregatePosAndNeg(int[]arr){
-        int start=0,end=(arr.length-1);
-      
-        while(start<end){
-           while(start<arr.length && arr[start]<0){
-             start++;
-           }
-            
-           while(end>=0 && arr[end]>0){
-              end--;
-           }
-            
-           if(start<end){
-              swap(arr,start,end);
-              start++;
-              end--;
-           }
+    public static void segregatePosAndNeg(int[] arr) {
+        int start = 0, end = (arr.length - 1);
+
+        while (start < end) {
+            while (start < arr.length && arr[start] < 0) {
+                start++;
+            }
+
+            while (end >= 0 && arr[end] > 0) {
+                end--;
+            }
+
+            if (start < end) {
+                swap(arr, start, end);
+                start++;
+                end--;
+            }
         }
-   }
-   
-   private static void swap(int[]arr,int i,int j){
-      int temp=arr[i];
-      arr[i]=arr[j];
-      arr[j]=temp;
-   }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
 
 
 //Optimal Approach
 
 class Solution {
-   public static void segregatePosAndNeg(int[]arr){
-       int evenIdxTracker=0;
-       
-       for(int i=0;i<arr.length;i++){
-         if(arr[i]<0){
-            swap(arr,i,evenIdxTracker);          
-            evenIdxTracker++;
-         }
-       }
-       
-       Arrays.sort(arr,0,evenIdxTracker);
-       Arrays.sort(arr,evenIdxTracker,arr.length);
-   } 
+    public static void segregatePosAndNeg(int[] arr) {
+        int evenIdxTracker = 0;
 
-   private static void swap(int[]arr,int i,int j){
-      int temp=arr[i];
-      arr[i]=arr[j];
-      arr[j]=temp;
-   }
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] < 0) {
+                swap(arr, i, evenIdxTracker);
+                evenIdxTracker++;
+            }
+        }
+
+        Arrays.sort(arr, 0, evenIdxTracker);
+        Arrays.sort(arr, evenIdxTracker, arr.length);
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
