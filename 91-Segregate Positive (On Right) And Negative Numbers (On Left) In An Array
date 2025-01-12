@@ -1,23 +1,23 @@
 //Bruteforce Approach
 
 class Solution {
-    public void rearrange(int arr[], int n){
-       int k=0;
-       int temp[]=new int[n];
-             
-       for(int val:arr){
-          if(val<0){
-             temp[k++]=val;
-          }
-       }
-       
-       for(int val:arr){
-          if(val>=0){
-             temp[k++]=val;
-          }
-       }
-             
-       System.arraycopy(temp,0,arr,0,n);
+    public void rearrange(int arr[], int n) {
+        int index = 0;
+        int aux[] = new int[n];
+
+        for (int num : arr) {
+            if (num < 0) {
+                aux[index++] = num;
+            }
+        }
+
+        for (int num : arr) {
+            if (num >= 0) {
+                aux[index++] = num;
+            }
+        }
+
+        System.arraycopy(aux, 0, arr, 0, n);
     }
 }
 
@@ -25,25 +25,26 @@ class Solution {
 //Better Approach
 
 class Solution {
-    public void rearrange(int arr[], int n){
-       int positiveTracker=0;
-       
-       for(int i=0;i < n;i++){ //'positiveTracker' is tracking the +ve Elemnent while 'i' is used for iterating over the array 
-         if(arr[i]<0){
-            //This leftShiftBy1() method maintains the order of appearence
-            leftShiftBy1(arr,positiveTracker,i);
-            positiveTracker++;
-         }
-       }
+    public void rearrange(int arr[], int n) {
+        // 'positiveTracker' is tracking the +ve Elemnent
+        int positiveTracker = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (arr[i] < 0) {
+                // This leftShiftBy1() method maintains the order of appearence
+                leftShiftBy1(arr, positiveTracker, i);
+                positiveTracker++;
+            }
+        }
     }
-    
-    private void leftShiftBy1(int[]arr,int start,int end){
-      int temp=arr[end];
-      for(int i=end;i>start;i--){
-          arr[i]=arr[i-1];
-      }
-      
-      arr[start]=temp;
+
+    private void leftShiftBy1(int[] arr, int start, int end) {
+        int temp = arr[end];
+        for (int i = end; i > start; i--) {
+            arr[i] = arr[i - 1];
+        }
+
+        arr[start] = temp;
     }
 }
 
@@ -55,53 +56,53 @@ we need to merge in such a way that negative part of left and right sub-array is
 */
 
 class Solution {
-   public void rearrange(int arr[], int n){
-       mergeSort(arr,0,n-1);
-   }
-    
-   private void mergeSort(int[]arr,int lb,int ub){
-      if(lb<ub){
-          int mid=lb+(ub-lb)/2;
-          mergeSort(arr,lb,mid);
-          mergeSort(arr,(mid+1),ub);
-          modifiedMerge(arr,lb,mid,ub);
-      }
-   }
-   
-   private void modifiedMerge(int[] arr,int lb,int mid,int ub){
-        int m=(mid-lb+1),n=(ub-mid);
-        int[] left=new int[m];
-        int[] right=new int[n];  
-   
-        for(int i=0;i<m;i++){
-          left[i]=arr[lb+i];
+    public void rearrange(int arr[], int n) {
+        mergeSort(arr, 0, n - 1);
+    }
+
+    private void mergeSort(int[] arr, int lb, int ub) {
+        if (lb < ub) {
+            int mid = lb + (ub - lb) / 2;
+            mergeSort(arr, lb, mid);
+            mergeSort(arr, (mid + 1), ub);
+            modifiedMerge(arr, lb, mid, ub);
         }
-        
-        for(int i=0;i<n;i++){
-          right[i]=arr[mid+1+i];
+    }
+
+    private void modifiedMerge(int[] arr, int lb, int mid, int ub) {
+        int m = (mid - lb + 1), n = (ub - mid);
+        int[] left = new int[m];
+        int[] right = new int[n];
+
+        for (int i = 0; i < m; i++) {
+            left[i] = arr[lb + i];
         }
-        
-        int i=0,j=0,k=lb;
-        // copy negative elements of left sublist  
-        while(i<m && left[i]<0){
-          arr[k++]=left[i++];
+
+        for (int i = 0; i < n; i++) {
+            right[i] = arr[mid + 1 + i];
         }
-          
+
+        int i = 0, j = 0, k = lb;
+        // copy negative elements of left sublist
+        while (i < m && left[i] < 0) {
+            arr[k++] = left[i++];
+        }
+
         // copy negative elements of Right sublist
-        while(j<n && right[j]<0){
-          arr[k++]=right[j++];
+        while (j < n && right[j] < 0) {
+            arr[k++] = right[j++];
         }
-          
-        // copy Positive elements of Left sublist  
-        while(i<m){
-          arr[k++]=left[i++];
+
+        // copy Positive elements of Left sublist
+        while (i < m) {
+            arr[k++] = left[i++];
         }
-          
-        // copy Positive elements of Right sublist  
-        while(j<n){
-          arr[k++]=right[j++];  
+
+        // copy Positive elements of Right sublist
+        while (j < n) {
+            arr[k++] = right[j++];
         }
-   } 
+    }
 }
 
 
@@ -124,55 +125,55 @@ Below are the steps to convert [Ln Lp Rn Rp] to [Ln Rn Lp Rp] without using extr
 */
 
 class Solution {
-   public void rearrange(int arr[], int n){
-       mergeSort(arr,0,n-1);
-   }
-    
-   private void mergeSort(int[]arr,int lb,int ub){
-      if(lb<ub){
-          int mid=lb+(ub-lb)/2;
-          mergeSort(arr,lb,mid);
-          mergeSort(arr,(mid+1),ub);
-          modifiedMerge(arr,lb,mid,ub);
-      }
-   }
-   
-   private void modifiedMerge(int[] arr,int lb,int mid,int ub){    
-        int i=lb;       // Initial index of Left Sublist
-        int j=mid+1;  // Initial index of Right Sublist
-        
-        while(i<=mid && arr[i]<0){ //Left Sublist : arr[lb...mid] 
-          i++;
+    public void rearrange(int arr[], int n) {
+        mergeSort(arr, 0, n - 1);
+    }
+
+    private void mergeSort(int[] arr, int lb, int ub) {
+        if (lb < ub) {
+            int mid = lb + (ub - lb) / 2;
+            mergeSort(arr, lb, mid);
+            mergeSort(arr, (mid + 1), ub);
+            modifiedMerge(arr, lb, mid, ub);
         }
-        //Now arr[i..mid] is positive and  arr[lb..i-1] is negative
-        
-        //reverse positive part of left Sub-List (i.e arr[i..mid])
-        reverse(arr,i,mid);
-        
-        while(j<=ub && arr[j]<0){ //Right Sublist : arr[mid+1...ub] 
+    }
+
+    private void modifiedMerge(int[] arr, int lb, int mid, int ub) {
+        int i = lb; // Initial index of Left Sublist
+        int j = mid + 1; // Initial index of Right Sublist
+
+        while (i <= mid && arr[i] < 0) { // Left Sublist : arr[lb...mid]
+            i++;
+        }
+        // Now arr[i..mid] is positive and arr[lb..i-1] is negative
+
+        // reverse positive part of left Sub-List (i.e arr[i..mid])
+        reverse(arr, i, mid);
+
+        while (j <= ub && arr[j] < 0) { // Right Sublist : arr[mid+1...ub]
             j++;
         }
-        //Now arr[j..ub] is positive and  arr[mid+1..j-1] is negative
-        
-        //reverse Negative part right Sub-List (i.e arr[mid+1..j-1])
-        reverse(arr,mid+1,j-1);
-        
-        //reverse arr[i..j-1]
-        reverse(arr,i,j-1);
-   }
-   
-   private void reverse(int arr[], int i, int j){
-      if(i>=j){
-          return;
-      }
-      
-      swap(arr,i,j);
-      reverse(arr,i+1,j-1);
-   }
-   
-   private void swap(int arr[], int i, int j){
-      int temp=arr[i];
-      arr[i]=arr[j];
-      arr[j]=temp;
-   }
+        // Now arr[j..ub] is positive and arr[mid+1..j-1] is negative
+
+        // reverse Negative part right Sub-List (i.e arr[mid+1..j-1])
+        reverse(arr, mid + 1, j - 1);
+
+        // reverse arr[i..j-1]
+        reverse(arr, i, j - 1);
+    }
+
+    private void reverse(int arr[], int i, int j) {
+        if (i >= j) {
+            return;
+        }
+
+        swap(arr, i, j);
+        reverse(arr, i + 1, j - 1);
+    }
+
+    private void swap(int arr[], int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
