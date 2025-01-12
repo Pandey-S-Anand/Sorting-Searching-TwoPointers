@@ -3,17 +3,17 @@
 class Solution {
     public static void segregateEvenAndOdd(int[] arr) {
         int aux[] = new int[arr.length];
-        int k = 0;
+        int index = 0;
 
         for (int num : arr) {
             if ((num % 2) == 0) {
-                aux[k++] = num;
+                aux[index++] = num;
             }
         }
 
         for (int num : arr) {
             if ((num % 2) == 1) {
-                aux[k++] = num;
+                aux[index++] = num;
             }
         }
 
