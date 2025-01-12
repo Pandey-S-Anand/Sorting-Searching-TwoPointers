@@ -24,11 +24,13 @@ class Solution {
     }
 }
 
+
 // Better Approach
 
 class Solution {
     static void reArrange(int[] arr, int n) {
         int evenIndex = 0, oddIndex = 1;
+
         while (evenIndex < n && oddIndex < n) {
             while (evenIndex < n && (arr[evenIndex] % 2) == 0) {
                 evenIndex += 2;
@@ -55,26 +57,28 @@ class Solution {
     }
 }
 
+
 // Optimal Approach (Time Optimised) (Order Of Appearence is Maintained)
 
 class Solution {
     static void reArrange(int[] arr, int N) {
-        int[] result = new int[arr.length];
+        int[] rearrangedArray = new int[arr.length];
         int evenIndex = 0, oddIndex = 1;
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] % 2 == 0) {
-                result[evenIndex] = arr[i];
+                rearrangedArray[evenIndex] = arr[i];  // Place even numbers at even indices
                 evenIndex += 2;
             } else {
-                result[oddIndex] = arr[i];
+                rearrangedArray[oddIndex] = arr[i];   // Place odd numbers at odd indices
                 oddIndex += 2;
             }
         }
 
-        System.arraycopy(result, 0, arr, 0, arr.length);
+        System.arraycopy(rearrangedArray, 0, arr, 0, arr.length);
     }
 }
+
 
 // Optimal Approach (Space Optimised) (Order Of Appearence is Maintained)
 
