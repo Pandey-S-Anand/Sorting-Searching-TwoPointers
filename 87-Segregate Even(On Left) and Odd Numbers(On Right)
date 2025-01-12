@@ -1,75 +1,75 @@
 //Bruteforce Approach
 
 class Solution {
-   public static void segregateEvenAndOdd(int[]arr){
-       int temp[]=new int[arr.length];
-       int k=0;
-       
-       for(int num:arr){
-          if((num%2)==0){
-             temp[k++]=num;
-          }
-       }
-       
-       for(int num:arr){
-          if((num%2)==1){
-             temp[k++]=num;
-          }
-       }
-             
-       System.arraycopy(temp,0,arr,0,arr.length);
-   }
+    public static void segregateEvenAndOdd(int[] arr) {
+        int aux[] = new int[arr.length];
+        int k = 0;
+
+        for (int num : arr) {
+            if ((num % 2) == 0) {
+                aux[k++] = num;
+            }
+        }
+
+        for (int num : arr) {
+            if ((num % 2) == 1) {
+                aux[k++] = num;
+            }
+        }
+
+        System.arraycopy(aux, 0, arr, 0, arr.length);
+    }
 }
 
 
 //Better Approach
 
-class Solution{
-   public static void segregateEvenAndOdd(int[]arr){
-      int start=0,end=arr.length-1;
-      
-      while(start<end){
-          while(start<arr.length && (arr[start]%2)==0){
-            start++;
-          }
-            
-          while(end>=0 && (arr[end]%2)!=0){
-            end--;
-          }
-            
-          if(start<end){
-            swap(arr,start,end);
-            start++;
-            end--;
-          }
-      }
-   }
+class Solution {
+    public static void segregateEvenAndOdd(int[] arr) {
+        int start = 0, end = arr.length - 1;
 
-   public static void swap(int[]arr,int i,int j){
-      int temp=arr[i];
-      arr[i]=arr[j];
-      arr[j]=temp;
-   }
+        while (start < end) {
+            while (start < arr.length && (arr[start] % 2) == 0) {
+                start++;
+            }
+
+            while (end >= 0 && (arr[end] % 2) != 0) {
+                end--;
+            }
+
+            if (start < end) {
+                swap(arr, start, end);
+                start++;
+                end--;
+            }
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
 
 
 //Optimal Approach
 
 class Solution {
-    public static void segregateEvenAndOdd(int[]arr){
-       int oddIdxTracker=0;
-       
-       for(int i=0;i<arr.length;i++){
-         if((arr[i]%2)==0){
-            swap(arr,i,oddIdxTracker);          
-            oddIdxTracker++;
-         }
-       }
-   } 
+    public static void segregateEvenAndOdd(int[] arr) {
+        int oddIdxTracker = 0;
 
-   public static void swap(int[]arr,int i,int j){
-      int temp=arr[i];
-      arr[i]=arr[j];
-      arr[j]=temp;
-   }
+        for (int i = 0; i < arr.length; i++) {
+            if ((arr[i] % 2) == 0) {
+                swap(arr, i, oddIdxTracker);
+                oddIdxTracker++;
+            }
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
