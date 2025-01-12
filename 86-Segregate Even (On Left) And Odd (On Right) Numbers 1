@@ -1,16 +1,16 @@
 class Solution {
     public static void segregateEvenAndOdd(int[] arr) {
-        int oddIdxTracker = 0;
+        int oddTracker = 0;
 
         for (int i = 0; i < arr.length; i++) {
             if ((arr[i] % 2) == 0) {
-                swap(arr, i, oddIdxTracker);
-                oddIdxTracker++;
+                swap(arr, i, oddTracker);
+                oddTracker++;
             }
         }
 
-        Arrays.sort(arr, 0, oddIdxTracker);
-        Arrays.sort(arr, oddIdxTracker, arr.length);
+        Arrays.sort(arr, 0, oddTracker);
+        Arrays.sort(arr, oddTracker, arr.length);
     }
 
     private static void swap(int[] arr, int i, int j) {
