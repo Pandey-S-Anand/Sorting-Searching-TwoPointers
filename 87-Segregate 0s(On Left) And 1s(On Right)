@@ -1,9 +1,9 @@
 //Bruteforce Approach
 
 class Solution {
-    void segregate0and1(int[] arr, int n) {
-        int count0 = 0, k = n - 1;
-        int[] aux = new int[n];
+    void segregate0and1(int[] arr) {
+        int count0 = 0, k = arr.length - 1;
+        int[] aux = new int[arr.length];
 
         for (int num : arr) {
             if (num == 1) {
@@ -11,7 +11,7 @@ class Solution {
             }
         }
 
-        System.arraycopy(aux, 0, arr, 0, n);
+        System.arraycopy(aux, 0, arr, 0, arr.length);
     }
 }
 
@@ -19,7 +19,7 @@ class Solution {
 //Improved Approach
 
 class Solution {
-    void segregate0and1(int[] arr, int n) {
+    void segregate0and1(int[] arr) {
         int count0 = 0;
         for (int num : arr) {
             if (num == 0) {
@@ -28,7 +28,7 @@ class Solution {
         }
 
         Arrays.fill(arr, 0, count0, 0);
-        Arrays.fill(arr, count0, n, 1);
+        Arrays.fill(arr, count0, arr.length, 1);
     }
 }
 
