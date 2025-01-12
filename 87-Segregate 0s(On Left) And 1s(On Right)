@@ -2,8 +2,8 @@
 
 class Solution {
     void segregate0and1(int[] arr, int n) {
-        int count0 = 0, k = arr.length - 1;
-        int[] aux = new int[arr.length];
+        int count0 = 0, k = n - 1;
+        int[] aux = new int[n];
 
         for (int num : arr) {
             if (num == 1) {
@@ -11,7 +11,7 @@ class Solution {
             }
         }
 
-        System.arraycopy(aux, 0, arr, 0, arr.length);
+        System.arraycopy(aux, 0, arr, 0, n);
     }
 }
 
@@ -28,7 +28,7 @@ class Solution {
         }
 
         Arrays.fill(arr, 0, count0, 0);
-        Arrays.fill(arr, count0, arr.length, 1);
+        Arrays.fill(arr, count0, n, 1);
     }
 }
 
@@ -36,11 +36,11 @@ class Solution {
 //Better Approach
 
 class Solution {
-    void segregate0and1(int[] arr, int n) {
-        int start = 0, end = (n - 1);
+    void segregate0and1(int[] arr) {
+        int start = 0, end = (arr.length - 1);
 
         while (start < end) {
-            while (start < n && arr[start] == 0) {
+            while (start < arr.length && arr[start] == 0) {
                 start++;
             }
 
@@ -67,13 +67,13 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    void segregate0and1(int[] arr, int n) {
-        int track1 = 0;
+    void segregate0and1(int[] arr) {
+        int oneTracker = 0;
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < arr.length; i++) {
             if (arr[i] == 0) {
-                swap(arr, i, track1);
-                track1++;
+                swap(arr, i, oneTracker);
+                oneTracker++;
             }
         }
     }
