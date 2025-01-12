@@ -57,12 +57,12 @@ class Solution {
 
 class Solution {
     public static void segregatePosAndNeg(int[] arr) {
-        int evenIdxTracker = 0;
+        int negativeIdxTracker = 0;
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] < 0) {
-                swap(arr, i, evenIdxTracker);
-                evenIdxTracker++;
+                swap(arr, i, negativeIdxTracker);
+                negativeIdxTracker++;
             }
         }
     }
