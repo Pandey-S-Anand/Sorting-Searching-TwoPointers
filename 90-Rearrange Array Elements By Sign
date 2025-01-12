@@ -29,13 +29,8 @@ class Solution {
 
 class Solution {
     public int[] rearrangeArray(int arr[]) {
-        int firstNegativeIndex = segregateMaintainingOrder(arr);
-
-        if (firstNegativeIndex == arr.length) {
-            return arr;
-        }
-
         int[] modifiedArray = new int[arr.length];
+        int firstNegativeIndex = segregateMaintainingOrder(arr);
         int positiveIndex = 0, negativeIndex = firstNegativeIndex, i = 0;
 
         while (i < arr.length) {
@@ -78,11 +73,6 @@ class Solution {
         segregateMaintainingOrder(arr);
 
         int firstNegativeIndex = findFirstNegativeIndex(arr);
-
-        if (firstNegativeIndex == arr.length) {
-            return arr;
-        }
-
         int[] modifiedArray = new int[arr.length];
         int positiveIndex = 0, negativeIndex = firstNegativeIndex, i = 0;
 
