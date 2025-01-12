@@ -13,23 +13,11 @@ class Solution {
             }
         }
 
-        if (positiveList.size() == arr.length || negativeList.size() == arr.length) {
-            return arr;
-        }
+        int i = 0, positiveIndex = 0, negativeIndex = 0;
 
-        int arrIndex = 0, posIndex = 0, negIndex = 0;
-
-        while (posIndex < positiveList.size() && negIndex < negativeList.size()) {
-            arr[arrIndex++] = positiveList.get(posIndex++);
-            arr[arrIndex++] = negativeList.get(negIndex++);
-        }
-
-        while (posIndex < positiveList.size()) {
-            arr[arrIndex++] = positiveList.get(posIndex++);
-        }
-
-        while (negIndex < negativeList.size()) {
-            arr[arrIndex++] = negativeList.get(negIndex++);
+        while (i < arr.length) {
+            arr[i++] = positiveList.get(positiveIndex++);
+            arr[i++] = negativeList.get(negativeIndex++);
         }
 
         return arr;
