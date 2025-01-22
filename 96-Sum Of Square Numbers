@@ -63,7 +63,7 @@ class Solution {
                 return true;
             }
 
-            squareA = nextPerfectSquareNumber(squareA);
+            squareA = calculateNextPerfectSquare(squareA);
         }
         return false;
     }
@@ -87,7 +87,7 @@ class Solution {
     }
 
     private int calculateNextPerfectSquare(int currentSquare) {
-        int nextPerfectSquare = currentSquare + (calculateSquareRoot(currentSquare) * 2) + 1;
+        int nextPerfectSquare = currentSquare + (mySqrt(currentSquare) * 2) + 1;
         return nextPerfectSquare;
     }
 
