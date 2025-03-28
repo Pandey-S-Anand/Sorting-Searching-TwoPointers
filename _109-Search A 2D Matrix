@@ -39,7 +39,44 @@ class Solution {
 }
 
 
-//Optimal approach
+// Optimal approach: Binary Search in a 2D Matrix
+
+/**
+ * Given a 3 x 4 matrix:
+ *
+ *      0   1   2   3
+ *    +---+---+---+---+
+ *  0 | 0 | 1 | 2 | 3 |
+ *    +---+---+---+---+
+ *  1 | 4 | 5 | 6 | 7 |
+ *    +---+---+---+---+
+ *  2 | 8 | 9 |10 |11 |
+ *    +---+---+---+---+
+ *
+ * Index Mapping (2D to 1D):
+ * -----------------------------------
+ * Formula:  1D_index = row * cols + col
+ *
+ * (0,0) → 0    (0,1) → 1    (0,2) → 2    (0,3) → 3
+ * (1,0) → 4    (1,1) → 5    (1,2) → 6    (1,3) → 7
+ * (2,0) → 8    (2,1) → 9    (2,2) →10    (2,3) →11
+ *
+ * Reverse Mapping (1D to 2D):
+ * -----------------------------------
+ * Given mid index in 1D array:
+ *      row = mid / cols
+ *      col = mid % cols
+ *
+ * Example:
+ *      mid = 5  → (5 / 4, 5 % 4) → (1,1)
+ *      mid = 9  → (9 / 4, 9 % 4) → (2,1)
+ *
+ * Binary Search Approach:
+ * -----------------------------------
+ * - Treats the matrix as a virtual 1D sorted array.
+ * - Searches for the target efficiently using O(log(m * n)) time.
+ * - No extra space required, O(1) space complexity.
+ */
 
 class Solution {
     public boolean searchMatrix(int[][] matrix, int target) {
