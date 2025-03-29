@@ -1,0 +1,136 @@
+//Bruteforce approach
+
+class Solution {
+    public int minDays(int[] bloomDay, int m, int k) {
+        int totalFlowersNeeded = m * k; // Total flowers required to form 'm' bouquets
+        int totalFlowersAvailable = bloomDay.length; // Total flowers in the garden
+
+        // If we don't have enough flowers, it's impossible to form 'm' bouquets
+        if (totalFlowersAvailable < totalFlowersNeeded) {
+            return -1;
+        }
+
+        /*
+        * Why do we find the minimum and maximum bloom days?
+        * - The minimum bloom day tells us the **earliest possible** time when any flower blooms.
+        * - We start checking from this day because we want the **minimum number of wait days**.
+        * - The maximum bloom day is the latest day when all flowers will have bloomed.
+        * - On this day, we **will definitely** be able to form 'm' bouquets.
+        * - Hence, our answer **must** lie between [min bloom day, max bloom day].
+        */
+        // Find the minimum and maximum bloom days
+        int[] minMaxDays = findMinAndMaxDays(bloomDay);
+        int earliestBloomDay = minMaxDays[0];
+        int latestBloomDay = minMaxDays[1];
+
+        // Brute-force checking from the earliest possible bloom day to the latest
+        for (int day = earliestBloomDay; day <= latestBloomDay; day++) {
+            int consecutiveFlowers = 0; // Count of consecutive bloomed flowers
+            int bouquetsFormed = 0; // Number of bouquets formed so far
+
+            // Iterate over each flower in bloomDay to check if it's bloomed by 'day'
+            for (int flowerBloomDay : bloomDay) {
+                if (flowerBloomDay <= day) {
+                    consecutiveFlowers++; // This flower has bloomed, count it
+                } else {
+                    // If flowers are not consecutive, check how many bouquets were formed
+                    bouquetsFormed += (consecutiveFlowers / k);
+                    consecutiveFlowers = 0; // Reset consecutive count
+                    
+                    if (bouquetsFormed >= m) {
+                        return day; // If enough bouquets are formed, return the day
+                    }
+                }
+            }
+
+            // Check for any remaining bouquets that can be formed at the end
+            bouquetsFormed += (consecutiveFlowers / k);
+            if (bouquetsFormed >= m) {
+                return day;
+            }
+        }
+        // This return statement will NEVER be reached because we've already checked that there are enough flowers to form bouquets.
+        return -1;
+    }
+
+    private int[] findMinAndMaxDays(int[] bloomDay) {
+        int left = 0, right = bloomDay.length - 1;
+        int minDay = Integer.MAX_VALUE, maxDay = Integer.MIN_VALUE;
+
+        // Two-pointer approach to find the min and max bloom days efficiently
+        while (left <= right) {
+            minDay = Math.min(minDay, Math.min(bloomDay[left], bloomDay[right]));
+            maxDay = Math.max(maxDay, Math.max(bloomDay[left], bloomDay[right]));
+            left++;
+            right--;
+        }
+
+        return new int[] { minDay, maxDay };
+    }
+}
+
+
+//Optimal approach (We can optimize this using Binary Search because: The range is sorted → The minimum bloom day to the maximum bloom day forms a sorted sequence.)
+
+class Solution {
+    public int minDays(int[] bloomDay, int m, int k) {
+        int totalFlowersNeeded = m * k;
+        int totalFlowersAvailable = bloomDay.length;
+
+        // If there aren't enough flowers, forming 'm' bouquets is impossible
+        if (totalFlowersAvailable < totalFlowersNeeded) {
+            return -1;
+        }
+
+        // Find the minimum and maximum bloom days
+        int[] minAndMaxDays = findMinAndMaxDays(bloomDay);
+        int low = minAndMaxDays[0], high = minAndMaxDays[1];
+        int earliestPossibleDay = -1;
+
+        // Apply binary search on bloom days
+        while (low <= high) {
+            int day = low + (high - low) / 2;
+
+            // Check if we can make at least 'm' bouquets on the current day
+            if (canMakeBouquets(bloomDay, day, m, k)) {
+                earliestPossibleDay = day; // Store the valid answer
+                high = day - 1; // Try for an earlier possible day
+            } else {
+                low = day + 1; // Increase days if we can't form enough bouquets
+            }
+        }
+
+        return earliestPossibleDay;
+    }
+
+    private int[] findMinAndMaxDays(int[] bloomDay) {
+        int minDay = Integer.MAX_VALUE, maxDay = Integer.MIN_VALUE;
+
+        for (int day : bloomDay) {
+            minDay = Math.min(minDay, day);
+            maxDay = Math.max(maxDay, day);
+        }
+
+        return new int[] { minDay, maxDay };
+    }
+
+    private boolean canMakeBouquets(int[] bloomDay, int targetDay, int m, int k) {
+        int consecutiveFlowers = 0, bouquetsFormed = 0;
+
+        for (int bloom : bloomDay) {
+            if (bloom <= targetDay) {
+                consecutiveFlowers++;
+            } else {
+                bouquetsFormed += (consecutiveFlowers / k);
+                consecutiveFlowers = 0;
+
+                if (bouquetsFormed >= m) {
+                    return true;
+                }
+            }
+        }
+
+        bouquetsFormed += (consecutiveFlowers / k);
+        return bouquetsFormed >= m;
+    }
+}
