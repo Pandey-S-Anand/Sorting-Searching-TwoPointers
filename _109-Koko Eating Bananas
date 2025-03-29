@@ -1,0 +1,102 @@
+//Brutefoce approach
+
+class Solution {
+    public int minEatingSpeed(int[] piles, int h) {
+        /*
+        * Key Observation:
+        * - The **maximum possible eating speed** is equal to the **largest pile size**.
+        * - Eating at a speed greater than this value is unnecessary because **it won't reduce the total hours**.
+        * - Thus, the search range for possible speeds is **from 1 to max pile size**.
+        * - As per the problem constraints, the number of piles will never be greater than h (i.e., piles.length ≤ h).
+        * - This means that, at worst, Koko has at least **1 hour per pile**.
+        * - Eating speed can **never be `0`**, because Koko must eat **all** the bananas.
+        * - If `speed = 0`, koko wouldn't eat anything, violating the problem constraints.
+        */
+        // Find the maximum number of bananas in any pile
+        int maxSpeedPerHour = findMaxInArray(piles);
+
+        // Try each possible eating speed from 1 to maxSpeedPerHour
+        for (int speedPerHour = 1; speedPerHour <= maxSpeedPerHour; speedPerHour++) {
+            int index = 0;
+            int[] arr = piles.clone(); // Create a copy of the piles to simulate eating
+
+            // Simulate eating for 'h' hours
+            for (int remainingHours = h; remainingHours > 0; remainingHours--) {
+                arr[index] -= speedPerHour; // Eat bananas from the current pile
+
+                // Move to the next pile if the current pile is finished
+                if (arr[index] <= 0) {
+                    index++;
+                }
+
+                // If all piles are finished within h hours, return the speed
+                if (index == arr.length) {
+                    return speedPerHour;
+                }
+            }
+        }
+
+        // This return statement would never be reached (as h >= n)
+        return -1;
+    }
+
+    private int findMaxInArray(int[] arr) {
+        int low = 0, high = arr.length - 1;
+        int max = Integer.MIN_VALUE;
+
+        // Iterate over the array using two pointers to find the maximum element
+        while (low <= high) {
+            max = Math.max(arr[low], max);
+            max = Math.max(arr[high], max);
+            low++;
+            high--;
+        }
+
+        return max;
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public int minEatingSpeed(int[] piles, int h) {
+        int maxSpeedPerHour = findMaxInArray(piles); // Find max pile size
+
+        // Try each possible eating speed from 1 to maxSpeedPerHour
+        for (int speedPerHour = 1; speedPerHour <= maxSpeedPerHour; speedPerHour++) {
+            int hoursNeeded = 0;
+
+            // Calculate total hours required for this speed
+            for (int bananas : piles) {
+                hoursNeeded += Math.ceil((double) bananas / speedPerHour); // Each pile takes ceil(pile/speed) hours
+            }
+
+            // If we can eat all bananas within h hours, return this speed
+            if (hoursNeeded <= h) {
+                return speedPerHour;
+            }
+        }
+
+        return -1; // Should never be reached since h ≥ piles.length
+    }
+
+    private int findMaxInArray(int[] arr) {
+        int low = 0, high = arr.length - 1;
+        int max = Integer.MIN_VALUE;
+
+        while (low <= high) {
+            max = Math.max(arr[low], max);
+            max = Math.max(arr[high], max);
+            low++;
+            high--;
+        }
+
+        return max;
+    }
+}
+
+
+
+//Optimal approach
+
