@@ -1,0 +1,96 @@
+// Bruteforce approach
+
+class Solution {
+    public int smallestDivisor(int[] arr, int threshold) {
+        /**
+         * **Why start from 1 and stop at max?**
+         * - **We begin with divisor = 1** since it's the smallest possible divisor for any number.
+         * - **We stop at the maximum element in the array** because:
+         *   - As the divisor increases, the resulting sum decreases.
+         *   - The smallest possible sum is `arr.length` (if all elements are divided by max, each becomes 1).
+         *   - Since `threshold >= arr.length`, we are guaranteed to find an answer within this range.
+         *   - Going beyond `max` will not change the sum (it remains `arr.length`), making further computations redundant.
+         */
+        
+        // Find the maximum element in the array
+        int maximum = findMaxInArray(arr);
+
+        for (int divisor = 1; divisor <= maximum; divisor++) {
+            int sumAfterDivision = findSumAfterDivision(arr, divisor);
+            if (sumAfterDivision <= threshold) {
+                return divisor;
+            }
+        }
+
+        return -1; // This case is unreachable due to problem constraints
+    }
+
+    private int findMaxInArray(int[] arr) {
+        int low = 0, high = arr.length - 1, max = Integer.MIN_VALUE;
+
+        while (low <= high) {
+            max = Math.max(max, Math.max(arr[low], arr[high]));
+            low++;
+            high--;
+        }
+
+        return max;
+    }
+
+    private int findSumAfterDivision(int[] arr, int divisor) {
+        int sumAfterDivision = 0;
+
+        for (int num : arr) {
+            sumAfterDivision += Math.ceil((double) num / divisor);
+        }
+
+        return sumAfterDivision;
+    }
+}
+
+
+//Optimal approach (We can optimize this using Binary Search because: The range is sorted → The possible divisors from 1 to max(arr) form a sorted sequence)
+
+class Solution {
+    public int smallestDivisor(int[] arr, int threshold) {
+        int low = 1, high = findMaxInArray(arr);
+        int ans = -1;
+
+        while (low <= high) {
+            int divisor = low + (high - low) / 2;
+            int sumAfterDivision = findSumAfterDivision(arr, divisor);
+
+            // If the sum is within threshold, store answer and try a smaller divisor
+            if (sumAfterDivision <= threshold) {
+                ans = divisor;
+                high = divisor - 1; // Try to minimize the divisor
+            } else {
+                low = divisor + 1; // Increase divisor to reduce sum
+            }
+        }
+
+        return ans; // Return the smallest divisor that satisfies the condition
+    }
+
+    private int findMaxInArray(int[] arr) {
+        int low = 0, high = arr.length - 1, max = Integer.MIN_VALUE;
+
+        while (low <= high) {
+            max = Math.max(max, Math.max(arr[low], arr[high]));
+            low++;
+            high--;
+        }
+
+        return max;
+    }
+
+    private int findSumAfterDivision(int[] arr, int divisor) {
+        int sumAfterDivision = 0;
+
+        for (int num : arr) {
+            sumAfterDivision += Math.ceil((double) num / divisor); // Round up division result
+        }
+
+        return sumAfterDivision;
+    }
+}
