@@ -1,1 +1,114 @@
+//Bruteforce approach
+
+class Solution {
+    public int nthRoot(int n, int m) {
+        for (int x = 1; x <= m; x++) {
+            int power = (int)Math.pow(x, n); // Compute x^n
+
+            if (power == m) {
+                return x; // Found the integer nth root
+            } else if (power > m) {
+                break; // Stop early if x^n exceeds M (no integer root exists)
+            }
+        }
+        return -1; // No integer nth root found
+    }
+}
+
+
+//Optimal approach
+
+/**
+ * To find: M ^ (1/n) = ?
+ * 
+ * Let, M ^ (1/n) = x
+ * 
+ * Then, x ^ n = M
+ * 
+ * Our task is to find an integer value of x such that:
+ * 
+ *      x ^ n = M
+ * 
+ * If no such integer x exists, we return -1.
+ */
+
+class Solution {
+    public int nthRoot(int n, int m) {
+        int low = 1, high = m;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            
+            int power = myPow(mid, n); // Compute mid^n
+
+            if (power == m) {
+                return mid; // Found the exact nth root
+            } else if (power < m) {
+                low = mid + 1; // Search in the right half
+            } else {
+                high = mid - 1; // Search in the left half
+            }
+        }
+
+        return -1; // No integer nth root exists
+    }
+    
+    /*
+     * To improve efficiency, we will use **Binary Exponentiation**, which calculates base ^ power 
+     * in O(log2(power)) time by reducing the number of multiplications.
+     *
+     * The key idea is to use the binary representation of the exponent to divide the computation:
+     * - Multiply the result (`res`) by the base if the corresponding bit in the exponent is 1.
+     * - Square the base at each step, moving to the next higher bit, until the exponent becomes 0.
+     *
+     * Example:
+     * Let base = 7, power = 11, and res = 1. We need to calculate 7^11.
+     *
+     * The binary representation of 11 is (1011):
+     *     1    0    1    1
+     *    2^3  2^2  2^1  2^0    <-- Place values of each bit
+     *
+     * Alternatively, we can write this as:
+     *     1    0    1    1
+     *     8    4    2    1    <-- Corresponding powers of 2
+     *
+     * Thus, we calculate:
+     *     7^8 × 7^2 × 7^1 = 5764801 × 49 × 7 = 1977326743, which is the desired result.
+     *
+     * Note: We omit 7^4 in this case because the third bit (representing 2^2) is OFF in the binary representation of 11.
+     *
+     * Now, let's implement this approach based on the logic above.
+     */
+
+    private int myPow(int base, int exponent) {
+        if (exponent == 0 || base == 1) {
+            return 1; // Any number raised to 0 is 1, and 1^anything is always 1
+        }
+
+        if (exponent == 1) {
+            return base; // Base case: x^1 = x
+        }
+
+        if (base == 0) {
+            return 0; // 0 raised to any power is always 0
+        }
+
+        return calculatePower(base, exponent);
+    }
+    
+    private int calculatePower(int base, int power) {
+        int result = 1;
+
+        while (power != 0) {
+            if ((power & 1) != 0) { // If Bit is ON
+                result *= base;
+            }
+
+            base = base * base; // Square the base
+            power = power >> 1; // Divide exponent by 2 (right shift)
+        }
+
+        return result;
+    }
+}  
 
