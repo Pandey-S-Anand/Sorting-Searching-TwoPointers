@@ -80,3 +80,100 @@ class Solution {
         return true; // Successfully placed all cows.
     }
 }
+
+
+//Improved approach
+
+class Solution {
+    public static int aggressiveCows(int[] stalls, int k) {
+        Arrays.sort(stalls);
+
+        int minDistance = 1;
+        int maxDistance = stalls[stalls.length - 1] - stalls[0];
+
+        for (int distance = maxDistance; distance >= minDistance; distance--) {
+            if (canPlaceCows(stalls, distance, k)) {
+                return distance;
+            }
+        }
+
+        return -1;
+    }
+
+    private static boolean canPlaceCows(int[] stalls, int distance, int k) {
+        int prevStallIndex = 0; // Place the first cow at the first stall.
+        int cowsPlaced = 1; // The first cow is already placed.
+
+        // Iterate through the remaining stalls to place the rest of the cows.
+        for (int index = 1; index < stalls.length; index++) {
+            int nextPosition = stalls[prevStallIndex] + distance;
+
+            // If the current stall is at least 'distance' away from the last placed cow
+            if (stalls[index] >= nextPosition) {
+                prevStallIndex = index; // Place the cow here.
+                cowsPlaced++; // Increment the count of placed cows.
+
+                // If we have successfully placed all cows, return true.
+                if (cowsPlaced == k) {
+                    return true;
+                }
+            }
+        }
+
+        // If we exit the loop without placing all cows, return false.
+        return false;
+    }
+}
+
+
+//Optimal approach (We can optimize this using Binary Search because: The range is sorted → The possible minimum distances between cows, ranging from 1 to (max - min), form a sorted sequence.)
+
+class Solution {
+    public static int aggressiveCows(int[] stalls, int k) {
+        Arrays.sort(stalls);
+
+        int low = 1, high = stalls[stalls.length - 1] - stalls[0];
+        int maxDistance = -1;
+
+        /*
+         * Perform binary search to find the maximum possible minimum distance.
+         * The goal is to maximize the minimum distance while ensuring that all cows can be placed.
+         */
+        while (low <= high) {
+            int distance = low + (high - low) / 2;
+
+            /*
+             * If it is possible to place all cows with at least 'distance' units apart, 
+             * store this as a potential answer and try increasing the distance further.
+             */
+            if (canPlaceCows(stalls, distance, k)) {
+                maxDistance = distance;
+                low = distance + 1; // Try for a larger minimum distance.
+            } else {
+                high = distance - 1; // Reduce the distance to find a valid configuration.
+            }
+        }
+
+        return maxDistance; // The largest valid minimum distance.
+    }
+
+    private static boolean canPlaceCows(int[] stalls, int distance, int k) {
+        int prevStallIndex = 0;
+        int cowsPlaced = 1;
+
+        for (int index = 1; index < stalls.length; index++) {
+            int nextPosition = stalls[prevStallIndex] + distance;
+
+            if (stalls[index] >= nextPosition) {
+                prevStallIndex = index;
+                cowsPlaced++;
+
+                if (cowsPlaced == k) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
