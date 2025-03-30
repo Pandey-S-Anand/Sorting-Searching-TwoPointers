@@ -1,0 +1,124 @@
+//Brutefoce approach
+
+class Solution {
+    public int shipWithinDays(int[] weights, int days) {
+        /*
+           Why does the ship's weight capacity range from the heaviest package to the total cargo weight?
+           
+           - The **minimum possible capacity** must be at least the **heaviest single package**, 
+             because if the ship has a smaller capacity, it won't be able to carry that package.
+           
+           - The **maximum possible capacity** is the **sum of all package weights**, 
+             because if the ship has this capacity, it can transport everything in **one day**.
+             
+           - Any capacity beyond the total cargo weight is redundant, as it does not reduce the number of days required.
+        */
+
+        int[] maxAndTotalWeight = findMaxAndTotalWeight(weights);
+        int maxWeight = maxAndTotalWeight[0]; // Maximum package weight (minimum capacity required)
+        int totalWeight = maxAndTotalWeight[1]; // Sum of all package weights (maximum capacity possible)
+
+        for (int capacity = maxWeight; capacity <= totalWeight; capacity++) {
+            int index = 0; // Pointer to track the current package
+
+            // Simulate the shipping process over 'days' days
+            for (int remainingDays = days; remainingDays > 0; remainingDays--) {
+                int remainingCapacity = capacity; // Reset the ship's capacity for the new day
+
+                // Load packages onto the ship until it reaches its weight limit
+                while (index < weights.length && (remainingCapacity - weights[index]) >= 0) {
+                    remainingCapacity -= weights[index++];
+                }
+
+                // If all packages are shipped within 'days' days, return this capacity
+                if (index == weights.length) {
+                    return capacity;
+                }
+            }
+        }
+
+        // This statement will never be reached as per problem constraints
+        return -1;
+    }
+
+    private int[] findMaxAndTotalWeight(int[] arr) {
+        int maxWeight = Integer.MIN_VALUE, totalWeight = 0;
+        int left = 0, right = arr.length - 1;
+
+        // Finding the heaviest package and total weight using two-pointer approach
+        while (left <= right) {
+            maxWeight = Math.max(maxWeight, Math.max(arr[left], arr[right]));
+            totalWeight += arr[left];
+            if (left != right) {
+                totalWeight += arr[right];
+            }
+            left++;
+            right--;
+        }
+
+        return new int[] { maxWeight, totalWeight };
+    }
+}
+
+
+//Optimal approach (We can optimize this using Binary Search because: The range is sorted → The possible ship capacities from the maximum package weight to the total cargo weight form a sorted sequence.)
+
+class Solution {
+    public int shipWithinDays(int[] weights, int days) {
+        int[] maxAndTotalWeight = findMaxAndTotalWeight(weights);
+        int minCapacity = -1;
+
+        int low = maxAndTotalWeight[0], high = maxAndTotalWeight[1];
+
+        while (low <= high) {
+            int capacity = low + (high - low) / 2;
+
+            // Check if we can ship all packages within the given days using 'capacity'
+            if (canShip(weights, days, capacity)) {
+                minCapacity = capacity; // Store the valid capacity
+                high = capacity - 1; // Try to find a smaller valid capacity
+            } else {
+                low = capacity + 1; // Increase the capacity if not enough days
+            }
+        }
+
+        return minCapacity;
+    }
+
+    private int[] findMaxAndTotalWeight(int[] arr) {
+        int maxWeight = Integer.MIN_VALUE, totalWeight = 0;
+        int left = 0, right = arr.length - 1;
+
+        while (left <= right) {
+            maxWeight = Math.max(maxWeight, Math.max(arr[left], arr[right]));
+            totalWeight += arr[left];
+            if (left != right) {
+                totalWeight += arr[right];
+            }
+            left++;
+            right--;
+        }
+
+        return new int[] { maxWeight, totalWeight };
+    }
+
+    private boolean canShip(int[] weights, int days, int capacity) {
+        int index = 0;
+
+        for (int remainingDays = days; remainingDays > 0; remainingDays--) {
+            int remainingCapacity = capacity;
+            
+            // Load packages until the ship is full or there are no packages left
+            while (index < weights.length && (remainingCapacity - weights[index]) >= 0) {
+                remainingCapacity -= weights[index++];
+            }
+
+            // If all packages are shipped within 'days' days, return true
+            if (index == weights.length) {
+                return true;
+            }
+        }
+
+        return false; // Not all packages were shipped within the 'days'  days
+    }
+}
