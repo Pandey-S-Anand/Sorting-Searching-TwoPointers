@@ -14,7 +14,7 @@ class Solution {
         * Why do we find the minimum and maximum bloom days?
         * - The minimum bloom day tells us the **earliest possible** time when any flower blooms.
         * - We start checking from this day because we want the **minimum number of wait days**.
-        * - The maximum bloom day is the latest day when all flowers will have bloomed.
+        * - The maximum bloom day is the last day when all flowers will have bloomed.
         * - On this day, we **will definitely** be able to form 'm' bouquets.
         * - Hence, our answer **must** lie between [min bloom day, max bloom day].
         */
