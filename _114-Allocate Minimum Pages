@@ -136,7 +136,7 @@ class Solution {
 }
 
 
-//Optimal approach
+//Optimal appraoch (We can optimize using Binary Search because the range is sorted →  The possible values for the minimum maximum allocated pages, ranging from (max element) to (sum of all elements), form a sorted sequence.)
 
 class Solution {
     public static int findPages(int[] arr, int k) {
@@ -151,7 +151,7 @@ class Solution {
         int minOfMaxPagesAllocated = 0; // Stores the optimal allocation.
 
         while (low <= high) {
-            int allocatedPages = low + (high - low) / 2; // Midpoint as candidate max allocation
+            int allocatedPages = low + (high - low) / 2; // Midpoint as the candidate for the minimum possible maximum page allocation
             
             if (canAllocate(arr, allocatedPages, k)) {
                 // If allocation is valid, try to minimize further
