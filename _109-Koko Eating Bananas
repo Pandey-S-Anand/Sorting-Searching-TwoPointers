@@ -2,16 +2,37 @@
 
 class Solution {
     public int minEatingSpeed(int[] piles, int h) {
-        /*
-        * Key Observation:
-        * - The **maximum possible eating speed** is equal to the **largest pile size**.
-        * - Eating at a speed greater than this value is unnecessary because **it won't reduce the total hours**.
-        * - Thus, the search range for possible speeds is **from 1 to max pile size**.
-        * - As per the problem constraints, the number of piles will never be greater than h (i.e., piles.length ≤ h).
-        * - This means that, at worst, Koko has at least **1 hour per pile**.
-        * - Eating speed can **never be `0`**, because Koko must eat **all** the bananas.
-        * - If `speed = 0`, koko wouldn't eat anything, violating the problem constraints.
+        /**
+        * The problem guarantees that `piles.length ≤ h`, ensuring that  
+        * Koko can always finish all the bananas within `h` hours.  
+        *
+        * ### Worst-Case Scenario:  
+        * - If `h == piles.length`, Koko has at least one hour per pile.  
+        * - Her minimum required speed will match the largest pile’s size (`max(piles) bananas/hour`).  
+        * - This guarantees that there always exists a feasible speed that allows  
+        *   her to eat all bananas within the given time.  
+        *
+        * ### Example:  
+        * Given `h = 8` and `piles = [5, 6, 8, 2, 10, 7, 4, 3]`:  
+        * - The largest pile has `10` bananas.  
+        * - If Koko eats at `k = 10` bananas per hour, she will finish the largest pile in `1` hour.  
+        * - The remaining piles take `1` hour each.  
+        * - Since `h = 8`, she will finish exactly within the given time.  
+        *
+        * ### Key Observations:  
+        * - The **maximum possible eating speed per hour** is equal to the **largest pile size**.  
+        * - Eating at a speed greater than this value is unnecessary because **it won't reduce the total hours**.  
+        * - Eating speed can **never be `0`**, because Koko must eat **all** the bananas.  
+        *   - If `speed = 0`, Koko wouldn't eat anything, violating the problem constraints.  
+        *
+        * ### When `k = 1` Occurs:  
+        * - `k = 1` happens when Koko has **a lot of hours (`h`)** compared to the total number of bananas.  
+        * - This situation is possible when `h` is **very large** relative to the sum of bananas.  
+        *
+        * ### Search Range for Speed:  
+        * - The valid range for `k` is **from `1` to `max(piles)`**.  
         */
+
         // Find the maximum number of bananas in any pile
         int maxSpeedPerHour = findMaxInArray(piles);
 
@@ -98,7 +119,7 @@ class Solution {
 
 
 
-//Optimal approach
+// Optimal Approach: (We can optimize using **Binary Search** because the search space is sorted. The possible values for minimum eating speed  range from `1` (slowest possible speed) to `max(piles)` forming a sorted sequence)
 
 class Solution {
     public int minEatingSpeed(int[] piles, int h) {
@@ -108,7 +129,7 @@ class Solution {
         int ans = -1; // To store the minimum valid speed
 
         while (low <= high) {
-            int speedPerHour = low + (high - low) / 2; // Midpoint of search range
+            int speedPerHour = low + (high - low) / 2;
             int hoursNeeded = 0;
 
             // Calculate total hours required for this eating speed
