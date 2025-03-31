@@ -1,16 +1,16 @@
 //Bruteforce Approach
 
 class Solution {
-    public long kthElement(int arr1[], int arr2[], int m, int n, int k) {
-        int[] merged = mergeTwoSortedArrayIntoThirdSortedArray(arr1, m, arr2, n);
+    public long kthElement(int arr1[], int arr2[], int k) {
+        int[] merged = mergeTwoSortedArrayIntoThirdSortedArray(arr1, arr2);
         return merged[k - 1];
     }
 
-    private int[] mergeTwoSortedArrayIntoThirdSortedArray(int[] arr1, int m, int[] arr2, int n) {
-        int[] merged = new int[m + n];
+    private int[] mergeTwoSortedArrayIntoThirdSortedArray(int[] arr1, int[] arr2) {
+        int[] merged = new int[arr1.length + arr2.length];
         int i = 0, j = 0, k = 0;
 
-        while (i < m && j < n) {
+        while (i < arr1.length && j < arr2.length) {
             if (arr1[i] <= arr2[j]) {
                 merged[k++] = arr1[i++];
             } else {
@@ -18,12 +18,12 @@ class Solution {
             }
         }
 
-        if (i < m) {
-            System.arraycopy(arr1, i, merged, k, m - i);
+        if (i < arr1.length) {
+            System.arraycopy(arr1, i, merged, k, arr1.length - i);
         }
 
-        if (j < n) {
-            System.arraycopy(arr2, j, merged, k, n - j);
+        if (j < arr2.length) {
+            System.arraycopy(arr2, j, merged, k, arr2.length - j);
         }
 
         return merged;
@@ -31,24 +31,23 @@ class Solution {
 }
 
 
-
 //Better Approach
 
 class Solution {
-    public long kthElement(int arr1[], int arr2[], int m, int n, int k) {
+    public long kthElement(int arr1[], int arr2[], int k) {
         int[] merged = new int[k];
         int i = 0, j = 0, index = 0;
 
         while (index <= (k - 1)) {
-            if (i < m && j < n) {
+            if (i < arr1.length && j < arr2.length) {
                 if (arr1[i] <= arr2[j]) {
                     merged[index++] = arr1[i++];
                 } else {
                     merged[index++] = arr2[j++];
                 }
-            } else if (i < m) {
+            } else if (i < arr1.length) {
                 merged[index++] = arr1[i++];
-            } else { // if (j < n)
+            } else { // if (j < arr2.length)
                 merged[index++] = arr2[j++];
             }
         }
@@ -61,19 +60,19 @@ class Solution {
 //Good Approach
 
 class Solution {
-    public long kthElement(int arr1[], int arr2[], int m, int n, int k) {
+    public int kthElement(int arr1[], int arr2[], int k) {
         int i = 0, j = 0, currentValue = 0;
 
         for (int count = 1; count <= k; count++) {
-            if (i < m && j < n) {
+            if (i < arr1.length && j < arr2.length) {
                 if (arr1[i] <= arr2[j]) {
                     currentValue = arr1[i++];
                 } else {
                     currentValue = arr2[j++];
                 }
-            } else if (i < m) {
+            } else if (i < arr1.length) {
                 currentValue = arr1[i++];
-            } else { // if (j < n)
+            } else { // if (j < arr2.length)
                 currentValue = arr2[j++];
             }
         }
@@ -85,15 +84,14 @@ class Solution {
 
 //Optimal Approach
 
-
 class Solution {
-    public long kthElement(int arr1[], int arr2[], int m, int n, int k) {
+    public int kthElement(int arr1[], int arr2[], int k) {
         // Ensure binary search happens on the smaller array
         if (arr1.length > arr2.length) {
-            return kthElement(arr2, arr1, n, m, k);
+            return kthElement(arr2, arr1, k);
         }
 
-        int low = 0, high = m;
+        int low = 0, high = arr1.length;
 
         while (low <= high) {
             int elementsChosenFromArr1ForLeftPart = low + (high - low) / 2;
@@ -115,15 +113,19 @@ class Solution {
              * Consequently, the number of elements required from arr2 exceeds its capacity.
              * Adjust 'low' to consider more elements from arr1.
              */
-            if (elementsChosenFromArr2ForLeftPart > n) {
+            if (elementsChosenFromArr2ForLeftPart > arr2.length) {
                 low = elementsChosenFromArr1ForLeftPart + 1;
                 continue;
             }
 
-            int maxInLeftPartFromArr1 = (elementsChosenFromArr1ForLeftPart == 0) ? Integer.MIN_VALUE : arr1[elementsChosenFromArr1ForLeftPart - 1];
-            int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE : arr2[elementsChosenFromArr2ForLeftPart - 1];
-            int minInRightPartFromArr1 = (elementsChosenFromArr1ForLeftPart == m) ? Integer.MAX_VALUE : arr1[elementsChosenFromArr1ForLeftPart];
-            int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == n) ? Integer.MAX_VALUE : arr2[elementsChosenFromArr2ForLeftPart];
+            int maxInLeftPartFromArr1 = (elementsChosenFromArr1ForLeftPart == 0) ? Integer.MIN_VALUE
+                    : arr1[elementsChosenFromArr1ForLeftPart - 1];
+            int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE
+                    : arr2[elementsChosenFromArr2ForLeftPart - 1];
+            int minInRightPartFromArr1 = (elementsChosenFromArr1ForLeftPart == arr1.length) ? Integer.MAX_VALUE
+                    : arr1[elementsChosenFromArr1ForLeftPart];
+            int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE
+                    : arr2[elementsChosenFromArr2ForLeftPart];
 
             if (maxInLeftPartFromArr1 <= minInRightPartFromArr2 && maxInLeftPartFromArr2 <= minInRightPartFromArr1) {
                 return Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
