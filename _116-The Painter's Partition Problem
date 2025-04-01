@@ -1,0 +1,176 @@
+//Bruteforce approach
+
+class Solution {
+    public int minTime(int[] arr, int k) {
+        /*
+         The search range should start from the maximum board length and end at the sum of all board lengths.
+        
+         The goal is to minimize the maximum time taken by any one painter.
+         
+         Crux:
+           - All painters work concurrently (in parallel). This means that the overall job is only complete when the slowest painter finishes their assigned work.
+           - The "time taken" to complete the job is determined by the painter with the heaviest workload. In other words, even if most painters finish early, the total time is governed by the painter who takes the longest.
+           - To optimize and reduce the total time required, we aim to distribute the boards among the painters such that the "maximum time" any painter takes (i.e., the maximum workload) is minimized.
+           - A key constraint is that each painter can only paint a contiguous segment of the boards. This means we must partition the array of board lengths into contiguous segments.
+           - By carefully choosing these partitions, we balance the workload among painters so that no single painter is overloaded. This balanced approach minimizes the overall completion time.
+        
+         **Why?**
+        
+         * **Lower Bound (maximum board length):**
+           - The minimum possible time required is at least the length of the longest board (since time required = board length * 1 unit time per length).
+           - If we try to set a smaller time limit than the longest board, that board cannot be painted, making the allocation invalid.
+        
+         * **Upper Bound (sum of all board lengths):**
+           - If there is only one painter (`k = 1`), they must paint all the boards, so the total time required would be the sum of all board lengths.
+           - Setting a limit higher than this sum is unnecessary, as there are no boards left to paint.
+        
+         * **Edge Case:**
+           - If the number of boards (`n`) is less than `k`, some painters will remain idle. This is allowed since our focus is solely on minimizing the maximum painting time.
+        
+         **Example 1 (`n > k`):**
+        
+         Given boards: [10, 20, 30, 40, 50]  
+         Painters available: k = 4  
+        
+         Possible valid allocations:
+         1. Painter 1: [10], Painter 2: [20], Painter 3: [30], Painter 4: [40, 50] → Maximum time = 90
+         2. Painter 1: [10], Painter 2: [20], Painter 3: [30, 40], Painter 4: [50] → Maximum time = 70
+         3. Painter 1: [10], Painter 2: [20, 30], Painter 3: [40], Painter 4: [50] → Maximum time = 60
+         4. Painter 1: [10, 20], Painter 2: [30], Painter 3: [40], Painter 4: [50] → Maximum time = 50
+         5. Painter 1: [10, 20, 30, 40, 50] → Maximum time = 150, with Painters 2, 3, and 4 idle
+            (Similarly, any single painter doing all the work would lead to a maximum time of 150)
+        
+         The optimal allocation is the one that minimizes the maximum time. In this example, option 4 is best, with a maximum time of 50.
+        
+         ---
+        
+         **Example 2 (`n == k`):**
+        
+         Given boards: [5, 10, 15, 20]  
+         Painters available: k = 4  
+        
+         Possible valid allocations:
+         1. Painter 1: [5], Painter 2: [10], Painter 3: [15], Painter 4: [20] → Maximum time = 20
+         2. Alternatively, if one painter were to paint all boards, the time would be 50 and the rest would remain idle.
+            However, the optimal assignment is clearly the first one, with a minimized maximum time of 20.
+        */
+
+        int[] maxAndTotalSum = findMaxAndTotalSum(arr);
+        int minTime = maxAndTotalSum[0]; // Minimum possible time is the longest board
+        int maxTime = maxAndTotalSum[1]; // Maximum possible time is the sum of all boards
+
+        // Iterate linearly from the smallest to the largest possible max time limit
+        for (int timeLimit = minTime; timeLimit <= maxTime; timeLimit++) {
+            if (canAllocatePainters(arr, timeLimit, k)) {
+                return timeLimit;
+            }
+        }
+
+        return -1; // This line will never be reached due to constraints
+    }
+
+    private boolean canAllocatePainters(int[] boards, int maxTimeLimit, int painters) {
+        int paintersUsed = 1; // Start with the first painter
+        int currentTime = 0; // Tracks the total time the current painter has been assigned
+
+        for (int board : boards) {
+            // If adding the current board exceeds maxTimeLimit, assign it to a new painter
+            if (currentTime + board > maxTimeLimit) {
+                paintersUsed++;
+                currentTime = board; // New painter starts with the current board
+
+                // If we exceed the available number of painters, allocation is not possible
+                if (paintersUsed > painters) {
+                    return false;
+                }
+            } else {
+                // Otherwise, assign the current board to the ongoing painter
+                currentTime += board;
+            }
+        }
+
+        return true;
+    }
+
+    private int[] findMaxAndTotalSum(int[] boards) {
+        int maxBoard = Integer.MIN_VALUE, totalLength = 0;
+        int left = 0, right = boards.length - 1;
+
+        while (left <= right) {
+            maxBoard = Math.max(maxBoard, Math.max(boards[left], boards[right]));
+            totalLength += boards[left];
+            if (left != right) {
+                totalLength += boards[right];
+            }
+
+            left++;
+            right--;
+        }
+
+        return new int[] { maxBoard, totalLength };
+    }
+}
+
+
+// Optimal Approach: (We can optimize using Binary Search because the possible values for the minimum maximum painting time (ranging from the longest board to the sum of all board lengths) form a sorted sequence.)
+
+class Solution {
+    public int minTime(int[] arr, int k) {
+        int[] maxAndTotalSum = findMaxAndTotalSum(arr);
+        int low = maxAndTotalSum[0]; // Minimum possible time is the longest board
+        int high = maxAndTotalSum[1]; // Maximum possible time is the sum of all boards
+        int minTime = -1;
+
+        while (low <= high) {
+            int time = low + (high - low) / 2;
+
+            // Check if it's possible to paint all boards within 'time' using 'k' painters
+            if (canAllocatePainters(arr, time, k)) {
+                minTime = time;
+                high = time - 1; // Try to find a smaller maximum time
+            } else {
+                low = time + 1; // Increase the time limit since current 'time' is insufficient
+            }
+        }
+
+        return minTime;
+    }
+
+    private boolean canAllocatePainters(int[] boards, int maxTimeLimit, int painters) {
+        int paintersUsed = 1;
+        int currentTime = 0;
+
+        for (int board : boards) {
+            if (currentTime + board > maxTimeLimit) {
+                paintersUsed++;
+                currentTime = board;
+
+                if (paintersUsed > painters) {
+                    return false;
+                }
+            } else {
+                currentTime += board;
+            }
+        }
+
+        return true;
+    }
+
+    private int[] findMaxAndTotalSum(int[] boards) {
+        int maxBoard = Integer.MIN_VALUE, totalLength = 0;
+        int left = 0, right = boards.length - 1;
+
+        while (left <= right) {
+            maxBoard = Math.max(maxBoard, Math.max(boards[left], boards[right]));
+            totalLength += boards[left];
+            if (left != right) {
+                totalLength += boards[right];
+            }
+
+            left++;
+            right--;
+        }
+
+        return new int[] { maxBoard, totalLength };
+    }
+}
