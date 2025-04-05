@@ -1,0 +1,34 @@
+//Bruteforce approach
+
+class Solution {
+    public int[] findPeakGrid(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Traverse every cell to check if it is a peak
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+
+                int current = matrix[row][col];
+
+                // Get neighbors safely with boundary checks
+                int left   = (col > 0) ? matrix[row][col - 1] : -1;
+                int right  = (col < cols - 1) ? matrix[row][col + 1] : -1;
+                int top    = (row > 0) ? matrix[row - 1][col] : -1;
+                int bottom = (row < rows - 1) ? matrix[row + 1][col] : -1;
+
+                // Check if the current cell is greater than all 4 neighbors
+                if (current > left && current > right && current > top && current > bottom) {
+                    return new int[] { row, col };
+                }
+            }
+        }
+
+        // If no peak is found (theoretically won't happen for valid input)
+        return new int[] { -1, -1 };
+    }
+}
+
+
+//Optimal approach
+
