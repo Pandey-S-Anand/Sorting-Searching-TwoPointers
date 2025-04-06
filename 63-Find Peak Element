@@ -37,24 +37,89 @@ class Solution {
             return 0;
         }
 
-        if (arr[0] > arr[1]) { // - INFINITY < arr[0] > arr[1]
+        /** 
+         * If the first element is greater than the second,
+         * it's a peak (assuming -∞ to the left).
+         */
+        if (arr[0] > arr[1]) {
             return 0;
         }
 
-        if (arr[arr.length - 1] > arr[arr.length - 2]) { // arr[n-2] < arr[0] > - INFINITY
+        /**
+         * If the last element is greater than the second last,
+         * it's a peak (assuming -∞ to the right).
+         */
+        if (arr[arr.length - 1] > arr[arr.length - 2]) {
             return arr.length - 1;
         }
 
+        /**
+         * Now, search in the middle part of the array.
+         * We set low = 1 and high = arr.length - 2 because we already checked the boundaries.
+         */
         int low = 1, high = arr.length - 2, mid = 0;
 
         while (low <= high) {
             mid = low + (high - low) / 2;
 
-            if ((arr[mid] > arr[mid - 1]) && (arr[mid] > arr[mid + 1])) {
+            /** 
+             * Case 1:
+             * If the middle element is a peak, return it.
+             */
+            if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
                 return mid;
-            } else if (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1]) {
+            }
+
+            /** 
+             * Case 2:
+             * If arr[mid] is greater than its left neighbor but less than its right neighbor,
+             * then the slope is rising to the right.
+             *
+             * This implies that on the right side, either the sequence continues increasing
+             * (in which case the rightmost element is a peak, since we assume -∞ after the last element),
+             * or the sequence eventually drops, making the element just before the drop a peak.
+             *
+             * Moreover, even if there are multiple ups and downs, multiple peaks may exist in the right half,
+             * but we are guaranteed that at least one peak is present on the right side.
+             *
+             * Therefore, we move right by setting low = mid + 1.
+             * Note: A peak could exist on the left as well but is not guaranteed...
+             * so we will move to the right where a peak is guaranteed.
+             */
+            else if (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1]) {
                 low = mid + 1;
-            } else { // if (arr[mid]< arr[mid-1] && arr[mid] > arr[mid + 1])
+            }
+
+            /** 
+             * Case 3:
+             * If arr[mid] is less than its left neighbor but greater than its right neighbor,
+             * then the slope is rising to the left.
+             *
+             * This implies that on the left side, either the sequence continues increasing
+             * (in which case the leftmost element is a peak, since we assume -∞ before the first element),
+             * or the sequence eventually drops, making the element just after the drop a peak.
+             *
+             * Moreover, even if there are multiple ups and downs, multiple peaks may exist in the left half,
+             * but we are guaranteed that at least one peak is present on the left side.
+             *
+             * Therefore, we move left by setting high = mid - 1.
+             * Note: A peak could exist on the right as well but is not guaranteed...
+             * so we will move to the left where a peak is guaranteed.
+             */
+
+            /**
+            * Case 4:
+            * In a valley situation where the middle element is less than both its left and right neighbors,
+            * for example in the array [1, 2, 1, 2, 1] at index 2 (value 1, with left and right both 2),
+            * you could move right just as well as moving left.
+            *
+            * Both directions will eventually lead to a region containing a peak
+            * because a peak is guaranteed to exist on at least one side.
+            *
+            * In our implementation, we consistently choose to move left
+            * (i.e., set high = mid - 1) to maintain a deterministic strategy.
+            */
+            else {
                 high = mid - 1;
             }
         }
@@ -62,6 +127,7 @@ class Solution {
         return mid;
     }
 }
+
 
 /*
 Note:
