@@ -1,0 +1,147 @@
+//Bruteforce approach
+
+class Solution {
+    int median(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Step 1: Flatten the matrix into a 1D array
+        int[] flattenedArray = new int[rows * cols];
+        int idx = 0;
+
+        for (int[] row : matrix) {
+            for (int element : row) {
+                flattenedArray[idx++] = element;
+            }
+        }
+
+        // Step 2: Sort the flattened array
+        Arrays.sort(flattenedArray);
+
+        // Step 3: Return the middle element (median)
+        return flattenedArray[(rows * cols) / 2];
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    int median(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        /*
+         * The median of a sorted array (with an odd number of elements) is defined as the element 
+         * for which at least half of the elements are less than or equal to it, and at least half 
+         * are greater than or equal to it.
+         *
+         * Using "less than or equal to" (≤) is critical because it ensures that the median itself is
+         * counted along with the elements on its left. This is important when the median value
+         * appears more than once. Without including the equality, the count might be off and could
+         * lead to an incorrect median selection.
+         *
+         * Example:
+         * Consider the sorted array: [1, 3, 3, 3, 5]
+         * With a total of 5 elements, the median is the 3rd element (index 2 in 0-based indexing).
+         *
+         * We are doing binary search on the **value range** where the median could lie 
+         * (i.e., from the minimum value in the matrix to the maximum value), not on the actual 
+         * matrix elements themselves.
+         *
+         * So, the `mid` value computed at any point might not even be present in the matrix.
+         * 
+         * For example, if your matrix contains values like {1, 2, 5, 10, 15}, the mid might be 8,
+         * which is not in the matrix at all.
+         *
+         * Therefore, doing something like:
+         * 
+         *     if (count == desiredCount)
+         *         return mid;
+         *
+         * is not reliable, because `mid` might not be an actual element in the matrix, even though 
+         * the "median condition" (number of elements ≤ mid) may get satisfied.
+         *
+         * But in reality, the median should be **one of the actual elements of the matrix** that 
+         * satisfies the "median condition" — not just any arbitrary value in the range.
+         */
+
+        /**
+         * Find the minimum and maximum in the matrix.
+         *
+         * Since each row is sorted individually, the smallest element in the matrix
+         * will be in the first column of some row, and the largest element will be
+         * in the last column of some row.
+         */
+        int minValue = Integer.MAX_VALUE;
+        int maxValue = Integer.MIN_VALUE;
+
+        for (int i = 0; i < rows; i++) {
+            minValue = Math.min(minValue, matrix[i][0]);
+            maxValue = Math.max(maxValue, matrix[i][cols - 1]);
+        }
+
+        // Define the search space between the minimum and maximum possible values
+        int low = minValue;
+        int high = maxValue;
+
+        int desiredCount = ((rows * cols) / 2) + 1;
+
+        // Binary search to find the smallest valid/existing number for which count >= desiredCount
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // Count how many elements are ≤ mid in each sorted row using binary search
+            int count = 0;
+            for (int i = 0; i < rows; i++) {
+                count += countLessEqual(matrix[i], mid);
+            }
+
+            /**
+             * 1. If count == desiredCount, mid may be a candidate for the median,
+             *    but since mid might not be an actual element in the matrix,
+             *    we cannot be sure mid is the real median. So we continue searching 
+             *    in the left half to find a valid value.
+             *
+             *    Ex: {1, 3, 3, 4, 6, 8, 9}
+             *    Here, 5 will satisfy the median condition (4 elements ≤ 5),
+             *    but since 5 is not present in the matrix, we go left and find 4 — the actual median.
+             *
+             * 2. If count > desiredCount, then there are more elements than needed,
+             *    meaning the true median might be a smaller number.
+             *
+             * So, in both cases, we continue searching in the left half of the range.
+             */
+            if (count >= desiredCount) {
+                high = mid - 1;
+            } else {
+                /**
+                 * When count is less than desiredCount, there are not enough elements ≤ mid.
+                 * Therefore, the median lies to the right of mid. We move the lower bound up.
+                 */
+                low = mid + 1;
+            }
+        }
+
+        return low;
+    }
+
+    private int countLessEqual(int[] row, int target) {
+        int low = 0, high = row.length - 1;
+        int index = -1;
+
+        // Standard binary search to find the rightmost element ≤ target
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (row[mid] <= target) {
+                index = mid; // Store the last known index satisfying the condition
+                low = mid + 1; // Try to find more elements on the right
+            } else {
+                high = mid - 1; // Move left if element > target
+            }
+        }
+
+        // Return the count of elements ≤ target
+        return index == -1 ? 0 : index + 1;
+    }
+}
