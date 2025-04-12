@@ -1,0 +1,145 @@
+//Bruteforce approach
+
+class Solution {
+    public int[][] diagonalSort(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Temporary list to collect diagonal elements
+        List<Integer> diagonal = new ArrayList<>();
+
+        /*
+         * Step 1: Process diagonals starting from first column (left edge)
+         * Start from each row in the first column
+         */
+        for (int i = 0; i < rows; i++) {
+            int row = i, col = 0;
+
+            // Collect elements on the current diagonal
+            while (row < rows && col < cols) {
+                diagonal.add(matrix[row][col]);
+                row++;
+                col++;
+            }
+
+            // Sort the diagonal elements in ascending order
+            Collections.sort(diagonal);
+
+            // Reinsert sorted values back into the matrix
+            row = i;
+            col = 0;
+            int idx = 0;
+            while (row < rows && col < cols) {
+                matrix[row][col] = diagonal.get(idx++);
+                row++;
+                col++;
+            }
+
+            // Clear the list for next diagonal
+            diagonal.clear();
+        }
+
+        /*
+         * Step 2: Process diagonals starting from top row (excluding top-left corner)
+         * Start from each column in the top row, excluding the first column (already handled)
+         */
+        for (int j = 1; j < cols; j++) {
+            int row = 0, col = j;
+
+            // Collect elements on the current diagonal
+            while (row < rows && col < cols) {
+                diagonal.add(matrix[row][col]);
+                row++;
+                col++;
+            }
+
+            // Sort the diagonal elements in ascending order
+            Collections.sort(diagonal);
+
+            // Reinsert sorted values back into the matrix
+            row = 0;
+            col = j;
+            int idx = 0;
+            while (row < rows && col < cols) {
+                matrix[row][col] = diagonal.get(idx++);
+                row++;
+                col++;
+            }
+
+            // Clear the list for the next diagonal
+            diagonal.clear();
+        }
+
+        return matrix;
+    }
+}
+
+
+//Better approach
+
+class Solution {
+    public int[][] diagonalSort(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Step 1: Map to group elements of the same diagonal using key = row - col
+        Map<Integer, Queue<Integer>> diagonalMap = new HashMap<>();
+
+        // Step 2: Collect elements of each diagonal into the map
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int key = row - col; // Unique key for each diagonal
+                diagonalMap.computeIfAbsent(key, k -> new LinkedList<>()).add(matrix[row][col]);
+            }
+        }
+
+        // Step 3: Sort each diagonal list and store back as a queue for efficient polling
+        for (int key : diagonalMap.keySet()) {
+            List<Integer> diagonal = new ArrayList<>(diagonalMap.get(key));
+            Collections.sort(diagonal); // Sort in ascending order
+            diagonalMap.put(key, new LinkedList<>(diagonal)); // Replace with sorted queue
+        }
+
+        // Step 4: Write sorted values back into the matrix
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int key = row - col;
+                matrix[row][col] = diagonalMap.get(key).poll(); // Fetch sorted element
+            }
+        }
+
+        // Step 5: Return the updated matrix
+        return matrix;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public int[][] diagonalSort(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Use Min-heap (PriorityQueue) to keep elements in sorted (ascending) order.
+        Map<Integer, Queue<Integer>> diagonalMap = new HashMap<>();
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int key = row - col; // Unique key for current diagonal
+                diagonalMap
+                        .computeIfAbsent(key, k -> new PriorityQueue<>())
+                        .add(matrix[row][col]);
+            }
+        }
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int key = row - col;
+                matrix[row][col] = diagonalMap.get(key).poll();
+            }
+        }
+
+        return matrix;
+    }
+}
