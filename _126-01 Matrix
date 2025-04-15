@@ -1,0 +1,97 @@
+//Bruteforce approach
+
+class Solution {
+    // Enum to represent all four possible directions of movement in the matrix.
+    private enum Directions {
+        UP(-1, 0), // Move up (row - 1)
+        DOWN(1, 0), // Move down (row + 1)
+        LEFT(0, -1), // Move left (col - 1)
+        RIGHT(0, 1); // Move right (col + 1)
+
+        // These represent the direction deltas
+        private final int rowDelta;
+        private final int colDelta;
+
+        // Constructor to initialize the direction deltas
+        Directions(int rowDelta, int colDelta) {
+            this.rowDelta = rowDelta;
+            this.colDelta = colDelta;
+        }
+
+        // Getter for row movement
+        public int getRowDelta() {
+            return this.rowDelta;
+        }
+
+        // Getter for column movement
+        public int getColDelta() {
+            return this.colDelta;
+        }
+    }
+
+    public int[][] updateMatrix(int[][] mat) {
+        int[][] distances = new int[mat.length][mat[0].length];
+
+        for (int row = 0; row < mat.length; row++) {
+            for (int col = 0; col < mat[0].length; col++) {
+                // If the current cell is 1, perform BFS to find nearest 0
+                if (mat[row][col] == 1) {
+                    distances[row][col] = bfs(row, col, mat);
+                } else {
+                    // If current cell is already 0, distance is 0
+                    distances[row][col] = 0;
+                }
+            }
+        }
+
+        return distances;
+    }
+
+    // BFS from a given (startRow, startCol) to find the distance to the nearest 0
+    private int bfs(int startRow, int startCol, int[][] matrix) {
+        // Visited array to avoid revisiting cells in this BFS
+        boolean[][] visited = new boolean[matrix.length][matrix[0].length];
+        Queue<int[]> queue = new ArrayDeque<>();
+
+        // Start BFS from the original 1-cell
+        visited[startRow][startCol] = true;
+        queue.offer(new int[] { startRow, startCol });
+
+        int distance = 0;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            distance++; // We are moving 1 level deeper in BFS, so increment distance
+
+            for (int i = 0; i < size; i++) {
+                int[] cell = queue.poll();
+                int row = cell[0];
+                int col = cell[1];
+
+                // Check all 4 possible directions
+                for (Directions direction : Directions.values()) {
+                    int newRow = row + direction.getRowDelta();
+                    int newCol = col + direction.getColDelta();
+
+                    // If the new cell is valid and not yet visited
+                    if (isWithinBounds(newRow, newCol, matrix) && !visited[newRow][newCol]) {
+                        // If the new cell is 0, we've found the nearest 0 → return the current distance
+                        if (matrix[newRow][newCol] == 0) {
+                            return distance;
+                        }
+                        // Mark the new cell visited and add to queue for next level
+                        visited[newRow][newCol] = true;
+                        queue.offer(new int[] { newRow, newCol });
+                    }
+                }
+            }
+        }
+
+        // This return is never reached because there is guaranteed to be at least one 0 in matrix
+        return -1;
+    }
+
+    private boolean isWithinBounds(int row, int col, int[][] matrix) {
+        return (row >= 0 && row < matrix.length) && (col >= 0 && col < matrix[0].length);
+    }
+}
