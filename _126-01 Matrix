@@ -95,3 +95,333 @@ class Solution {
         return (row >= 0 && row < matrix.length) && (col >= 0 && col < matrix[0].length);
     }
 }
+
+
+//Optimal approach
+
+    /*
+    * Imagine the matrix as a city grid:
+    *   - 0’s represent hospitals
+    *   - 1’s represent injured people
+    *
+    * Brute‑Force Approach:
+    *   Each injured person starts walking the city block by block, 
+    *   searching for the nearest hospital. With many injured individuals,
+    *   everyone performs their own search—leading to a lot of repeated work
+    *   and unnecessary effort.
+    *
+    * Multi‑Source BFS Approach:
+    *   The moment the emergency call comes in, every hospital dispatches an ambulance
+    *   in all four directions simultaneously. These ambulances spread out in waves
+    *   across the city. The first ambulance to reach an injured person does so via
+    *   the shortest possible route. This way, the minimum distance to a hospital is 
+    *   found for each person in a single, efficient, and coordinated sweep of the grid.
+    *
+    * Why Does Multi-Source BFS Guarantee the Nearest Distance?
+    *
+    * - Initially, we enqueue all cells with value 0 since they serve as our starting points (sources).
+    * - We then perform a BFS from all 0s simultaneously. This ensures that we explore the matrix
+    *   level by level — from the nearest neighbors to farther ones.
+    *
+    * - When a cell with value 1 is encountered for the first time, it gets its minimum distance assigned.
+    *   Since BFS processes nodes in increasing order of distance, the first time a 1 is visited,
+    *   it is guaranteed to be via the shortest path from the nearest 0.
+    *
+    * - We do not update the distance of a cell again after it's visited, because any further
+    *   visit will come from a longer path.
+    *
+    * - After assigning a distance to a 1, we enqueue it. This ensures that its neighboring
+    *   1s (which might be completely surrounded by other 1s) are not missed — they will be
+    *   reached through the shortest path via previously visited cells.
+    
+    Initial Grid (mat):
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 1, 1]
+    
+    Initial distance matrix (same as input, but mark 1s as -1 initially):
+    [0, 0, 0, 0, 0]
+    [0, 0, -1, -1, -1]
+    [0, 0, -1, -1, -1]
+    [0, 0, -1, -1, -1]
+    
+    Initial queue:
+    {(0,0), (0,1), (0,2), (0,3), (0,4), (1,0), (1,1), (2,0), (2,1), (3,0), (3,1)}
+    
+    Processing cell: (0,0) → distance = 0
+     → Right:  (0,1) already 0 (visited)
+     → Down:   (1,0) already 0 (visited)
+     → Left:   **Out of bounds**
+     → Up:     **Out of bounds**
+    
+    Queue:
+    {(0,1), (0,2), (0,3), (0,4), (1,0), (1,1), (2,0), (2,1), (3,0), (3,1)}
+    
+    ---
+    
+    Processing cell: (0,1) → distance = 0
+     → Left:   (0,0) already 0 (visited)
+     → Right:  (0,2) already 0 (visited)
+     → Down:   (1,1) already 0 (visited)
+     → Up:     **Out of bounds**
+    
+    Queue:
+    {(0,2), (0,3), (0,4), (1,0), (1,1), (2,0), (2,1), (3,0), (3,1)}
+    
+    ---
+    
+    Processing cell: (0,2) → distance = 0
+     → Right:  (0,3) already 0 (visited)
+     → Down:   (1,2) is 1 → assign distance = 1, enqueue
+     → Left:   (0,1) already 0 (visited)
+     → Up:     **Out of bounds**
+    
+    Queue:
+    {(0,3), (0,4), (1,0), (1,1), (2,0), (2,1), (3,0), (3,1), (1,2)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, -1, -1]
+    [0, 0, -1, -1, -1]
+    [0, 0, -1, -1, -1]
+    
+    ---
+    
+    Processing cell: (0,3) → distance = 0
+     → Right:  (0,4) already 0 (visited)
+     → Down:   (1,3) is 1 → assign distance = 1, enqueue
+     → Left:   (0,2) already 0 (visited)
+     → Up:     **Out of bounds**
+    
+    Queue:
+    {(0,4), (1,0), (1,1), (2,0), (2,1), (3,0), (3,1), (1,2), (1,3)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, -1]
+    [0, 0, -1, -1, -1]
+    [0, 0, -1, -1, -1]
+    
+    ---
+    
+    Processing cell: (0,4) → distance = 0
+     → Left:   (0,3) already 0 (visited)
+     → Down:   (1,4) is 1 → assign distance = 1, enqueue
+     → Right:  **Out of bounds**
+     → Up:     **Out of bounds**
+    
+    Queue:
+    {(1,0), (1,1), (2,0), (2,1), (3,0), (3,1), (1,2), (1,3), (1,4)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, -1, -1, -1]
+    [0, 0, -1, -1, -1]
+    
+    ---
+    
+    Processing cell: (1,0) → distance = 0
+     → Down:   (2,0) already 0 (visited)
+     → Right:  (1,1) already 0 (visited)
+     → Left:   **Out of bounds**
+     → Up:     (0,0) already 0 (visited)
+    
+    Queue:
+    {(1,1), (2,0), (2,1), (3,0), (3,1), (1,2), (1,3), (1,4)}
+    
+    ---
+    
+    Processing cell: (1,1) → distance = 0
+     → Down:   (2,1) already 0 (visited)
+     → Right:  (1,2) already has distance = 1 (skip)
+     → Left:   (1,0) already 0 (visited)
+     → Up:     (0,1) already 0 (visited)
+    
+    Queue:
+    {(2,0), (2,1), (3,0), (3,1), (1,2), (1,3), (1,4)}
+    
+    ---
+    
+    Processing cell: (2,0) → distance = 0
+     → Down:   (3,0) already 0 (visited)
+     → Right:  (2,1) already 0 (visited)
+     → Left:   **Out of bounds**
+     → Up:     (1,0) already 0 (visited)
+    
+    Queue:
+    {(2,1), (3,0), (3,1), (1,2), (1,3), (1,4)}
+    
+    ---
+    
+    Processing cell: (2,1) → distance = 0
+     → Down:   (3,1) already 0 (visited)
+     → Right:  (2,2) is 1 → assign distance = 1, enqueue
+     → Left:   (2,0) already 0 (visited)
+     → Up:     (1,1) already 0 (visited)
+    
+    Queue:
+    {(3,0), (3,1), (1,2), (1,3), (1,4), (2,2)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, -1, -1]
+    [0, 0, -1, -1, -1]
+    
+    ---
+    
+    Processing cell: (3,0) → distance = 0
+     → Right:  (3,1) already 0 (visited)
+     → Up:     (2,0) already 0 (visited)
+     → Left:   **Out of bounds**
+     → Down:   **Out of bounds**
+    
+    Queue:
+    {(3,1), (1,2), (1,3), (1,4), (2,2)}
+    
+    ---
+    
+    Processing cell: (3,1) → distance = 0
+     → Right:  (3,2) is 1 → assign distance = 1, enqueue
+     → Left:   (3,0) already 0 (visited)
+     → Up:     (2,1) already 0 (visited)
+     → Down:   **Out of bounds**
+    
+    Queue:
+    {(1,2), (1,3), (1,4), (2,2), (3,2)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, -1, -1]
+    [0, 0, 1, -1, -1]
+    
+    ---
+    
+    Processing cell: (1,2) → distance = 1
+     → Right:  (1,3) already has distance = 1 (skip)
+     → Down:   (2,2) already has distance = 1 (skip)
+     → Left:   (1,1) already 0 (visited)
+     → Up:     (0,2) already 0 (visited)
+    
+    Queue:
+    {(1,3), (1,4), (2,2), (3,2)}
+    
+    ---
+    
+    Processing cell: (1,3) → distance = 1
+     → Right:  (1,4) already has distance = 1 (skip)
+     → Down:   (2,3) is -1 → assign distance = 2, enqueue
+     → Left:   (1,2) already has distance = 1 (skip)
+     → Up:     (0,3) already 0 (visited)
+    
+    Queue:
+    {(1,4), (2,2), (3,2), (2,3)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 2, -1]
+    [0, 0, 1, -1, -1]
+    
+    ---
+    
+    Processing cell: (1,4) → distance = 1
+     → Down:   (2,4) is -1 → assign distance = 2, enqueue
+     → Left:   (1,3) already has distance = 1 (skip)
+     → Right:  **Out of bounds**
+     → Up:     (0,4) already 0 (visited)
+    
+    Queue:
+    {(2,2), (3,2), (2,3), (2,4)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 2, 2]
+    [0, 0, 1, -1, -1]
+    
+    ---
+    
+    Processing cell: (2,2) → distance = 1
+     → Right:  (2,3) already has distance = 2 (skip)
+     → Down:   (3,2) already has distance = 1 (skip)
+     → Left:   (2,1) already 0 (visited)
+     → Up:     (1,2) already has distance = 1 (skip)
+    
+    Queue:
+    {(3,2), (2,3), (2,4)}
+    
+    ---
+    
+    Processing cell: (3,2) → distance = 1
+     → Right:  (3,3) is -1 → assign distance = 2, enqueue
+     → Left:   (3,1) already 0 (visited)
+     → Up:     (2,2) already has distance = 1 (skip)
+     → Down:   **Out of bounds**
+    
+    Queue:
+    {(2,3), (2,4), (3,3)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 2, 2]
+    [0, 0, 1, 2, -1]
+    
+    ---
+    
+    Processing cell: (2,3) → distance = 2
+     → Right:  (2,4) already has distance = 2 (skip)
+     → Down:   (3,3) already has distance = 2 (skip)
+     → Left:   (2,2) already has distance = 1 (skip)
+     → Up:     (1,3) already has distance = 1 (skip)
+    
+    Queue:
+    {(2,4), (3,3)}
+    
+    ---
+    
+    Processing cell: (2,4) → distance = 2
+     → Left:   (2,3) already has distance = 2 (skip)
+     → Down:   (3,4) is -1 → assign distance = 3, enqueue
+     → Right:  **Out of bounds**
+     → UP:  (1,4) already has distance = 1 (skip)
+    
+    Queue:
+    {(3,3), (3,4)}
+    
+    Updated matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 2, 2]
+    [0, 0, 1, 2, 3]
+    
+    ---
+    
+    Processing cell: (3,3) → distance = 2
+     → Right:  (3,4) already has distance = 3 (skip)
+     → Up:     (2,3) already has distance = 2 (skip)
+     → Left:   (3,2) already has distance = 1 (skip)
+     → Down:   **Out of bounds**
+    
+    Queue:
+    {(3,4)}
+    
+    ---
+    
+    Processing cell: (3,4) → distance = 3
+     → Left:   (3,3) already has distance = 2 (skip)
+     → UP:   (2,4) already has distance = 2 (skip)
+     → **Out of bounds**: Right, Down
+    
+    Queue: Empty, processing done!
+    
+    Final distance matrix:
+    [0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1]
+    [0, 0, 1, 2, 2]
+    [0, 0, 1, 2, 3]
+    */
