@@ -425,3 +425,93 @@ class Solution {
     [0, 0, 1, 2, 2]
     [0, 0, 1, 2, 3]
     */
+
+
+class Solution {
+    private enum Direction {
+        UP(-1, 0),
+        DOWN(1, 0),
+        LEFT(0, -1),
+        RIGHT(0, 1);
+
+        private final int rowDelta;
+        private final int colDelta;
+
+        Direction(int rowDelta, int colDelta) {
+            this.rowDelta = rowDelta;
+            this.colDelta = colDelta;
+        }
+
+        public int getRowDelta() {
+            return this.rowDelta;
+        }
+
+        public int getColDelta() {
+            return this.colDelta;
+        }
+    }
+
+    // A simple Cell class to represent matrix coordinates (row, col) in the queue
+    private static class Cell {
+        private int row;
+        private int col;
+
+        Cell(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+
+        public int getRow() {
+            return this.row;
+        }
+
+        public int getCol() {
+            return this.col;
+        }
+    }
+
+    public int[][] updateMatrix(int[][] mat) {
+        int[][] distances = new int[mat.length][mat[0].length];
+
+        Queue<Cell> queue = new ArrayDeque<>();
+
+        for (int row = 0; row < mat.length; row++) {
+            for (int col = 0; col < mat[0].length; col++) {
+                if (mat[row][col] == 0) {
+                    distances[row][col] = 0; // Distance to nearest 0 is itself
+                    queue.offer(new Cell(row, col)); // Add to BFS queue
+                } else {
+                    distances[row][col] = -1; // Mark 1s as unvisited
+                }
+            }
+        }
+
+        // Step 4: Start BFS from all the 0s simultaneously
+        while (!queue.isEmpty()) {
+            Cell cell = queue.poll();
+            int row = cell.getRow();
+            int col = cell.getCol();
+
+            // Try all 4 directions from the current cell
+            for (Direction direction : Direction.values()) {
+                int newRow = row + direction.getRowDelta();
+                int newCol = col + direction.getColDelta();
+
+                // Check if the new cell is within bounds AND is unvisited (-1)
+                if (isWithinBounds(newRow, newCol, mat) && distances[newRow][newCol] == -1) {
+                    // Update the distance using the parent cell's distance + 1
+                    distances[newRow][newCol] = distances[row][col] + 1;
+
+                    // Add the new cell to queue for further BFS processing
+                    queue.offer(new Cell(newRow, newCol));
+                }
+            }
+        }
+
+        return distances;
+    }
+
+    private boolean isWithinBounds(int row, int col, int[][] matrix) {
+        return (row >= 0 && row < matrix.length) && (col >= 0 && col < matrix[0].length);
+    }
+}
