@@ -22,41 +22,70 @@ ended. So, they don't actually overlap. That's why we also need the condition a 
 //Bruteforce Approach
 
 class Solution {
+    /*
+    * Dry Run for: intervals = [[1,3],[2,6],[8,10],[15,18],[5,7]]
+    * Initial intervals: [1,3], [2,6], [8,10], [15,18], [5,7]
+    *
+    * 1st Pass:
+    * - Merge [1,3] and [2,6] => [1,6]
+    * - Merge [1,6] and [5,7] => [1,7]
+    * auxMergedIntervals = [1,7], [8,10], [15,18]
+    *
+    * 2nd Pass:
+    * - No overlapping between [1,7], [8,10], [15,18]
+    * → overlappingIntervalsFound = false, break loop
+    *
+    * Final Merged Intervals: [[1,7],[8,10],[15,18]]
+    */
+
     public int[][] merge(int[][] intervals) {
+        // Base case: if there's only one interval, no merge needed
         if (intervals.length == 1) {
             return intervals;
         }
 
+        // Repeat until no overlapping intervals are found
         while (true) {
-            List<int[]> auxMergedIntervals = new ArrayList<>();
-            boolean[] merged = new boolean[intervals.length];
-            boolean overlappingIntervalsFound = false;
+            List<int[]> auxMergedIntervals = new ArrayList<>(); // Stores newly merged intervals
+            boolean[] merged = new boolean[intervals.length]; // Tracks if an interval has already been merged
+            boolean overlappingIntervalsFound = false; // Flag to check if another pass is needed
 
+            // Iterate through all intervals
             for (int i = 0; i < intervals.length; i++) {
                 if (merged[i]) {
+                    // Skip if this interval was already merged into another
                     continue;
                 }
 
+                // Try to merge current interval with every other interval
                 for (int j = i + 1; j < intervals.length; j++) {
                     if (merged[j]) {
                         continue;
                     }
 
+                    // Check if interval i and j overlap
                     if (isOverlapping(intervals[i], intervals[j])) {
+                        // Merge j into i
                         intervals[i] = mergeIntervals(intervals[i], intervals[j]);
-                        merged[j] = true;
-                        overlappingIntervalsFound = true;
+                        merged[j] = true; // Mark j as merged
+                        overlappingIntervalsFound = true; // Signal to repeat loop
                     }
                 }
+
+                // Add the resulting interval (merged or not) to new list
                 auxMergedIntervals.add(intervals[i]);
             }
+
+            // Convert list to array for next iteration
             intervals = auxMergedIntervals.toArray(new int[auxMergedIntervals.size()][2]);
+
+            // If no overlaps were found in this pass, we're done
             if (!overlappingIntervalsFound) {
                 break;
             }
         }
 
-        return intervals;
+        return intervals; // Final list of merged intervals
     }
 
     private boolean isOverlapping(int[] interval1, int[] interval2) {
@@ -70,6 +99,7 @@ class Solution {
         };
     }
 }
+
 
 
 /*
@@ -94,88 +124,77 @@ So if the intervals[][] are sorted by ‘start’ time in ascending order then w
 condition (a<=d and b>=c) , checking  b>=c will be sufficient to check If two intervals overlap!
 */
 
-//Good Approach
-
-class Solution {
-    public int[][] merge(int[][] intervals) {
-        if (intervals.length == 1) {
-            return intervals;
-        }
-
-        Arrays.sort(intervals, (interval1, interval2) -> {
-            return Integer.compare(interval1[0], interval2[0]);
-        });
-
-        List<int[]> mergedIntervals = new ArrayList<>();
-        boolean[] merged = new boolean[intervals.length];
-
-        for (int i = 0; i < intervals.length; i++) {
-            if (merged[i]) {
-                continue;
-            }
-
-            int[] currentInterval = new int[2];
-            currentInterval[0] = intervals[i][0];
-            currentInterval[1] = intervals[i][1];
-
-            int j = i + 1;
-            while (j < intervals.length && isOverlapping(currentInterval, intervals[j])) {
-                mergeIntervals(currentInterval, intervals[j]);
-                merged[j] = true;
-                j++;
-            }
-
-            mergedIntervals.add(currentInterval);
-        }
-
-        return mergedIntervals.toArray(new int[mergedIntervals.size()][2]);
-    }
-
-    private boolean isOverlapping(int[] current, int[] next) {
-        return current[1] >= next[0];
-    }
-
-    private void mergeIntervals(int[] current, int[] next) {
-        current[1] = Math.max(current[1], next[1]);
-    }
-}
-
-
-
 //Better Approach
 
+/*
+Note :
+By sorting the intervals by their start time, you ensure that any overlapping intervals will be adjacent to each other. 
+This allows you to efficiently merge overlapping intervals by only comparing each interval with the next one if they overlapp  
+then merge them into a single interval.
+
+Constraints:
+1 <= intervals.length <= 10^4
+intervals[I].length == 2
+0 <= starti <= endi <= 10^4
+
+Consider two intervals :
+[a, b] (a<=b) and [c, d] (c<=d)
+
+If we sort the intervals by start time in ascending order?
+
+Then a<=c and c<=d (given) thus a <= d
+
+So if the intervals[][] are sorted by ‘start’ time in ascending order then we are not required to check both the 
+condition (a<=d and b>=c) , checking  b>=c will be sufficient to check If two intervals overlap!
+*/
+
 class Solution {
     public int[][] merge(int[][] intervals) {
         if (intervals.length == 1) {
             return intervals;
         }
 
-        Arrays.sort(intervals, (interval1, interval2) -> {
-            return Integer.compare(interval1[0], interval2[0]);
-        });
+        // Step 1: Sort intervals based on start time (ascending)
+        Arrays.sort(intervals, (interval1, interval2) -> Integer.compare(interval1[0], interval2[0]));
 
+        // List to hold final merged intervals
         List<int[]> mergedIntervals = new ArrayList<>();
+
+        //Used to mark intervals that have been merged to avoid reprocessing
         boolean[] merged = new boolean[intervals.length];
 
+        // Step 2: Traverse each interval
         for (int i = 0; i < intervals.length; i++) {
+            if (merged[i]) {
+                continue; // Skip if already merged in a previous group
+            }
+
+            // Start with current interval
             int[] currentInterval = new int[2];
             currentInterval[0] = intervals[i][0];
             currentInterval[1] = intervals[i][1];
 
             int j = i + 1;
+
+            // Step 3: Merge all overlapping intervals ahead of it
             while (j < intervals.length && isOverlapping(currentInterval, intervals[j])) {
+                // Extend current interval to include overlap
                 mergeIntervals(currentInterval, intervals[j]);
+                merged[j] = true; // Mark next interval as merged
                 j++;
-                i++; // To skip merged intervals
             }
 
+            // Add the final merged interval to the result list
             mergedIntervals.add(currentInterval);
         }
 
+        // Convert list to array
         return mergedIntervals.toArray(new int[mergedIntervals.size()][2]);
     }
 
+    // Checks if two intervals overlap
     private boolean isOverlapping(int[] current, int[] next) {
+        // Since intervals are sorted by start time, we only need to check end of current >= start of next
         return current[1] >= next[0];
     }
 
@@ -183,8 +202,6 @@ class Solution {
         current[1] = Math.max(current[1], next[1]);
     }
 }
-
-
 
 //Optimal Approach
 
