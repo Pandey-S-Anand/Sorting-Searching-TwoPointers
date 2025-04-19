@@ -5,10 +5,10 @@ This condition checks if the end of the first interval (b) is not before the sta
 
 Ex :
 [1, 3],[2, 6] => [1, 6]
-[2, 9],[1, 6] => [1, 9]
-[1, 3], [3, 3]=> [1, 3]
-[1,8], [2, 3] =>[1, 8]
-[2, 4], [1, 8]=>[1, 8]
+[1, 6],[2, 9] => [1, 9]
+[1, 3], [3, 3] => [1, 3]
+[1,8], [2, 3] => [1, 8]
+[1, 8], [2, 4] => [1, 8]
 
 why just not b>=c ,what is the need of a<=d ?
 
