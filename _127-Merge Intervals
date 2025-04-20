@@ -1,5 +1,5 @@
 /*
-Given two intervals, [a, b] and [c, d], the condition for these intervals to overlap can be expressed as:
+Given two intervals, [a, b] and [c, d] (where a < b and c < d), the condition for these intervals to overlap can be expressed as:
 a <= d && b >= c
 This condition checks if the end of the first interval (b) is not before the start of the second interval (c), and the start of the first interval (a) is not after the end of the second interval (d). If both these conditions are true, the intervals overlap.
 
