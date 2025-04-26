@@ -1,0 +1,21 @@
+class Solution {
+    public int maxTwoEvents(int[][] events) {
+        int maxSum = 0;
+
+        // Compare every pair of events
+        for (int i = 0; i < events.length; i++) {
+            for (int j = i + 1; j < events.length; j++) {
+                if (!isOverlapping(events[i], events[j])) { // If the two events are non-overlapping
+                    maxSum = Math.max(maxSum, events[i][2] + events[j][2]); // Update max value considering both events
+                }
+            }
+            maxSum = Math.max(maxSum, events[i][2]); // Also consider the case of taking only a single event
+        }
+
+        return maxSum;
+    }
+
+    private boolean isOverlapping(int[] events1, int[] events2) {
+        return events1[0] <= events2[1] && events1[1] >= events2[0];
+    }
+}
