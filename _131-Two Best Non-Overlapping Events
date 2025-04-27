@@ -1,3 +1,5 @@
+//Bruteforce approach
+
 class Solution {
     public int maxTwoEvents(int[][] events) {
         int maxSum = 0;
@@ -9,6 +11,14 @@ class Solution {
                     maxSum = Math.max(maxSum, events[i][2] + events[j][2]); // Update max value considering both events
                 }
             }
+            /*
+            Important:
+            -----------------------------------
+            - "At most two" means we are allowed to pick:
+            - Only 1 event, OR
+            - 2 non-overlapping events.
+            - Hence, after checking all pairs, we also compare the value of taking a single event alone.
+            */
             maxSum = Math.max(maxSum, events[i][2]); // Also consider the case of taking only a single event
         }
 
@@ -17,5 +27,213 @@ class Solution {
 
     private boolean isOverlapping(int[] events1, int[] events2) {
         return events1[0] <= events2[1] && events1[1] >= events2[0];
+    }
+}
+
+//Improved approach
+
+class Solution {
+    public int maxTwoEvents(int[][] events) {
+        // Sort events based on their start time in ascending order
+        Arrays.sort(events, (event1, event2) -> Integer.compare(event1[0], event2[0]));
+
+        // Start recursion from index 0 with 0 events selected
+        return findMaxValue(events, 0, 0);
+    }
+
+    private int findMaxValue(int[][] events, int currentIndex, int eventsChosen) {
+        // Base case: If we've considered all events or already selected 2 events, return 0 (no more value can be added)
+        if (currentIndex == events.length || eventsChosen == 2) {
+            return 0;
+        }
+
+        // Option 1: Take the current event and find the next non-overlapping event
+        int nextNonOverlappingIndex = findNextNonOverlappingEvent(events, currentIndex + 1, events[currentIndex][1]);
+        int take = events[currentIndex][2]; // value of current event
+        // Add the value of the next valid event if available
+        if (nextNonOverlappingIndex != -1) {
+            take += findMaxValue(events, nextNonOverlappingIndex, eventsChosen + 1);
+        }
+
+        // Option 2: Skip the current event and move to the next event
+        int skip = findMaxValue(events, currentIndex + 1, eventsChosen);
+
+        // Return the maximum of taking or skipping the event
+        return Math.max(take, skip);
+    }
+
+    private int findNextNonOverlappingEvent(int[][] events, int lb, int currentEndTime) {
+        int nextNonOverlappingIndex = -1;
+        int low = lb, high = events.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (events[mid][0] > currentEndTime) {
+                nextNonOverlappingIndex = mid; // Found a candidate, search left to find the earliest non-overlapping event
+                high = mid - 1;
+            } else {
+                low = mid + 1; // Search right to find an event that starts after the current event's end time
+            }
+        }
+
+        // Return the index of the next non-overlapping event, or -1 if no valid event is found
+        return nextNonOverlappingIndex;
+    }
+}
+
+
+//Better approach
+
+class Solution {
+    private int[][] cache;
+
+    public int maxTwoEvents(int[][] events) {
+        // Initialize the cache array with -1 (indicating uncomputed results)
+        cache = new int[events.length][2];
+        Arrays.sort(events, (event1, event2) -> Integer.compare(event1[0], event2[0]));
+        return findMaxValue(events, 0, 0);
+    }
+
+    private int findMaxValue(int[][] events, int currentIndex, int eventsChosen) {
+        if (currentIndex == events.length || eventsChosen == 2) {
+            return 0;
+        }
+        
+        // Check if the value is already computed (cached)
+        if (cache[currentIndex][eventsChosen] != 0) {
+            return cache[currentIndex][eventsChosen];
+        }
+
+        int nextNonOverlappingIndex = findNextNonOverlappingEvent(events, currentIndex + 1, events[currentIndex][1]);
+        int take = events[currentIndex][2];
+        if (nextNonOverlappingIndex != -1) {
+            take += findMaxValue(events, nextNonOverlappingIndex, eventsChosen + 1);
+        }
+
+        int skip = findMaxValue(events, currentIndex + 1, eventsChosen);
+
+        // Store the result in the cache and return the maximum of taking or skipping the event
+        return cache[currentIndex][eventsChosen] = Math.max(take, skip);
+    }
+
+    private int findNextNonOverlappingEvent(int[][] events, int lb, int currentEndTime) {
+        int nextNonOverlappingIndex = -1;
+        int low = lb, high = events.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (events[mid][0] > currentEndTime) {
+                nextNonOverlappingIndex = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return nextNonOverlappingIndex;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    /**
+    * Why a priority queue?
+    * ----------------------
+    * - We need to know, at each new event’s start time, the best value among all events
+    *   that have already ended (so they won’t overlap).
+    * - By storing ended events in a min-heap by their endTime, we can:
+    *     • Quickly remove (poll) all events with endTime < current start.
+    *     • Keep track of the maximum “value” seen so far among those removed.
+    * - This “sweep line” + heap approach lets us pair the current event
+    *   with the single best previous non-overlapping event in O(log N) per event,
+    *   totaling O(N log N).
+    *
+    * Overlap simplification:
+    * -----------------------
+    * General overlap for [a,b] and [c,d] is a ≤ d && b ≥ c.
+    * Once sorted by start (so a ≤ c), a ≤ d is always true (c ≤ d),
+    * leaving only b ≥ c to check overlap.
+    *
+    * Why sort by endTime in the heap?
+    * --------------------------------
+    * - Without sorting by endTime, expiring old events would require scanning all past events.
+    * - A min-heap keyed by endTime lets us expire (poll) in O(log N), keeping only
+    *   relevant ended events to update bestValueSoFar.
+    *
+    * Example:
+    *   events = [[1, 3, 5], [2, 4, 6], [4, 6, 7], [6, 8, 8], [7, 9, 10]]
+    *
+    *   1) Sort by start:  
+    *      [[1,3,5], [2,4,6], [4,6,7], [6,8,8], [7,9,10]]
+    *
+    *   2) Initialize:
+    *      bestValueSoFar = 0, maxSum = 0, heap = []
+    *
+    *   3) Process in start order:
+    *
+    *      [1,3,5]:
+    *        heap empty → bestValueSoFar=0
+    *        maxSum = max(0, 0+5) = 5
+    *        heap → [[3,5]]
+    *
+    *      [2,4,6]:
+    *        heap.peek().end=3 < 2? no → bestValueSoFar=0
+    *        maxSum = max(5, 0+6) = 6
+    *        heap → [[3,5], [4,6]]
+    *
+    *      [4,6,7]:
+    *        heap.peek().end=3 < 4? yes → remove [3,5], bestValueSoFar=5
+    *        now heap.peek().end=4 < 4? no
+    *        maxSum = max(6, 5+7) = 12
+    *        heap → [[4,6], [6,7]]
+    *
+    *      [6,8,8]:
+    *        heap.peek().end=4 < 6? yes → remove [4,6], bestValueSoFar=6
+    *        now heap.peek().end=6 < 6? no
+    *        maxSum = max(12, 6+8) = 14
+    *        heap → [[6,7], [8,8]]
+    *
+    *      [7,9,10]:
+    *        heap.peek().end=6 < 7? yes → remove [6,7], bestValueSoFar=7
+    *        now heap.peek().end=8 < 7? no
+    *        maxSum = max(14, 7+10) = 17
+    *        heap → [[8,8], [9,10]]
+    *
+    *   4) Final answer = 17 (from events [6,8,8] and [7,9,10]).
+    */
+    public int maxTwoEvents(int[][] events) {
+        Arrays.sort(events, (event1, event2) -> Integer.compare(event1[0], event2[0]));
+        // Priority Queue (min-heap) to store previous events by their end time in ascending order.
+        PriorityQueue<int[]> minHeapByEnd = new PriorityQueue<>((a, b) -> Integer.compare(a[0], b[0]));
+
+        int bestValueSoFar = 0;
+        int maxSum = 0;
+
+        for (int[] event : events) {
+            int startTime = event[0], endTime = event[1], value = event[2];
+
+            while (!minHeapByEnd.isEmpty() && minHeapByEnd.peek()[0] < startTime) {
+                // Poll the events from the priority queue that have already ended (i.e., no overlap with the current event).
+                int endedEventValue = minHeapByEnd.poll()[1];
+                // Update the best value found so far from events that have ended before the current event.
+                bestValueSoFar = Math.max(bestValueSoFar, endedEventValue);
+            }
+
+            /* 
+            * Combine this event with the best previous non-overlapping event.
+            * Add its value to bestSoFar (the best value of any event that has already ended).
+            * Whichever sum (bestSoFar + current event's value) is larger becomes your new running maximum.
+            */
+            maxSum = Math.max(maxSum, bestValueSoFar + value);
+
+            // Add this event to the heap for future events to consider
+            minHeapByEnd.offer(new int[] { endTime, value });
+        }
+
+        return maxSum;
     }
 }
