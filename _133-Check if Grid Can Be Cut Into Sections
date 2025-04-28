@@ -1,0 +1,99 @@
+// Bruteforce approach
+
+class Solution {
+    public boolean checkValidCuts(int n, int[][] rectangles) {
+        /*
+         * Try all possible pairs of vertical cuts.
+         * Important: We cannot cut exactly at 0 or n, because otherwise one side would have no rectangles.
+         */
+        for (int x1 = 1; x1 < n; x1++) {
+            for (int x2 = x1 + 1; x2 < n; x2++) {
+                /*
+                 * Try making vertical cuts at x = x1 and x = x2.
+                 * If a valid vertical split is possible, return true immediately.
+                 */
+                if (canSplit(rectangles, true, x1, x2)) {
+                    return true;
+                }
+            }
+        }
+
+        /*
+         * Try all possible pairs of horizontal cuts.
+         * Important: We cannot cut exactly at 0 or n, because otherwise one side would have no rectangles.
+         */
+        for (int y1 = 1; y1 < n; y1++) {
+            for (int y2 = y1 + 1; y2 < n; y2++) {
+                /*
+                 * Try making horizontal cuts at y = y1 and y = y2.
+                 * If a valid horizontal split is possible, return true immediately.
+                 */
+                if (canSplit(rectangles, false, y1, y2)) {
+                    return true;
+                }
+            }
+        }
+
+        /*
+         * If no valid vertical or horizontal split was found,
+         * return false.
+         */
+        return false;
+    }
+
+    private boolean canSplit(int[][] rectangles, boolean isVertical, int cut1, int cut2) {
+        /*
+         * Array to track if each of the 3 sections has at least one rectangle.
+         * For vertical cuts: sections are Left, Middle, Right.
+         * For horizontal cuts: sections are Bottom, Middle, Top.
+         */
+        boolean[] hasRectangle = new boolean[3];
+
+        for (int[] rectangle : rectangles) {
+            /*
+             * Extract the relevant start and end based on orientation:
+             * - For vertical cuts, we use x-coordinates (startx, endx).
+             * - For horizontal cuts, we use y-coordinates (starty, endy).
+             */
+            int start = isVertical ? rectangle[0] : rectangle[1];
+            int end = isVertical ? rectangle[2] : rectangle[3];
+
+            //If a rectangle crosses over cut1 or cut2, it would be split between two sections. Splitting a rectangle is invalid.
+            if (start < cut1 && end > cut1) {
+                return false;
+            }
+
+            // Similarly, if a rectangle crosses over cut2, it's invalid.
+            if (start < cut2 && end > cut2) {
+                return false;
+            }
+
+            /*
+            * Now assign the rectangle fully to one of the three sections:
+            * 
+            * Section 0: Rectangles fully to the left of cut1 (end <= cut1).
+            * Section 1: Rectangles fully between cut1 and cut2 (start >= cut1 && end <= cut2).
+            * Section 2: Rectangles fully to the right of cut2 (start >= cut2).
+            *
+            * Important:
+            * - Rectangles are allowed to share the boundary (i.e., touch the cut lines exactly).
+            */
+            if (end <= cut1) {
+                hasRectangle[0] = true; // Rectangle lies completely in first section
+            } else if (start >= cut1 && end <= cut2) {
+                hasRectangle[1] = true; // Rectangle lies completely in middle section
+            } else { // (start >= cut2)
+                hasRectangle[2] = true; // Rectangle lies completely in third section
+            }
+        }
+
+        /*
+         * Valid split only if each of the three sections contains at least one rectangle.
+         */
+        return hasRectangle[0] && hasRectangle[1] && hasRectangle[2];
+    }
+}
+
+
+//Optimal approach
+
