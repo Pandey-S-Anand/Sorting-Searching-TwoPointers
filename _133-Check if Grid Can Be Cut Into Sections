@@ -95,5 +95,132 @@ class Solution {
 }
 
 
-//Optimal approach
+// Optimal approach
 
+//Naive implementation
+
+class Solution {
+    /*
+    * Approach:
+    * 
+    * - The goal is to determine if we can make two vertical or two horizontal cuts
+    *   on the grid such that:
+    *   1. Each resulting section i.e 3 sections has at least one rectangle.
+    *   2. No rectangle is split by a cut (rectangles must lie fully inside one section).
+    * 
+    * - Instead of trying all possible cut positions, we use a merging intervals approach:
+    * 
+    *   1. Collect all x-axis intervals [startx, endx] for rectangles.
+    *   2. Merge overlapping x-intervals.
+    *      - If we find 3 or more non-overlapping merged x-intervals, we can place two vertical cuts safely.
+    *   
+    *   3. Collect all y-axis intervals [starty, endy].
+    *      - Merge overlapping y-intervals.
+    *      - If we find 3 or more non-overlapping merged y-intervals, we can place two horizontal cuts.
+    * 
+    * - Important:
+    *   - Rectangles are allowed to share the boundary (i.e., touch the cut lines exactly) but not go inside each other.
+    */
+    public boolean checkValidCuts(int n, int[][] rectangles) {
+        int[][] xIntervals = new int[rectangles.length][2];
+        int[][] yIntervals = new int[rectangles.length][2];
+        int index = 0;
+
+        for (int[] rectangle : rectangles) {
+            xIntervals[index] = new int[] { rectangle[0], rectangle[2] };
+            yIntervals[index] = new int[] { rectangle[1], rectangle[3] };
+            index++;
+        }
+
+        // Merges overlapping intervals and returns true if there are at least three non-overlapping intervals found either in the vertical or horizontal direction.
+        return hasAtLeastThreeNonOverlappingIntervals(xIntervals) || hasAtLeastThreeNonOverlappingIntervals(yIntervals);
+    }
+
+    private boolean hasAtLeastThreeNonOverlappingIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (interval1, interval2) -> Integer.compare(interval1[0], interval2[0]));
+
+        int nonOverlappingIntervalsCount = 0;
+        int[] mergedInterval = { intervals[0][0], intervals[0][1] };
+
+        for (int i = 1; i < intervals.length; i++) {
+            int[] currentInterval = intervals[i];
+            if (isOverlapping(mergedInterval, currentInterval)) {
+                mergeOverlappingIntervals(mergedInterval, currentInterval);
+            } else {
+                nonOverlappingIntervalsCount++; // Found a new non overlapping interval
+                if (nonOverlappingIntervalsCount == 3) {
+                    return true; // nonOverlappingIntervalsCount == 2 → 3 sections are formed!
+                }
+                mergedInterval = currentInterval;
+            }
+        }
+
+        nonOverlappingIntervalsCount++; //Count the last non overlapping interval
+
+        return nonOverlappingIntervalsCount == 3;
+    }
+
+    private boolean isOverlapping(int[] interval1, int[] interval2) {
+         // Two intervals overlap if merged interval's end > current interval's start (Boundary touching is allowed)
+        return interval1[1] > interval2[0];
+    }
+
+    private void mergeOverlappingIntervals(int[] interval1, int[] interval2) {
+        // Extend merged interval's end if needed to include the current rectangle
+        interval1[1] = Math.max(interval1[1], interval2[1]);
+    }
+}
+
+//Optimal implementation
+
+class Solution {
+    public boolean checkValidCuts(int n, int[][] rectangles) {
+        // Check if either a vertical cut (based on x-axis) or a horizontal cut (based on y-axis) can divide the plane into 3 valid sections
+        return hasAtLeastThreeNonOverlappingIntervals(rectangles, true) || hasAtLeastThreeNonOverlappingIntervals(rectangles, false);
+    }
+
+    private boolean hasAtLeastThreeNonOverlappingIntervals(int[][] rectangles, boolean isVerticalCut) {
+        // Decide which coordinate to sort by:  x-coordinate for vertical cuts, y-coordinate for horizontal cuts
+        int sortIndex = isVerticalCut ? 0 : 1;
+
+        // Sort rectangles based on starting x or y coordinate
+        Arrays.sort(rectangles, (a, b) -> Integer.compare(a[sortIndex], b[sortIndex]));
+
+        // Determine which columns (indexes) to use for start and end of intervals
+        int start = isVerticalCut ? 0 : 1;
+        int end = isVerticalCut ? 2 : 3;
+
+        int[] mergedInterval = { rectangles[0][start], rectangles[0][end] };
+
+        int nonOverlappingIntervalsCount = 0;
+
+        for (int i = 1; i < rectangles.length; i++) {
+            int currentStart = rectangles[i][start];
+            int currentEnd = rectangles[i][end];
+
+            if (isOverlapping(mergedInterval, currentStart)) {
+                mergeOverlappingIntervals(mergedInterval, currentEnd);
+            } else {
+                nonOverlappingIntervalsCount++;
+
+                if (nonOverlappingIntervalsCount == 3) {
+                    return true;
+                }
+
+                mergedInterval = new int[] { currentStart, currentEnd };
+            }
+        }
+
+        nonOverlappingIntervalsCount++;
+
+        return nonOverlappingIntervalsCount == 3;
+    }
+
+    private boolean isOverlapping(int[] mergedInterval, int currentStart) {
+        return mergedInterval[1] > currentStart;
+    }
+
+    private void mergeOverlappingIntervals(int[] mergedInterval, int currentEnd) {
+        mergedInterval[1] = Math.max(mergedInterval[1], currentEnd);
+    }
+}
