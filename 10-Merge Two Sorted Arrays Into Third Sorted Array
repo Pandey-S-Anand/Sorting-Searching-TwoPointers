@@ -10,51 +10,70 @@ class Solution {
     }
 }
 
+
 // Better Approach
 
 class Solution {
     public void merge(int[] arr1, int m, int[] arr2, int n) {
+        // Loop over each element in arr2
         for (int i = 0; i < n; i++) {
+            // Place arr2[i] at the end of valid elements in arr1
             arr1[i + m] = arr2[i];
-            modifiedInsertionSort(arr1, i + m);
+
+            // Insert arr2[i] at the correct position in arr1 to maintain sorted order
+            modifiedInsertionSort(arr1, i + m, arr1[i + m]);
         }
     }
 
-    public void modifiedInsertionSort(int[] arr, int i) {
-        int temp = arr[i], j = i - 1;
+    private void modifiedInsertionSort(int[] arr, int n, int target) {
+        int j = n - 1;
 
-        while (j >= 0 && arr[j] > temp) {
+        // Shift elements greater than 'target' one step to the right
+        while (j >= 0 && arr[j] > target) {
             arr[j + 1] = arr[j];
             j--;
         }
 
-        arr[j + 1] = temp;
+        // Place 'target' at its correct sorted position
+        arr[j + 1] = target;
     }
 }
+
 
 // Optimal Approach
 
 class Solution {
     public void merge(int[] arr1, int m, int[] arr2, int n) {
-        int i = 0, j = 0, idx = 0;
-        int temp[] = new int[m + n];
+        int i = 0, j = 0, k = 0; // Initialize pointers for arr1, arr2, and the merged array
+        int[] mergedArray = new int[m + n]; // Create a new array to hold the merged result
 
+        // Merge the two arrays while both have elements left to compare
         while (i < m && j < n) {
+            // Add the smaller of the two elements to the merged array
             if (arr1[i] <= arr2[j]) {
-                temp[idx++] = arr1[i++];
+                mergedArray[k++] = arr1[i++];
             } else {
-                temp[idx++] = arr2[j++];
+                mergedArray[k++] = arr2[j++];
             }
         }
 
+        // If there are remaining elements in arr1, add them to the merged array
         while (i < m) {
-            temp[idx++] = arr1[i++];
+            mergedArray[k++] = arr1[i++];
         }
 
+        // If there are remaining elements in arr2, add them to the merged array
         while (j < n) {
-            temp[idx++] = arr2[j++];
+            mergedArray[k++] = arr2[j++];
         }
 
-        System.arraycopy(temp, 0, arr1, 0, arr1.length);
+        // Copy the merged result back to arr1
+        copyMergedArrayToArr1(mergedArray, arr1);
+    }
+
+    private void copyMergedArrayToArr1(int[] mergedArray, int[] arr1) {
+        for (int i = 0; i < mergedArray.length; i++) {
+            arr1[i] = mergedArray[i]; // Copy each element back to arr1
+        }
     }
 }
