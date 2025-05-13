@@ -1,183 +1,69 @@
 //Naive Approach
 
 /*
+Step 1:
+We start by comparing the last elements of arr1 (starting from the end)
+with the first elements of arr2 (starting from the beginning).
+
+The goal is to ensure that all elements in arr1 are smaller than or equal to
+those in arr2 — since arr1 should contain the smaller half and arr2 the larger half
+of the final sorted array.
+
+If arr1[i] > arr2[j], it means the element in arr1 is too large for its position
+and should be swapped with the smaller element in arr2.
+
+We continue this until we find a case where arr1[i] <= arr2[j].
+At that point, we break early because all remaining elements in arr1 (before index i)
+are guaranteed to be less than or equal to elements in arr2 (due to initial sorted order),
+so further swaps aren't needed.
+
+Step 2:
+After the swapping phase, we sort both arr1 and arr2 individually
+to ensure both arrays are completely sorted and represent the final merged order.
+
 Dry Run:
 
 Given input:
-
 arr1: [1, 3, 5, 7]
 arr2: [0, 2, 6, 8, 9]
-m: 4 (length of arr1)
-n: 5 (length of arr2)
 
-Initialization:
+First Pass:
+i = 3, j = 0 → 7 > 0 → swap → arr1: [1, 3, 5, 0], arr2: [7, 2, 6, 8, 9]
+Second Pass:
+i = 2, j = 1 → 5 > 2 → swap → arr1: [1, 3, 2, 0], arr2: [7, 5, 6, 8, 9]
+Third Pass:
+i = 1, j = 2 → 3 < 6 → break
 
-i is initialized to m - 1, which is 3.
-j is initialized to 0.
-
-First iteration :
-
-Since arr1[i] is 7 and arr2[j] is 0, the condition arr1[i] > arr2[j] is true.
-Swap the values of arr1[i] and arr2[j]:
-Updated Arrays:
-arr1: [1, 3, 5, 0]
-arr2: [7, 2, 6, 8, 9]
-Decrement i to 2 and increment j to 1.
-
-Second iteration:
-
-Since arr1[i] is 5 and arr2[j] is 2, the condition arr1[i] > arr2[j] is true.
-Swap the values of arr1[i] and arr2[j]:
-Updated Arrays:
-arr1: [1, 3, 2, 0]
-arr2: [7, 5, 6, 8, 9]
-Decrement i to 1 and increment j to 2.
-
-Third iteration:
-
-Since arr1[i] is 3 and arr2[j] is 6, the condition arr1[i] > arr2[j] is false.
-Exit the loop.
-
-After the loop, both arrays are sorted using Arrays.sort
-
-After sorting, the arrays are:
-
-arr1 = [1, 2, 3, 4]
-arr2 = [5, 6, 7]
-
+Final Sort:
+arr1 = [0, 1, 2, 3]
+arr2 = [5, 6, 7, 8, 9]
 */
 
 class Solution {
-    public static void merge(long arr1[], long arr2[], int m, int n) {
-        int i = m - 1, j = 0;
+    public static void mergeArrays(int[] arr1, int[] arr2) {
+        int index1 = arr1.length - 1; // Start from end of arr1
+        int index2 = 0; // Start from beginning of arr2
 
-        while (i >= 0 && j < n) {
-            if (arr1[i] > arr2[j]) {
-                long temp = arr1[i];
-                arr1[i] = arr2[j];
-                arr2[j] = temp;
-
-                i--;
-                j++;
+        // Compare elements and swap if needed
+        while (index1 >= 0 && index2 < arr2.length) {
+            if (arr1[index1] > arr2[index2]) {
+                swap(arr1, index1, arr2, index2);
+                index1--;
+                index2++;
             } else {
-                break;
+                break; // arr1[index1] <= arr2[index2], so rest is already sorted
             }
         }
 
+        // Sort both arrays individually after swapping to get final sorted arrays
         Arrays.sort(arr1);
         Arrays.sort(arr2);
     }
-}
 
-
-/*
-
-Given arrays:
-
-arr1: [1, 3, 5, 7]
-arr2: [0, 2, 6]
-m = 4 (size of arr1)
-n = 3 (size of arr2)
-
-Iteration 1:
-
-i = 0
-arr1[0] = 1, arr2[0] = 0
-Since arr1[0] (1) is greater than arr2[0] (0),a swap occurs.
-
-After Swap:
-
-arr1: [0, 3, 5, 7]
-arr2: [1, 2, 6]
-
-After sorting arr2 :
-arr2: [1, 2, 6]
-
-Updated Arrays:
-
-arr1: [0, 3, 5, 7]
-arr2: [1, 2, 6]
-
-
-Iteration 2:
-
-i = 1
-arr1[1] = 3, arr2[0] = 1
-Since arr1[1] (3) is  greater than arr2[0] (1), a swap occurs.
-
-After Swap:
-
-arr1: [0, 1, 5, 7]
-arr2: [3, 2, 6]
-
-After sorting arr2 :
-arr2: [2, 3, 6]
-
-Updated Arrays:
-
-arr1: [0, 1, 5, 7]
-arr2: [2, 3, 6]
-
-Iteration 3:
-
-i = 2
-arr1[2] = 5, arr2[0] = 2
-Since arr1[2] (5) is greater than arr2[0] (2), a swap occurs:
-
-After Swap:
-
-arr1: [0, 1, 2, 7]
-arr2: [5, 3, 6]
-
-After sorting arr2 :
-arr2: [3, 5, 6]
-
-Updated Arrays:
-
-arr1: [0, 1, 2, 7]
-arr2: [3, 5, 6]
-
-Iteration 4:
-
-i = 3
-arr1[3] = 7, arr2[0] = 3
-Since arr1[3] (7) is greater than arr2[0] (3), a swap occurs:
-
-After Swap:
-
-arr1: [0, 1, 2, 3]
-arr2: [7, 5, 6]
-
-After sorting arr2 :
-arr2: [5, 6, 7]
-
-Updated Arrays:
-
-arr1: [0, 1, 2, 3]
-arr2: [5, 6, 7]
-
--------Loop Terminates-----------
-
-After the iterations, the arrays become:
-
-arr1: [0, 1, 2, 3]
-arr2: [5, 6, 7]
-
-*/
-
-// Better Approach
-
-class Solution {
-    public static void merge(long arr1[], long arr2[], int m, int n) {
-        for (int i = 0; i < m; i++) {
-            if (arr1[i] > arr2[0]) {
-                long temp = arr1[i];
-                arr1[i] = arr2[0];
-                arr2[0] = temp;
-
-                Arrays.sort(arr2);
-            }
-        }
+    private static void swap(int[] arr1, int i, int[] arr2, int j) {
+        int temp = arr1[i];
+        arr1[i] = arr2[j];
+        arr2[j] = temp;
     }
 }
 
@@ -283,28 +169,29 @@ arr2: [5, 6, 7]
 //Optimal Approach
 
 class Solution {
-    public static void merge(long[] arr1, long[] arr2, int m, int n) {
-        int gap = (int) Math.ceil((double) (n + m) / 2);
+    public static void mergeArrays(int[] arr1, int[] arr2) {
+        int m = arr1.length, n = arr2.length;
+        int gap = (int) Math.ceil(((m + n) / 2.0);
 
         while (gap > 0) {
             int i = 0, j = gap;
 
-            while (j < (n + m)) {
+            while (j < (m + n)) {
                 if (i < m && j >= m) { // case 1: i in arr1[] and j in arr2[]:
                     if (arr1[i] > arr2[j - m]) {
-                        long temp = arr1[i];
+                        int temp = arr1[i];
                         arr1[i] = arr2[j - m];
                         arr2[j - m] = temp;
                     }
                 } else if (i >= m) { // case 2: both pointers in arr2[]:
                     if (arr2[i - m] > arr2[j - m]) {
-                        long temp = arr2[i - m];
+                        int temp = arr2[i - m];
                         arr2[i - m] = arr2[j - m];
                         arr2[j - m] = temp;
                     }
                 } else if (j < m) { // case 3: both pointers in arr1[]:
                     if (arr1[i] > arr1[j]) {
-                        long temp = arr1[i];
+                        int temp = arr1[i];
                         arr1[i] = arr1[j];
                         arr1[j] = temp;
                     }
@@ -318,7 +205,7 @@ class Solution {
                 break;
             }
             // Otherwise, calculate new gap:
-            gap = (int) Math.ceil((double) gap / 2.0);
+            gap = (int) Math.ceil(gap / 2.0);
         }
     }
 }
