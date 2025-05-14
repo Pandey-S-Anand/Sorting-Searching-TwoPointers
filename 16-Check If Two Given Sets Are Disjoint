@@ -1,0 +1,145 @@
+//Bruteforce Approach
+
+class Solution {
+    public boolean areDisjoint(int[] arr1, int[] arr2) {
+        /*
+         Two arrays are disjoint if they have no elements in common.
+         If you check all elements of arr1 and none of them appear in arr2,
+         then the arrays are disjoint.
+         There's no need to check arr2 → arr1 because if any common element exists,
+         it will be found during arr1 → arr2 scan.
+        */
+        for (int i = 0; i < arr1.length; i++) {
+            // If current element of arr1 is found in arr2, they are not disjoint
+            if (linearSearch(arr1[i], arr2)) {
+                return false;
+            }
+        }
+
+        // All elements of arr1 were checked and not found in arr2 → disjoint
+        return true;
+    }
+
+    private boolean linearSearch(int key, int[] arr) {
+        int start = 0, end = arr.length - 1;
+
+        while (start <= end) {
+            // Check both start and end positions for early match
+            if (arr[start] == key || arr[end] == key) {
+                return true; // Element found
+            }
+            start++;
+            end--;
+        }
+
+        return false; // Element not found
+    }
+}
+
+
+// Improved Approach
+
+class Solution {
+    public boolean areDisjoint(int[] arr1, int[] arr2) {
+        // Sort arr2 to enable binary search
+        Arrays.sort(arr2);
+
+        // For each element in arr1, search in arr2 using binary search
+        for (int i = 0; i < arr1.length; i++) {
+            if (binarySearch(arr1[i], arr2, arr2.length)) {
+                // If any element of arr1 is found in arr2 → not disjoint
+                return false;
+            }
+        }
+
+        // No common elements found → arrays are disjoint
+        return true;
+    }
+
+    private boolean binarySearch(int key, int[] arr, int n) {
+        int low = 0, high = n - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == key) {
+                return true; 
+            } else if (key < arr[mid]) {
+                high = mid - 1; 
+            } else {
+                low = mid + 1; 
+            }
+        }
+
+        return false;
+    }
+}
+
+
+// Better Approach
+
+class Solution {
+    public boolean areDisjoint(int[] arr1, int[] arr2) {
+        // Use a HashSet to store elements of the first array for O(1) lookups
+        Set<Integer> set = new HashSet<>();
+
+        // Add all elements of arr2 into the set
+        for (int val : arr2) {
+            set.add(val);  // Storing each element from arr1
+        }
+
+        // Check each element of arr1 to see if it exists in the set
+        for (int val : arr1) {
+            if (set.contains(val)) {
+                // If any element of arr1 is found in the set, arrays are not disjoint
+                return false;
+            }
+        }
+
+        // No common elements found, so arrays are disjoint
+        return true;
+    }
+}
+
+
+// Optimal Approach
+
+class Solution {
+    public boolean areDisjoint(int[] arr1, int[] arr2) {
+        // Step 1: Sort both arrays so we can use the two-pointer technique
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+
+        int i = 0; // Pointer for arr1
+        int j = 0; // Pointer for arr2
+
+        // Step 2: Traverse both arrays with two pointers
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] == arr2[j]) {
+                // Common element found → arrays are not disjoint
+                return false;
+            } else if (arr1[i] < arr2[j]) {
+                /*
+                 * Move pointer `i` forward because arr1[i] < arr2[j]
+                 * Since both arrays are sorted, and arr1[i] is smaller than arr2[j],
+                 * all future elements in arr2 (from index j onward) will be equal or larger than arr2[j],
+                 * which means arr1[i] can never match any element in arr2.
+                 * So we skip arr1[i] by moving `i` forward.
+                 */
+                i++;
+            } else {
+                /*
+                 * Move pointer `j` forward because arr2[j] < arr1[i]
+                 * Since arr2 is sorted, and arr2[j] is smaller than arr1[i],
+                 * all future elements in arr1 (from index i onward) will be equal or larger than arr1[i],
+                 * which means arr2[j] can never match any element in arr1.
+                 * So we skip arr2[j] by moving `j` forward.
+                 */
+                j++;
+            }
+        }
+
+        // No common elements found during traversal → arrays are disjoint
+        return true;
+    }
+}
