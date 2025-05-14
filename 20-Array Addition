@@ -5,15 +5,16 @@ class Solution {
         List<Integer> sum = new ArrayList<>();
         int i = m - 1, j = n - 1, carry = 0, base;
 
+        // Traverse both arrays from the end (least significant digit)
         while (i >= 0 && j >= 0) {
-            base = (arr1[i] + arr2[j] + carry) % 10;
-            carry = (arr1[i] + arr2[j] + carry) / 10;
-            sum.add(0, base);
-
+            base = (arr1[i] + arr2[j] + carry) % 10; // calculate current digit
+            carry = (arr1[i] + arr2[j] + carry) / 10; // calculate carry
+            sum.add(0, base); // insert at beginning to build number from most significant digit
             i--;
             j--;
         }
 
+        // If elements are left in arr1
         while (i >= 0) {
             base = (arr1[i] + carry) % 10;
             carry = (arr1[i] + carry) / 10;
@@ -21,6 +22,7 @@ class Solution {
             i--;
         }
 
+        // If elements are left in arr2
         while (j >= 0) {
             base = (arr2[j] + carry) % 10;
             carry = (arr2[j] + carry) / 10;
@@ -28,14 +30,15 @@ class Solution {
             j--;
         }
 
+        // Note : if(carry==0) then sum.size() == Math.max(m,n) and if(carry==1) then sum.size() == (Math.max(m,n) +1)
+        // If there is a leftover carry
         if (carry == 1) {
             sum.add(0, carry);
         }
 
-        // Note : if(carry==0) then sum.size() == Math.max(m,n) and if(carry==1) then sum.size() == (Math.max(m,n) +1)
-        i = 0;
+        // Convert the List<Integer> to int[] array
         int[] arraySum = new int[sum.size()];
-
+        i = 0;
         for (int val : sum) {
             arraySum[i++] = val;
         }
