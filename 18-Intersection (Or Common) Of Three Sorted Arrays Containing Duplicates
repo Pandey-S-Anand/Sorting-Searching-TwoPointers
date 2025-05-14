@@ -1,89 +1,107 @@
 //Bruteforce Approach
 
 class Solution {
-    ArrayList<Integer> commonElements(int arr1[], int arr2[], int arr3[], int m, int n, int o) {
-        int len1 = removeDuplicatesFromSortedArray(arr1, m);
-        int len2 = removeDuplicatesFromSortedArray(arr2, n);
-        int len3 = removeDuplicatesFromSortedArray(arr3, o);
+    // Function to find common elements in three sorted arrays
+    public List<Integer> commonElements(List<Integer> arr1, List<Integer> arr2, List<Integer> arr3) {
+        // Remove duplicates from each sorted array and get their new lengths
+        int len1 = removeDuplicatesFromSortedArray(arr1);
+        int len2 = removeDuplicatesFromSortedArray(arr2);
+        int len3 = removeDuplicatesFromSortedArray(arr3);
 
-        return intersectionOfThreeSortedArrays(arr1, len1, arr2, len2, arr3, len3);
+        // Step 1: Find intersection of arr1 and arr2
+        List<Integer> intersectionOfTwoSortedArrays = findIntersectionOfTwoSortedArrays(arr1, len1, arr2, len2);
+
+        // Step 2: Find intersection of above result with arr3
+        return findIntersectionOfTwoSortedArrays(intersectionOfTwoSortedArrays, intersectionOfTwoSortedArrays.size(), arr3, len3);
     }
 
-    public int removeDuplicatesFromSortedArray(int[] arr, int n) {
-        int idx = 0;
+    private List<Integer> findIntersectionOfTwoSortedArrays(List<Integer> arr1, int m, List<Integer> arr2, int n) {
+        int i = 0, j = 0;
+        List<Integer> intersection = new ArrayList<>();
 
-        for (int i = 0; i < (n - 1); i++) {
-            if (arr[i] != arr[i + 1]) {
-                arr[idx++] = arr[i];
-            }
-        }
-
-        arr[idx++] = arr[n - 1];
-
-        return idx;
-    }
-
-    public ArrayList<Integer> intersectionOfThreeSortedArrays(int[] arr1, int m, int[] arr2, int n, int[] arr3, int o) {
-        int i = 0, j = 0, k = 0;
-        ArrayList<Integer> intersection = new ArrayList<>();
-
-        while (i < m && j < n && k < o) {
-            if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
-                intersection.add(arr1[i]);
+        while (i < m && j < n) {
+            if (arr1.get(i).equals(arr2.get(j))) {
+                intersection.add(arr1.get(i));
                 i++;
                 j++;
-                k++;
+            } else if (arr1.get(i).compareTo(arr2.get(j)) < 0) {
+                i++;
             } else {
-                int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
-
-                if (min == arr1[i]) {
-                    i++;
-                } else if (min == arr2[j]) {
-                    j++;
-                } else { // if(min==arr3[k])
-                    k++;
-                }
+                j++;
             }
         }
 
         return intersection;
     }
+
+    private int removeDuplicatesFromSortedArray(List<Integer> arr) {
+        int index = 0;
+
+        for (int i = 0; i < arr.size() - 1; i++) {
+            if (!arr.get(i).equals(arr.get(i + 1))) {
+                arr.set(index++, arr.get(i));
+            }
+        }
+
+        arr.set(index, arr.get(arr.size() - 1));
+
+        return index + 1;
+    }
 }
+
 
 // Optimal Approach
 
 class Solution {
-    ArrayList<Integer> commonElements(int arr1[], int arr2[], int arr3[], int m, int n, int o) {
-        int i = 0, j = 0, k = 0, prev1 = Integer.MIN_VALUE, prev2 = Integer.MIN_VALUE, prev3 = Integer.MIN_VALUE;
-        ArrayList<Integer> intersection = new ArrayList<>();
+    public List<Integer> commonElements(List<Integer> arr1, List<Integer> arr2, List<Integer> arr3) {
+        int i = 0, j = 0, k = 0;
 
-        while (i < m && j < n && k < o) {
-            while (i < m && prev1 == arr1[i]) {
+        // Track last seen elements to avoid duplicates
+        Integer prev1 = Integer.MIN_VALUE, prev2 = Integer.MIN_VALUE, prev3 = Integer.MIN_VALUE;
+
+        List<Integer> intersection = new ArrayList<>();
+
+        while (i < arr1.size() && j < arr2.size() && k < arr3.size()) {
+            // Skip duplicates in arr1
+            while (i < arr1.size() && arr1.get(i).equals(prev1)) {
                 i++;
             }
 
-            while (j < n && prev2 == arr2[j]) {
+            // Skip duplicates in arr2
+            while (j < arr2.size() && arr2.get(j).equals(prev2)) {
                 j++;
             }
 
-            while (k < o && prev3 == arr3[k]) {
+            // Skip duplicates in arr3
+            while (k < arr3.size() && arr3.get(k).equals(prev3)) {
                 k++;
             }
 
-            if (i < m && j < n && k < o) {
-                if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
-                    intersection.add(arr1[i]);
-                    prev1 = arr1[i++];
-                    prev2 = arr2[j++];
-                    prev3 = arr3[k++];
+            // Ensure indices are still valid after skipping
+            if (i < arr1.size() && j < arr2.size() && k < arr3.size()) {
+                int val1 = arr1.get(i), val2 = arr2.get(j), val3 = arr3.get(k);
+
+                // If all three values are equal, it's a common element
+                if (val1 == val2 && val2 == val3) {
+                    intersection.add(val1);
+                    prev1 = val1;
+                    prev2 = val2;
+                    prev3 = val3;
+                    i++;
+                    j++;
+                    k++;
                 } else {
-                    int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
-                    if (min == arr1[i]) {
-                        prev1 = arr1[i++];
-                    } else if (min == arr2[j]) {
-                        prev2 = arr2[j++];
-                    } else { // if(min==arr3[k])
-                        prev3 = arr3[k++];
+                    // Move the pointer with the smallest value forward
+                    int min = Math.min(val1, Math.min(val2, val3));
+                    if (min == val1) {
+                        prev1 = val1;
+                        i++;
+                    } else if (min == val2) {
+                        prev2 = val2;
+                        j++;
+                    } else {
+                        prev3 = val3;
+                        k++;
                     }
                 }
             }
@@ -93,28 +111,44 @@ class Solution {
     }
 }
 
+
 // Aliter
 
 class Solution {
-    ArrayList<Integer> commonElements(int arr1[], int arr2[], int arr3[], int m, int n, int o) {
+    public List<Integer> commonElements(List<Integer> arr1, List<Integer> arr2, List<Integer> arr3) {
         int i = 0, j = 0, k = 0;
-        ArrayList<Integer> intersection = new ArrayList<>();
 
-        while (i < m && j < n && k < o) {
-            if (arr1[i] == arr2[j] && arr2[j] == arr3[k]) {
-                if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != arr1[i]) {
-                    intersection.add(arr1[i]);
+        // List to store the final common elements
+        List<Integer> intersection = new ArrayList<>();
+
+        // Traverse all three arrays simultaneously
+        while (i < arr1.size() && j < arr2.size() && k < arr3.size()) {
+
+            // Get current values from each list
+            int val1 = arr1.get(i);
+            int val2 = arr2.get(j);
+            int val3 = arr3.get(k);
+
+            // Case 1: If all three values are equal, we found a common element
+            if (val1 == val2 && val2 == val3) {
+                // To avoid duplicates in the result, add only if not already added
+                if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != val1) {
+                    intersection.add(val1);
                 }
+
+                // Move all pointers forward
                 i++;
                 j++;
                 k++;
             } else {
-                int min = Math.min(arr1[i], Math.min(arr2[j], arr3[k]));
-                if (min == arr1[i]) {
+                // Case 2: Advance the pointer(s) at the smallest value
+                int min = Math.min(val1, Math.min(val2, val3));
+
+                if (min == val1) {
                     i++;
-                } else if (min == arr2[j]) {
+                } else if (min == val2) {
                     j++;
-                } else { // if(min==arr3[k])
+                } else {
                     k++;
                 }
             }
