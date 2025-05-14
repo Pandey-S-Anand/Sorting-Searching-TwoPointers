@@ -1,0 +1,197 @@
+//Bruteforce Approach
+
+class Solution {
+    public int firstMissingPositive(int[] arr) {
+        int n = arr.length;
+
+        // The first missing positive number must be in the range 1 to n+1 because in the best case array contains all values from 1 to n So the smallest missing one would be n+1
+        for (int num = 1; num <= n; num++) {
+            if (isMissing(arr, num)) {
+                return num; // Return the first positive number that is missing
+            }
+        }
+
+        // If all numbers from 1 to n are present, then the missing number is n+1
+        return n + 1;
+    }
+
+    private boolean isMissing(int[] arr, int target) {
+        for (int num : arr) {
+            if (num == target) {
+                return false; // Found, so it's not missing
+            }
+        }
+        return true; // Not found, so it's missing
+    }
+}
+
+
+
+//Improved Approach
+
+class Solution {
+    public int firstMissingPositive(int[] arr) {
+        // Step 1: Store all numbers in a HashSet for fast O(1) lookups
+        Set<Integer> set = new HashSet<>();
+
+        for (int num : arr) {
+            set.add(num);
+        }
+
+        // Step 2: Iterate from 1 to n (length of array) and check which is the first number not in the set
+        for (int num = 1; num <= arr.length; num++) {
+            if (!set.contains(num)) {
+                return num; // Found the first missing positive number
+            }
+        }
+
+        // Step 3: If all numbers from 1 to n are present, the missing number must be n + 1
+        return arr.length + 1;
+    }
+}
+
+
+//Good Approach
+
+class Solution {
+    public int firstMissingPositive(int[] nums) {
+        // Step 1: Sort the array to bring positive numbers in order
+        Arrays.sort(nums);
+
+        int expected = 1; // This represents the smallest positive number we expect to find next
+        int lastSeen = Integer.MIN_VALUE; // Keeps track of last number processed
+
+        for (int current : nums) {
+            // Skip non-positive numbers and duplicates
+            if (current <= 0 || current == lastSeen) {
+                continue;
+            }
+
+            // If current number is not equal to the expected, we've found the missing number
+            if (current != expected) {
+                return expected;
+            }
+
+            // Update lastSeen and move to the next expected positive number
+            lastSeen = current;
+            expected++;
+        }
+
+        // If all positive integers from 1 to the largest contiguous sequence are present, then the first missing positive must be the next in sequence (expected)
+        return expected;
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    public int firstMissingPositive(int[] arr) {
+        // Step 1: Move all non-positive numbers to the beginning of the array. 'positiveStart' will now point to the first positive number in the array.
+        int positiveStart = segregate(arr);
+
+        // Step 2: Find the first missing positive number in the positive segment
+        return firstMissingPositive(arr, positiveStart);
+    }
+
+    private int firstMissingPositive(int[] arr, int start) {
+        int size = arr.length - start; // Size of the subarray with positive numbers
+        boolean[] visited = new boolean[size + 1]; // Boolean marker array to track present values
+
+        // Mark the visited positive numbers in the range [1, size]
+        for (int i = start; i < arr.length; i++) {
+            if (arr[i] <= size) {
+                visited[arr[i]] = true;
+            }
+        }
+
+        // Return the first num such that 'num' is missing from the array
+        for (int num = 1; num <= size; num++) {
+            if (!visited[num]) {
+                return num;
+            }
+        }
+
+        // If all numbers from 1 to size are present, then the missing number is size + 1
+        return size + 1;
+    }
+
+    private int segregate(int[] arr) {
+        int positiveIndex = 0; // Tracks the position for the next non-positive number
+
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] <= 0) {
+                swap(arr, i, positiveIndex);
+                positiveIndex++;
+            }
+        }
+
+        // Returns the index from where positive numbers start
+        return positiveIndex;
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int firstMissingPositive(int[] arr) {
+        int positiveStart = segregate(arr);
+        return firstMissingPositive(arr, positiveStart);
+    }
+
+    private int firstMissingPositive(int[] arr, int start) {
+        int size = arr.length - start; // Number of positive elements
+        /*
+          Important test cases : 
+          arr[]= [1,1] 
+          Output: 2
+        
+          arr[] =[-4,-1,-8,-1,0,2,4,1,9,1]
+          Output: 3
+        */
+        for (int i = start; i < arr.length; i++) {
+            int val = Math.abs(arr[i]); // Use absolute value in case already negated
+            // Mark the index (start + val - 1) as visited by making it negative
+            int targetIndex = start + val - 1;
+            if (val <= size && arr[start + val - 1] > 0) {
+                arr[targetIndex] = -1 * arr[targetIndex]; // Mark as visited
+            }
+        }
+
+        // Find the first index which is not marked (i.e., still positive) That means the number (index - start + 1) is missing
+        for (int num = start; num < arr.length; num++) {
+            if (arr[num] > 0) {
+                return num - start + 1;
+            }
+        }
+
+        return size + 1;
+    }
+
+    private int segregate(int[] arr) {
+        int positiveIndex = 0;
+
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] <= 0) {
+                swap(arr, i, positiveIndex);
+                positiveIndex++;
+            }
+        }
+
+        return positiveIndex;
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
