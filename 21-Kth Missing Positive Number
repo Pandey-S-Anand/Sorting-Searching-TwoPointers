@@ -1,0 +1,259 @@
+// Bruteforce Approach
+
+/*
+          If all the numbers in the range [1, n] (inclusive) are present in the array,
+          then:
+            1st Missing +ve number  = (n + 1)
+            2nd Missing +ve number  = (n + 2)
+            ...
+            kth Missing +ve number  = (n + k)
+          
+          -------------------------------------------------------------
+          Range: 1 <= kth missing +ve number <= (n + k)
+
+          Example 1:
+          Input: arr = [1,2,3,4], k = 2
+          Output: 6
+          Explanation: All 1 to 4 are present → next missing numbers = 5, 6 → 2nd = 6
+
+          Example 2:
+          Input: arr = [2,3,4,7,11], k = 5
+          Output: 9
+          Missing: [1,5,6,8,9,...] → 5th missing = 9
+
+          Example 3:
+          Input: arr = [2,3,4,9,11], k = 5
+          Output: 8
+          Missing: [1,5,6,7,8,...] → 5th missing = 8
+
+          Example 4:
+          Input: arr = [2,3,4,5,6], k = 5
+          Output: 10
+          Missing: [1,7,8,9,10,...] → 5th missing = 10
+*/
+
+class Solution {
+    public int findKthPositive(int[] arr, int k) {
+        // Optimization for fully filled range [1, n]:  If arr = [1,2,3,...,n], then kth missing = n + k
+        if (arr[arr.length - 1] == arr.length) {
+            return arr.length + k;
+        }
+
+        int missingCount = 0;
+
+        // We loop through numbers from 1 up to (arr.length + k) — this is the worst-case bound because the kth missing number will never exceed (n + k)
+        for (int num = 1; num <= arr.length + k; num++) {
+            // Check whether `num` is missing in the original array using binary search
+            if (isMissing(arr, num)) {
+                missingCount++;
+            }
+
+            // As soon as we reach the kth missing number, return it
+            if (missingCount == k) {
+                return num;
+            }
+        }
+
+        // Fallback case (this should not happen due to the loop's upper bound)
+        return -1;
+    }
+
+    private boolean isMissing(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                return false; // Found in array → not missing
+            } else if (target < arr[mid]) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return true; // Not found → it's missing
+    }
+}
+
+
+//Good Approach
+
+class Solution {
+    public int findKthPositive(int[] arr, int k) {
+        int missingCount = 0;
+
+        // Convert the input array to a Set for O(1) lookup of elements
+        Set<Integer> set = Arrays.stream(arr).boxed().collect(Collectors.toSet());
+
+        // Iterate over the range [1, arr.length + k]:  This upper bound ensures that we don't miss the kth missing positive number
+        for (int num = 1; num <= (arr.length + k); num++) {
+            // If the current number is not in the set, it's a missing positive integer
+            if (!set.contains(num)) {
+                missingCount++;
+            }
+
+            // As soon as we find the kth missing number, return it
+            if (missingCount == k) {
+                return num;
+            }
+        }
+
+        // Fallback case (this should not happen due to the loop's upper bound)
+        return -1;
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    /*
+    ---------------------- DRY RUN ----------------------
+    
+    Example 1:
+    Input: arr = [2, 3, 4, 7, 11], k = 5
+    
+    Iteration | i | num | arr[i] | arr[i] == num | k before | Action        | k after
+    -------------------------------------------------------------------------------
+    1      | 0 |  1  |   2    |     false     |    5     | k--           |   4
+    2      | 0 |  2  |   2    |     true      |    4     | i++           |   4
+    3      | 1 |  3  |   3    |     true      |    4     | i++           |   4
+    4      | 2 |  4  |   4    |     true      |    4     | i++           |   4
+    5      | 3 |  5  |   7    |     false     |    4     | k--           |   3
+    6      | 3 |  6  |   7    |     false     |    3     | k--           |   2
+    7      | 3 |  7  |   7    |     true      |    2     | i++           |   2
+    8      | 4 |  8  |  11    |     false     |    2     | k--           |   1
+    9      | 4 |  9  |  11    |     false     |    1     | k-- (k=0)     |   0
+    
+    Final: num = 10 → return num - 1 + k = 9 + 0 = 9 ✅
+    
+    ------------------------------------------------------
+    
+    Example 2:
+    Input: arr = [2, 3, 4, 5, 6], k = 5
+    
+    Iteration | i | num | arr[i] | arr[i] == num | k before | Action        | k after
+    -------------------------------------------------------------------------------
+    1      | 0 |  1  |   2    |     false     |    5     | k--           |   4
+    2      | 0 |  2  |   2    |     true      |    4     | i++           |   4
+    3      | 1 |  3  |   3    |     true      |    4     | i++           |   4
+    4      | 2 |  4  |   4    |     true      |    4     | i++           |   4
+    5      | 3 |  5  |   5    |     true      |    4     | i++           |   4
+    6      | 4 |  6  |   6    |     true      |    4     | i++           |   4
+    7      | 5 |  7  |   -    |      -        |    4     | k--           |   3
+    8      | 5 |  8  |   -    |      -        |    3     | k--           |   2
+    9      | 5 |  9  |   -    |      -        |    2     | k--           |   1
+    10      | 5 | 10  |   -    |      -        |    1     | k-- (k=0)     |   0
+    
+    Final: num = 11 → return num - 1 + k = 10 + 0 = 10 ✅
+    */
+    public int findKthPositive(int[] arr, int k) {
+        int i = 0; // Pointer for traversing the array
+        int num = 1; // Current number to check if it's missing
+
+        // Loop until either we finish the array or find k missing numbers
+        while (i < arr.length && k > 0) {
+            if (arr[i] == num) {
+                // If current number is found in the array, move to next element
+                i++;
+            } else {
+                // If not found, it means `num` is a missing positive number
+                k--;
+            }
+
+            // Move to the next number to check
+            num++;
+        }
+
+        // After loop, num has been incremented one extra time
+        num--;
+
+        // If k > 0, then we need to go further beyond the array So the kth missing number is (num + k)
+        return num + k;
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public int findKthPositive(int[] arr, int k) {
+        int low = 0, high = arr.length - 1;
+
+        /*
+            Intuition:
+
+            In an ideal (perfect) array without missing numbers,
+            the value at index `i` should be (i + 1).
+            But due to missing values, we observe:
+                arr[i] > (i + 1)
+
+            So, the number of missing positive integers before index `i` is:
+                missing = arr[i] - (i + 1)
+
+            Binary Search Logic:
+            --------------------
+
+            We are trying to find the smallest index `low` such that the count of missing
+            numbers before `arr[low]` is ≥ k.
+
+            - If missing < k:
+                → It means fewer than k numbers are missing before arr[mid]
+                → So move right: low = mid + 1
+
+            - If missing ≥ k:
+                → Too many numbers are missing before arr[mid]
+                → So move left: high = mid - 1
+
+            Why return (low + k)?
+            ----------------------
+            After the loop:
+            - `low` is the count of actual elements ≤ the k-th missing number.
+            - So, to account for k missing numbers and low existing numbers before it:
+                  kth missing number = k + low
+
+            ------------------------------------------------------------------
+            Dry Run:
+
+            Input: arr = [2, 3, 4, 7, 11], k = 5
+
+            Index:     0   1   2   3   4
+            Value:     2   3   4   7  11
+
+            At index 0 → Expected = 1, Actual = 2 → Missing = 1
+            At index 3 → Expected = 4, Actual = 7 → Missing = 3
+            At index 4 → Expected = 5, Actual = 11 → Missing = 6
+
+            Binary search lands low = 3.
+            Answer = 3 + 5 = 8 → ✅ Correct
+
+            Missing numbers = [1, 5, 6, 8, 9, 10, ...]
+            5th missing = 9
+        */
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            int expectedValueAtMid = mid + 1;
+            int actualValueAtMid = arr[mid];
+            int missingTillMid = actualValueAtMid - expectedValueAtMid;
+
+            if (missingTillMid < k) {
+                // Not enough numbers missing before mid, search right
+                low = mid + 1;
+            } else {
+                // Too many numbers missing, search left
+                high = mid - 1;
+            }
+        }
+
+        /*
+            After the loop, low = number of elements in arr that are ≤ the k-th missing number.
+            So the k-th missing number = low (existing numbers) + k (missing we want)
+        */
+        return low + k;
+    }
+}
