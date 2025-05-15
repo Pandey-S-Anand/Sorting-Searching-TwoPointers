@@ -115,40 +115,43 @@ class Solution {
     Example 1:
     Input: arr = [2, 3, 4, 7, 11], k = 5
     
-    Iteration | i | num | arr[i] | arr[i] == num | k before | Action        | k after
-    -------------------------------------------------------------------------------
-    1      | 0 |  1  |   2    |     false     |    5     | k--           |   4
-    2      | 0 |  2  |   2    |     true      |    4     | i++           |   4
-    3      | 1 |  3  |   3    |     true      |    4     | i++           |   4
-    4      | 2 |  4  |   4    |     true      |    4     | i++           |   4
-    5      | 3 |  5  |   7    |     false     |    4     | k--           |   3
-    6      | 3 |  6  |   7    |     false     |    3     | k--           |   2
-    7      | 3 |  7  |   7    |     true      |    2     | i++           |   2
-    8      | 4 |  8  |  11    |     false     |    2     | k--           |   1
-    9      | 4 |  9  |  11    |     false     |    1     | k-- (k=0)     |   0
+    num | arr[i] | k
+    ----------------------------
+     1  |   2    | 5  → missing (1 != 2) → k = 4
+     2  |   2    | 4  → found (2 == 2) → i++
+     3  |   3    | 4  → found (3 == 3) → i++
+     4  |   4    | 4  → found (4 == 4) → i++
+     5  |   7    | 4  → missing (5 != 7) → k = 3
+     6  |   7    | 3  → missing (6 != 7) → k = 2
+     7  |   7    | 2  → found (7 == 7) → i++
+     8  |  11    | 2  → missing (8 != 11) → k = 1
+     9  |  11    | 1  → missing (9 != 11) → k = 0 ✅
     
-    Final: num = 10 → return num - 1 + k = 9 + 0 = 9 ✅
+    Answer = 9
     
-    ------------------------------------------------------
+    ------------------------------------------------------------
     
     Example 2:
     Input: arr = [2, 3, 4, 5, 6], k = 5
     
-    Iteration | i | num | arr[i] | arr[i] == num | k before | Action        | k after
-    -------------------------------------------------------------------------------
-    1      | 0 |  1  |   2    |     false     |    5     | k--           |   4
-    2      | 0 |  2  |   2    |     true      |    4     | i++           |   4
-    3      | 1 |  3  |   3    |     true      |    4     | i++           |   4
-    4      | 2 |  4  |   4    |     true      |    4     | i++           |   4
-    5      | 3 |  5  |   5    |     true      |    4     | i++           |   4
-    6      | 4 |  6  |   6    |     true      |    4     | i++           |   4
-    7      | 5 |  7  |   -    |      -        |    4     | k--           |   3
-    8      | 5 |  8  |   -    |      -        |    3     | k--           |   2
-    9      | 5 |  9  |   -    |      -        |    2     | k--           |   1
-    10      | 5 | 10  |   -    |      -        |    1     | k-- (k=0)     |   0
+    num | arr[i] | k
+    ----------------------------
+     1  |   2    | 5  → missing (1 != 2) → k = 4
+     2  |   2    | 4  → found (2 == 2) → i++
+     3  |   3    | 4  → found (3 == 3) → i++
+     4  |   4    | 4  → found (4 == 4) → i++
+     5  |   5    | 4  → found (5 == 5) → i++
+     6  |   6    | 4  → found (6 == 6) → i++
+     7  |   -    | 4  → missing → k = 3
+     8  |   -    | 3  → missing → k = 2
+     9  |   -    | 2  → missing → k = 1
+    10  |   -    | 1  → missing → k = 0 ✅
     
-    Final: num = 11 → return num - 1 + k = 10 + 0 = 10 ✅
+    Answer = 10
+    
+    ----------------------------------------------------------------
     */
+
     public int findKthPositive(int[] arr, int k) {
         int i = 0; // Pointer for traversing the array
         int num = 1; // Current number to check if it's missing
