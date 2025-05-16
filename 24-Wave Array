@@ -1,0 +1,29 @@
+class Solution {
+    /**
+     * Converts a sorted array into a wave-like array in-place.
+     * 
+     * Since the array is sorted in ascending order:
+     * - Every odd index element will be greater than or equal to the previous even index element.
+     * - Every odd index element will be smaller than or equal to the next even index element.
+     * 
+     * In a sorted array: arr[0] <= arr[1] <= arr[2] <= arr[3] <= arr[4] ...
+     * To achieve the wave pattern: arr[0] >= arr[1] <= arr[2] >= arr[3] <= arr[4] ...
+     * 
+     * We need to ensure that every odd-indexed element is less than or equal to its left neighbor
+     * (the even-indexed element to the left). Because the array is sorted,
+     * odd-indexed elements are already smaller or equal to than their right neighbors (even-indexed).
+     * 
+     */
+    public static void convertToWave(int[] arr) {
+        // Swap every odd index element with its previous element (even indexed)
+        for (int i = 1; i < arr.length; i += 2) {
+            swap(arr, i, i - 1);
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
