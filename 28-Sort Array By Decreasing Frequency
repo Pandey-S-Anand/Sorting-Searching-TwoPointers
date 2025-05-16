@@ -1,0 +1,44 @@
+public class Solution {
+    public static int[] sortByFrequency(int[] arr) {
+        // Step 1: Use LinkedHashMap to preserve the order of first occurrence
+        Map<Integer, Integer> frequencyMap = new LinkedHashMap<>();
+
+        // Count the frequency of each number in the array
+        for (int num : arr) {
+            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
+        }
+
+        // Step 2: Convert the frequency map into a list of entries
+        List<Map.Entry<Integer, Integer>> freqList = new ArrayList<>(frequencyMap.entrySet());
+
+        // Step 3: Sort the list based on custom comparator
+        Collections.sort(freqList, (entry1, entry2) -> {
+            int freq1 = entry1.getValue();
+            int freq2 = entry2.getValue();
+
+            if(freq1 != freq2){
+               // If frequencies are not equal, Sort by decreasing frequency
+               return Integer.compare(freq2, freq1); 
+            }
+
+            // If frequencies are equal, the original order is preserved due to LinkedHashMap
+            return 0;
+        });
+
+        // Step 4: Reconstruct the result array based on sorted frequency list
+        int index = 0;
+
+        for (Map.Entry<Integer, Integer> entry : freqList) {
+            int num = entry.getKey();    // The number to insert
+            int freq = entry.getValue(); // Number of times to insert it
+
+            // Insert the number 'freq' times into the array
+            while (freq-- > 0) {
+                arr[index++] = num;
+            }
+        }
+
+        // Step 5: Return the final sorted array
+        return arr;
+    }
+}
