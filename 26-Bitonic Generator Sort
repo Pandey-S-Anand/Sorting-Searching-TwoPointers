@@ -1,0 +1,88 @@
+//Using extra space
+
+class Solution {
+    public static ArrayList<Integer> bitonicGenerator(int arr[]) {
+        // List to store elements from even indices
+        ArrayList<Integer> evenIndexed = new ArrayList<>();
+
+        // List to store elements from odd indices
+        ArrayList<Integer> oddIndexed = new ArrayList<>();
+
+        // Step 1: Separate elements based on their index parity
+        for (int i = 0; i < arr.length; i++) {
+            if (i % 2 == 0) {
+                // Even index → add to evenIndexed list
+                evenIndexed.add(arr[i]);
+            } else {
+                // Odd index → add to oddIndexed list
+                oddIndexed.add(arr[i]);
+            }
+        }
+
+        // Step 2: Sort even-indexed elements in ascending order
+        Collections.sort(evenIndexed);
+
+        // Step 3: Sort odd-indexed elements in descending order
+        Collections.sort(oddIndexed, Collections.reverseOrder());
+
+        // Step 4: Append the descending odd-indexed elements to the ascending even-indexed ones
+        evenIndexed.addAll(oddIndexed);
+
+        // Final result: even-indexed elements (ascending) followed by odd-indexed elements (descending)
+        return evenIndexed;
+    }
+}
+
+
+//Without using extra space
+
+class Solution {
+    public static ArrayList<Integer> bitonicGenerator(int[] arr) {
+        // Step 1: Segregate elements at even indices to the front
+        // firstOddIndex refers to the first index with an odd index element
+        int firstOddIndex = segregate(arr); 
+
+        // Step 2: Sort elements at even indices (moved to the front) in ascending order
+        Arrays.sort(arr, 0, firstOddIndex);
+
+        // Step 3: Sort elements at odd indices (now at the end) in ascending order, then reverse to make them descending
+        Arrays.sort(arr, firstOddIndex, arr.length);
+        reverse(arr, firstOddIndex, arr.length - 1);
+
+        // Step 4: Copy array into an ArrayList
+        ArrayList<Integer> result = new ArrayList<>();
+        for (int value : arr) {
+            result.add(value);
+        }
+
+        return result;
+    }
+
+    private static int segregate(int[] arr) {
+        int evenIndexTracker = 0;
+
+        for (int i = 0; i < arr.length; i++) {
+            // Check for even index (not value!)
+            if (i % 2 == 0) {
+                swap(arr, i, evenIndexTracker);
+                evenIndexTracker++;
+            }
+        }
+
+        return evenIndexTracker; // Points to the first odd-indexed element now
+    }
+
+    private static void reverse(int[] arr, int i, int j) {
+        while (i < j) {
+            swap(arr, i, j);
+            i++;
+            j--;
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
