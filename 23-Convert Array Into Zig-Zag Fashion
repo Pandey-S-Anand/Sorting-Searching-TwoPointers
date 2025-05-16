@@ -1,0 +1,93 @@
+//Method 1
+
+class Solution {
+
+    /**
+     * Rearranges the given array in a zig-zag fashion such that:
+     * arr[0] < arr[1] > arr[2] < arr[3] > arr[4] < ...
+     *
+     * Key Insight:
+     * - We only need to enforce one of the two conditions:
+     *     - Either all even indices are less than their neighbors
+     *     - Or all odd indices are greater than their neighbors
+     *   Ensuring one guarantees the other due to the alternating pattern.
+     *
+     * In this implementation, we make sure that all even-indexed elements are
+     * smaller than their adjacent elements (i.e., they form valleys), so the
+     * odd-indexed elements automatically become peaks (i.e., they are greater
+     * than both their neighbors, which are even-indexed elements).
+     *
+     * Example:
+     * Input:  [4, 3, 7, 8, 6, 2, 1]
+     * Output: [3, 7, 4, 8, 2, 6, 1] → arr[0] < arr[1] > arr[2] < arr[3] > ...
+     */
+    public static void zigZag(int[] arr) {
+        // Loop through all even indices
+        for (int i = 0; i < arr.length; i += 2) {
+
+            // Ensure arr[i] < arr[i - 1] if i > 0
+            if (i > 0 && arr[i] > arr[i - 1]) {
+                swap(arr, i, i - 1);
+            }
+
+            // Ensure arr[i] < arr[i + 1] if within bounds
+            if (i < arr.length - 1 && arr[i] > arr[i + 1]) {
+                swap(arr, i, i + 1);
+            }
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+
+// Method 2
+
+class Solution {
+
+    /**
+     * Rearranges the given array in a zig-zag fashion such that:
+     * arr[0] < arr[1] > arr[2] < arr[3] > arr[4] < ...
+     *
+     * Key Insight:
+     * - We only need to enforce one of the two conditions:
+     *     - Either all even indices are less than their neighbors
+     *     - Or all odd indices are greater than their neighbors
+     *   Ensuring one guarantees the other due to the alternating pattern.
+     *
+     * In this implementation, we make sure that all odd-indexed elements are
+     * greater than their adjacent elements (which are even-indexed elements), so the
+     * even-indexed elements automatically become greater
+     * than both their neighbors, which are even-indexed elements.
+     *
+     * Example:
+     * Input:  [4, 3, 7, 8, 6, 2, 1]
+     * Output: [3, 7, 4, 8, 2, 6, 1] → arr[0] < arr[1] > arr[2] < arr[3] > ...
+     */
+    public static void zigZag(int[] arr) {
+        // Loop through all even indices
+        for (int i = 1; i < arr.length; i += 2) {
+
+            // Ensure arr[i] < arr[i - 1]
+            if (arr[i] < arr[i - 1]) {
+                swap(arr, i, i - 1);
+            }
+
+            // Ensure arr[i] < arr[i + 1] if within bounds
+            if (i < arr.length - 1 && arr[i] < arr[i + 1]) {
+                swap(arr, i, i + 1);
+            }
+        }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
