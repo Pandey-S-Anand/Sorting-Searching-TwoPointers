@@ -1,0 +1,53 @@
+//Bruteforce Approach
+
+class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        // Map to store value -> index mapping
+        Map<Integer, Integer> valueIndexMap = new HashMap<>();
+
+        for (int i = 0; i < numbers.length; i++) {
+            // Check if the complement (target - current number) already exists in the map
+            int complement = target - numbers[i];
+            if (valueIndexMap.containsKey(complement)) {
+                // If found, return the 1-based indices of the two numbers
+                return new int[] { valueIndexMap.get(complement) + 1, i + 1 };
+            }
+
+            // Otherwise, store the current number and its index in the map
+            valueIndexMap.put(numbers[i], i);
+        }
+
+        // Return [-1, -1] if no solution is found (though problem guarantees one)
+        return new int[] { -1, -1 };
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int[] twoSum(int[] arr, int target) {
+        // Initialize two pointers: i starts at the beginning, j starts at the end
+        int i = 0, j = arr.length - 1;
+
+        // Loop until the two pointers meet
+        while (i < j) {
+            int sum = arr[i] + arr[j];
+
+            // If the current pair sums up to the target, return 1-based indices
+            if (sum == target) {
+                return new int[] { i + 1, j + 1 };
+            }
+
+            // If the sum is less than the target, move the left pointer to the right to increase the sum
+            if (sum < target) {
+                i++;
+            } else { // If the sum is greater than the target, move the right pointer to the left  to decrease the sum
+                j--;
+            }
+        }
+
+        // This return will never be reached because the problem guarantees exactly one solution
+        return new int[] { -1, -1 };
+    }
+}
