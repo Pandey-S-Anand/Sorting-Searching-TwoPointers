@@ -1,0 +1,143 @@
+//Bruteforce Approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
+        //Find all unique triplets with given target sum as 0
+        return threeSum(arr, 0);
+    }
+
+    private List<List<Integer>> threeSum(int[] arr, int target) {
+        Set<List<Integer>> triplets = new HashSet<>(); // To avoid duplicate triplets
+        Arrays.sort(arr); // Sorting is necessary for two-pointer technique and duplicate handling
+
+        // Fix the first number of the triplet
+        for (int i = 0; i < arr.length - 2; i++) {
+
+            // Early termination: if arr[i] > target , no point in continuing
+            if (arr[i] > 0 && target == 0) {
+                break; // No valid triplet can be formed beyond this point
+            }
+
+            // Early pruning: if even the largest possible sum is less than target
+            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < target) {
+                continue;
+            }
+
+            int j = i + 1; // Second pointer
+            int k = arr.length - 1; // Third pointer
+            int remainingTarget = target - arr[i]; // The sum that arr[j] + arr[k] should match
+
+            // Two-pointer approach to find two numbers that sum to remainingTarget
+            while (j < k) {
+                int sum = arr[j] + arr[k];
+
+                if (sum == remainingTarget) {
+                    // If a valid triplet is found, add it to the set
+                    triplets.add(List.of(arr[i], arr[j], arr[k]));
+                    j++;
+                    k--;
+                } else if (sum < remainingTarget) {
+                    j++; // Increase the sum by moving j to the right
+                } else {
+                    k--; // Decrease the sum by moving k to the left
+                }
+            }
+        }
+
+        // Convert the set to a list before returning
+        return new ArrayList<>(triplets);
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
+        // Find all unique triplets in the array that sum to the target (0 by default)
+        return threeSum(arr, 0);
+    }
+
+    private List<List<Integer>> threeSum(int[] arr, int target) {
+        List<List<Integer>> triplets = new ArrayList<>();
+
+        // Sort the array to enable two-pointer approach and duplicate skipping
+        Arrays.sort(arr);
+
+        // Loop over array fixing one element at a time : We only go till arr.length - 2 since we need at least two more elements for triplet
+        for (int i = 0; i < arr.length - 2; i++) {
+
+            // Early break: if current element is greater than target (and target is 0), no need to continue as sum cannot be smaller
+            if (arr[i] > target) {
+                break;
+            }
+
+            // Early continue: if sum of current element and two largest elements is less than target, no valid triplet can be formed starting with arr[i]
+            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < target) {
+                continue;
+            }
+
+            // Skip duplicates for the fixed element 'arr[i]'
+            if (i > 0 && i < arr.length && arr[i] == arr[i - 1]) {
+                continue;
+            }
+
+            // Two pointers: j (start from i+1) and k (start from end)
+            int j = i + 1;
+            int k = arr.length - 1;
+
+            // remainingTarget is what we want to find with arr[j] + arr[k]
+            int remainingTarget = target - arr[i];
+
+            // prevJ and prevJ track previous elements at j and k to avoid duplicate pairs
+            int prevJ = Integer.MIN_VALUE, prevK = Integer.MIN_VALUE;
+
+            // While pointers don't cross
+            while (j < k) {
+
+                // Skip duplicates at j pointer
+                while (j < arr.length && prevJ == arr[j]) {
+                    j++;
+                }
+
+                // Skip duplicates at k pointer
+                while (k >= 0 && prevK == arr[k]) {
+                    k--;
+                }
+
+                // If pointers crossed, stop searching
+                if (j >= k) {
+                    break;
+                }
+
+                int sum = arr[j] + arr[k];
+
+                if (sum == remainingTarget) {
+                    // Found a valid triplet summing to target
+                    triplets.add(List.of(arr[i], arr[j], arr[k]));
+
+                    // Update previous values to avoid duplicates
+                    prevJ = arr[j];
+                    prevK = arr[k];
+
+                    // Move both pointers inward to look for new pairs
+                    j++;
+                    k--;
+
+                } else if (sum < remainingTarget) {
+                    // Sum too small, move j forward to increase sum
+                    prevJ = arr[j];
+                    j++;
+
+                } else {
+                    // Sum too large, move k backward to decrease sum
+                    prevK = arr[k];
+                    k--;
+                }
+            }
+        }
+
+        return triplets;
+    }
+}
