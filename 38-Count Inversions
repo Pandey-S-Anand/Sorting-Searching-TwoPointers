@@ -1,0 +1,136 @@
+//Bruteforce Approach
+
+class Solution {
+    /*
+     * ----------------------------
+     * An inversion is a pair (i, j) such that:
+     * - i < j
+     * - arr[i] > arr[j]
+     *
+     */
+    int inversionCount(int arr[]) {
+        int inversionCount = 0;
+
+        // Outer loop picks the first element of the pair
+        for (int i = 0; i < arr.length; i++) {
+            
+            // Inner loop compares it with all later elements
+            for (int j = i + 1; j < arr.length; j++) {
+                
+                // Count this pair as inversion if arr[i] > arr[j]
+                if (arr[i] > arr[j]) {
+                    inversionCount++;
+                }
+            }
+        }
+
+        return inversionCount;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    /*
+     * Inversion Count Concept:
+     * ------------------------
+     * An inversion is a pair of indices (i, j) such that:
+     * - i < j
+     * - arr[i] > arr[j]
+     *
+     * In merge sort, we divide the array into two sorted halves.
+     * During the merge step, we count cross-inversions, i.e., 
+     * inversions where one element is from the left half and the other from the right half.
+     *
+     * Example:
+     * Left  = [1, 5, 6, 9]   → indices 0 to 3
+     * Right = [2, 3, 7, 10]  → indices 4 to 7
+     *
+     * Manual Cross-Inversion Pairs:
+     * - (5,2), (6,2), (9,2)
+     * - (5,3), (6,3), (9,3)
+     * - (9,7)
+     * Total = 7 cross-inversions
+     *
+     * Optimization:
+     * -------------
+     * During the merge, when left[i] > right[j], since left[] is sorted,
+     * all elements from index 'i' to the end of left[] will also be greater than right[j].
+     * So instead of checking each one, we add:
+     *
+     *     inversionCount += (leftSize - i);
+     *
+     * This adds all inversions involving right[j] at once,
+     * improving the time complexity from O(n^2) to O(n log n).
+     */
+
+    static int inversionCount(int arr[]) {
+        return inversionCount(arr, 0, arr.length - 1);
+    }
+
+    private static int inversionCount(int arr[], int low, int high) {
+        int inversionCount = 0;
+
+        // Only divide if more than one element
+        if (low < high) {
+            int mid = low + (high - low) / 2;
+
+            // Count inversions in left half
+            inversionCount += inversionCount(arr, low, mid);
+
+            // Count inversions in right half
+            inversionCount += inversionCount(arr, mid + 1, high);
+
+            // Count cross inversions and merge
+            inversionCount += merge(arr, low, mid, high);
+        }
+
+        return inversionCount;
+    }
+
+    private static int merge(int[] arr, int low, int mid, int high) {
+        int inversionCount = 0;
+
+        int leftSize = mid - low + 1;
+        int rightSize = high - mid;
+
+        // Create temp arrays for left and right halves
+        int[] left = new int[leftSize];
+        int[] right = new int[rightSize];
+
+        // Copy data to temp arrays
+        for (int i = 0; i < leftSize; i++) {
+            left[i] = arr[low + i];
+        }
+
+        for (int i = 0; i < rightSize; i++) {
+            right[i] = arr[mid + 1 + i];
+        }
+
+        // Merge the two sorted arrays while counting inversions
+        int i = 0, j = 0, k = low;
+
+        while (i < leftSize && j < rightSize) {
+            if (left[i] <= right[j]) {
+                arr[k++] = left[i++];
+            } else {
+                // All remaining elements in left[i...end] will be > right[j]
+                inversionCount += (leftSize - i);
+                arr[k++] = right[j++];
+            }
+        }
+
+        // Copy any remaining elements from left[]
+        while (i < leftSize) {
+            arr[k++] = left[i++];
+        }
+
+        // Copy any remaining elements from right[]
+        while (j < rightSize) {
+            arr[k++] = right[j++];
+        }
+
+        return inversionCount;
+    }
+}
