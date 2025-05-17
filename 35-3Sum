@@ -2,6 +2,87 @@
 
 class Solution {
     public List<List<Integer>> threeSum(int[] arr) {
+        // Find all unique triplets whose sum is equal to 0
+        return threeSum(arr, 0);
+    }
+
+    private List<List<Integer>> threeSum(int[] arr, int target) {
+        Set<List<Integer>> triplets = new HashSet<>();
+
+        for (int i = 0; i < arr.length - 2; i++) {
+            for (int j = i + 1; j < arr.length - 1; j++) {
+                for (int k = j + 1; k < arr.length; k++) {
+                    int sum = arr[i] + arr[j] + arr[k];
+                    if (sum == target) {
+                        List<Integer> triplet = Arrays.asList(arr[i], arr[j], arr[k]);
+                        /*
+                         If we don't sort the triplet before adding to the set,
+                         permutations like [0, -1, 1], [-1, 1, 0], [1, 0, -1] will all be treated as different
+                         even though mathematically they are the same triplet.
+                         Sorting the triplet ensures a consistent order like [-1, 0, 1]
+                         so the Set will correctly treat them as duplicates and store only one.
+                         */
+                        Collections.sort(triplet);
+
+                        triplets.add(triplet);
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<>(triplets);
+    }
+}
+
+
+
+//Improved Approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
+        // Find all unique triplets whose sum is equal to 0
+        return threeSum(arr, 0);
+    }
+
+    private List<List<Integer>> threeSum(int[] arr, int target) {
+        /* 
+         Sort the entire array first to ensure the elements in each triplet will always be in non-decreasing order.
+         This way, triplets like [-1, 0, 1] and [0, -1, 1] cannot both appear,
+         because we always pick elements in sorted order from the sorted array.
+         */
+        Arrays.sort(arr);
+
+        Set<List<Integer>> triplets = new HashSet<>();
+
+        // Iterate with three nested loops to find all triplets
+        for (int i = 0; i < arr.length - 2; i++) {
+            for (int j = i + 1; j < arr.length - 1; j++) {
+                for (int k = j + 1; k < arr.length; k++) {
+                    int sum = arr[i] + arr[j] + arr[k];
+
+                    if (sum == target) {
+                        /* 
+                        Since the array is sorted, arr[i] <= arr[j] <= arr[k],
+                        every triplet generated is inherently sorted,
+                        ensuring that duplicates like [0, -1, 1] and [-1, 0, 1]
+                        do not occur as separate entries in the set.
+                        */
+                        triplets.add(List.of(arr[i], arr[j], arr[k]));
+                    }
+                }
+            }
+        }
+
+        // Return the list of unique triplets
+        return new ArrayList<>(triplets);
+    }
+}
+
+
+//Better approach
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] arr) {
         //Find all unique triplets with given target sum as 0
         return threeSum(arr, 0);
     }
