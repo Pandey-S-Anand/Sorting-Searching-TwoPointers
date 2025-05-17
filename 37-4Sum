@@ -1,0 +1,226 @@
+//Bruteforce Approach
+
+class Solution {
+    public List<List<Integer>> fourSum(int[] arr, int target) {
+        Set<List<Integer>> quadruplets = new HashSet<>();
+
+        for (int i = 0; i < arr.length - 3; i++) {
+            for (int j = i + 1; j < arr.length - 2; j++) {
+                for (int k = j + 1; k < arr.length - 1; k++) {
+                    for (int l = k + 1; l < arr.length; l++) {
+                        /*
+                         * Example:
+                         * Input array: [-5, 5, 4, -3, 0, 0, 4, -2]
+                         * Target: 4
+                         *
+                         * Without sorting the quadruplet before adding it to the set,
+                         * permutations like [5, 4, -3, -2] and [5, -3, 4, -2]
+                         * will be treated as distinct even though they represent the same numbers.
+                         *
+                         * Sorting each quadruplet before insertion (e.g., [-3, -2, 4, 5])
+                         * guarantees a consistent order, enabling the Set to
+                         * correctly identify and remove duplicates.
+                         */
+                        int sum = arr[i] + arr[j] + arr[k] + arr[l];
+                        if (sum == target) {
+                            List<Integer> quadruplet = Arrays.asList(arr[i], arr[j], arr[k], arr[l]);
+                            Collections.sort(quadruplet);
+                            quadruplets.add(quadruplet);
+                        }
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<>(quadruplets);
+    }
+}
+
+
+//Improved approach
+
+class Solution {
+    public List<List<Integer>> fourSum(int[] arr, int target) {
+        /*
+         Sort the array once at the beginning
+         This ensures that any quadruplet formed by picking elements in increasing indices
+         will be in sorted (non-decreasing) order automatically.
+         */
+        Arrays.sort(arr);
+
+        Set<List<Integer>> quadruplets = new HashSet<>();
+
+        for (int i = 0; i < arr.length - 3; i++) {
+            for (int j = i + 1; j < arr.length - 2; j++) {
+                for (int k = j + 1; k < arr.length - 1; k++) {
+                    for (int l = k + 1; l < arr.length; l++) {
+                        int sum = arr[i] + arr[j] + arr[k] + arr[l];
+                        if (sum == target) {
+                            /* 
+                             Since the array is sorted and indices are increasing,
+                             the quadruplet is already sorted (arr[i] <= arr[j] <= arr[k] <= arr[l]).
+                             This prevents duplicates due to different ordering of same numbers
+                             when stored in the Set.
+                             */
+                            quadruplets.add(Arrays.asList(arr[i], arr[j], arr[k], arr[l]));
+                        }
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<>(quadruplets);
+    }
+}
+
+
+//Better approach
+
+class Solution {
+    public List<List<Integer>> fourSum(int[] arr, int target) {
+        // Sort the array to use two-pointer approach and maintain consistent ordering
+        Arrays.sort(arr);
+
+        // Use a Set to automatically avoid duplicate quadruplets
+        Set<List<Integer>> quadruplets = new HashSet<>();
+
+        // First loop (i): picks the first number of the quadruplet
+        for (int i = 0; i < arr.length - 3; i++) {
+            
+            // Optimization: if the smallest possible sum starting from index i exceeds target, break
+            if ((long) arr[i] + arr[i + 1] + arr[i + 2] + arr[i + 3] > target) {
+                break; // No need to proceed further
+            }
+
+            // Optimization: if the largest possible sum with arr[i] is still less than target, skip
+            if ((long) arr[i] + arr[arr.length - 1] + arr[arr.length - 2] + arr[arr.length - 3] < target) {
+                continue; // Move to next i
+            }
+
+            // Second loop (j): picks the second number of the quadruplet
+            for (int j = i + 1; j < arr.length - 2; j++) {
+
+                // Two-pointer approach for the remaining two numbers
+                int k = j + 1;             // Left pointer
+                int l = arr.length - 1;    // Right pointer
+
+                while (k < l) {
+                    // Use long to avoid integer overflow when dealing with large values
+                    long sum = (long) arr[i] + arr[j] + arr[k] + arr[l];
+
+                    if (sum == target) {
+                        // If the sum matches the target, add this unique combination to the set
+                        quadruplets.add(List.of(arr[i], arr[j], arr[k], arr[l]));
+                        k++;
+                        l--;
+                    } else if (sum < target) {
+                        // Need a bigger sum → move the left pointer forward
+                        k++;
+                    } else {
+                        // Need a smaller sum → move the right pointer backward
+                        l--;
+                    }
+                }
+            }
+        }
+
+        // Convert the set to a list before returning
+        return new ArrayList<>(quadruplets);
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public List<List<Integer>> fourSum(int[] arr, int target) {
+        // Sort the array so that we can apply two-pointer logic and guarantee consistent ordering
+        Arrays.sort(arr);
+
+        List<List<Integer>> quadruplets = new ArrayList<>();
+
+        // First loop (i): picks the first number of the quadruplet
+        for (int i = 0; i < arr.length - 3; i++) {
+
+            // Skip duplicates for i
+            if (i > 0 && arr[i] == arr[i - 1]) {
+                continue;
+            }
+
+            // Optimization: if the smallest possible sum with arr[i] exceeds target, no need to continue
+            if ((long) arr[i] + arr[i + 1] + arr[i + 2] + arr[i + 3] > target) {
+                break;
+            }
+
+            // Optimization: if the largest possible sum with arr[i] is less than target, skip i
+            if ((long) arr[i] + arr[arr.length - 1] + arr[arr.length - 2] + arr[arr.length - 3] < target) {
+                continue;
+            }
+
+            // Use Long.MIN_VALUE to safely initialize prev* values, avoiding collision with actual int values in array
+            long prevJ = Integer.MIN_VALUE;
+
+            // Second loop (j): picks the second number
+            for (int j = i + 1; j < arr.length - 2; j++) {
+
+                // Skip duplicate j values manually using prevJ
+                if (arr[j] == prevJ) {
+                    continue;
+                }
+
+                int k = j + 1; // third number (left pointer)
+                int l = arr.length - 1; // fourth number (right pointer)
+
+                long prevK = Integer.MIN_VALUE;
+                long prevL = Integer.MIN_VALUE;
+
+                // Two-pointer search for k and l
+                while (k < l) {
+
+                    // Skip duplicate k values
+                    while (k < l && arr[k] == prevK) {
+                        k++;
+                    }
+
+                    // Skip duplicate l values
+                    while (k < l && arr[l] == prevL) {
+                        l--;
+                    }
+
+                    // If pointers crossed after skipping, exit
+                    if (k >= l) {
+                        break;
+                    }
+
+                    long sum = (long) arr[i] + arr[j] + arr[k] + arr[l];
+
+                    if (sum == target) {
+                        // Found a valid unique quadruplet
+                        quadruplets.add(List.of(arr[i], arr[j], arr[k], arr[l]));
+
+                        // Save current k and l to skip duplicates in next iteration
+                        prevK = arr[k];
+                        prevL = arr[l];
+
+                        k++;
+                        l--;
+
+                    } else if (sum < target) {
+                        // Need a bigger sum → move k forward
+                        prevK = arr[k];
+                        k++;
+                    } else {
+                        // Need a smaller sum → move l backward
+                        prevL = arr[l];
+                        l--;
+                    }
+                }
+
+                prevJ = arr[j]; // Update prevJ to skip duplicates
+            }
+        }
+
+        return quadruplets;
+    }
+}
