@@ -1,0 +1,60 @@
+//Bruteforce Approach
+
+class Solution {
+    public boolean isSubset(int[] arr, int[] subset) {
+        // Map to store frequency of each element in the subset
+        Map<Integer, Integer> map = new HashMap<>();
+
+        // Count frequency of each element in subset array
+        for (int num : subset) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+        }
+
+        // Traverse arr and reduce the count of matching elements in map
+        for (int num : arr) {
+            if (map.containsKey(num)) {
+                if (map.get(num) == 1) {
+                    // Last occurrence matched, remove from map
+                    map.remove(num);
+                } else {
+                    // Decrease the count by 1
+                    map.put(num, map.get(num) - 1);
+                }
+            }
+        }
+
+        // If map is empty, all elements of subset were found in arr
+        return map.isEmpty();
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public boolean isSubset(int[] arr, int[] subset) {
+        // Sort both arrays to enable linear comparison using two pointers
+        Arrays.sort(arr);
+        Arrays.sort(subset);
+
+        int i = 0, j = 0;
+
+        // Traverse both arrays using two pointers
+        while (i < arr.length && j < subset.length) {
+            if (arr[i] == subset[j]) {
+                // If current elements match, move both pointers
+                i++;
+                j++;
+            } else if (arr[i] < subset[j]) {
+                // Move ahead in arr to find a possible match for subset[j]
+                i++;
+            } else {
+                // If arr[i] > subset[j], then subset[j] cannot be found further in arr (since arr is sorted), hence subset[j] is missing
+                return false;
+            }
+        }
+
+        // If we’ve checked all elements in subset, it's a subset of arr
+        return j == subset.length;
+    }
+}
