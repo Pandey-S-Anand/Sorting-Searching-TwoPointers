@@ -1,0 +1,80 @@
+//Bruteforce Approach
+
+class Solution {
+    public int threeSumClosest(int[] arr, int target) {
+        // Initialize variables to track the minimum difference and the closest sum found
+        int minDiff = Integer.MAX_VALUE;
+        int closestSum = Integer.MAX_VALUE;
+
+        // Brute-force approach: check every combination of three elements
+        for (int i = 0; i < arr.length - 2; i++) {
+            for (int j = i + 1; j < arr.length - 1; j++) {
+                for (int k = j + 1; k < arr.length; k++) {
+                    int sum = arr[i] + arr[j] + arr[k];
+
+                    // If exact match is found, return immediately
+                    if (sum == target) {
+                        return sum;
+                    }
+
+                    int currentDiff = Math.abs(target - sum);
+
+                    // Update closestSum if a closer sum is found
+                    if (currentDiff < minDiff) {
+                        minDiff = currentDiff;
+                        closestSum = sum;
+                    }
+                }
+            }
+        }
+
+        // Return the closest sum to the target
+        return closestSum;
+    }
+}
+
+
+
+//Optimal Solution
+
+class Solution {
+    public int threeSumClosest(int[] arr, int target) {
+        // Sort the array to apply the two-pointer technique
+        Arrays.sort(arr);
+
+        int minDiff = Integer.MAX_VALUE; // Track the smallest absolute difference from target
+        int closestSum = Integer.MAX_VALUE; // Track the sum that is closest to the target
+
+        // Iterate over the array fixing one element and using two pointers for the rest
+        for (int i = 0; i < arr.length - 2; i++) {
+            int j = i + 1;
+            int k = arr.length - 1;
+
+            // Apply two-pointer search between indices j and k
+            while (j < k) {
+                int sum = arr[i] + arr[j] + arr[k];
+
+                // If exact match is found, it's the closest by definition
+                if (sum == target) {
+                    return sum;
+                }
+
+                int currentDiff = Math.abs(target - sum);
+
+                // Update closest sum if current difference is smaller
+                if (currentDiff < minDiff) {
+                    minDiff = currentDiff;
+                    closestSum = sum;
+                }
+
+                if (sum < target) {
+                    j++; // Increase sum by moving left pointer forward
+                } else {
+                    k--; // Decrease sum by moving right pointer backward
+                }
+            }
+        }
+
+        return closestSum; // Return the closest sum found
+    }
+}
