@@ -1,0 +1,56 @@
+class Solution {
+    // Constant for modulo operations to prevent overflow
+    private static final int MOD = 1000000007;
+
+    public int maxSum(int[] arr1, int[] arr2) {
+        int i = 0, j = 0;
+        long sum1 = 0; // Accumulates sum of elements from arr1 after the last common element
+        long sum2 = 0; // Accumulates sum of elements from arr2 after the last common element
+        long maxSumPathSoFar = 0; // Stores the maximum score collected so far
+
+        // Traverse both arrays simultaneously
+        while (i < arr1.length && j < arr2.length) {
+            /*
+             * Since both arrays are sorted, when elements at i and j differ:
+             * - Move forward on the array with the smaller current element,
+             *   accumulating its value in the corresponding sum.
+             * This is done in the hope of eventually reaching a common value where we can switch paths optimally. 
+             */
+            if (arr1[i] < arr2[j]) {
+                sum1 += arr1[i++];
+            } else if (arr2[j] < arr1[i]) {
+                sum2 += arr2[j++];
+            } else {
+                /*
+                 * When we find a common element:
+                 * - Add the maximum of the two sums collected so far plus the common element value to maxSumPathSoFar.
+                 * - Reset sum1 and sum2 to zero because we have "switched" paths.
+                 * - Move both pointers forward.
+                 */
+                maxSumPathSoFar += (Math.max(sum1, sum2) + arr1[i]);
+                maxSumPathSoFar %= MOD;
+
+                sum1 = 0;
+                sum2 = 0;
+                i++;
+                j++;
+            }
+        }
+
+        // Add remaining elements from arr1 if any
+        while (i < arr1.length) {
+            sum1 += arr1[i++];
+        }
+
+        // Add remaining elements from arr2 if any
+        while (j < arr2.length) {
+            sum2 += arr2[j++];
+        }
+
+        // Add the maximum of the remaining sums to the final result
+        maxSumPathSoFar += Math.max(sum1, sum2);
+        maxSumPathSoFar %= MOD;
+
+        return (int) maxSumPathSoFar;
+    }
+}
