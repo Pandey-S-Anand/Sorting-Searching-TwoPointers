@@ -1,20 +1,27 @@
 //Bruteforce Approach
 
 class Solution {
-    public int maxArea(int[] heights) {
-        int maxArea = 0;
+    public int maxArea(int[] height) {
+        int maxArea = 0; // Stores the maximum water area found so far
 
-        for (int left = 0; left < heights.length - 1; left++) {
-            for (int right = left + 1; right < heights.length; right++) {
+        // Iterate through all possible pairs of lines
+        for (int left = 0; left < height.length - 1; left++) {
+            for (int right = left + 1; right < height.length; right++) {
+                // Calculate width between the two lines
                 int width = right - left;
-                int minHeight = Math.min(heights[left], heights[right]);
+
+                // The height of the container is limited by the shorter line
+                int minHeight = Math.min(height[left], height[right]);
+
+                // Area = width * minHeight (container formula)
                 int area = width * minHeight;
 
+                // Update the maximum area if the current area is larger
                 maxArea = Math.max(area, maxArea);
             }
         }
 
-        return maxArea;
+        return maxArea; // Return the maximum water that can be contained
     }
 }
 
@@ -22,32 +29,53 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    public int maxArea(int[] heights) {
-        int left = 0, right = heights.length - 1, maxArea = 0;
+    public int maxArea(int[] height) {
+        int i = 0, j = height.length - 1;
+        int maxArea = Integer.MIN_VALUE;
 
-        while (left < right) {
-            int width = right - left;
-            int minHeight = Math.min(heights[left], heights[right]);
+        while (i < j) {
+            int width = j - i;
+            int minHeight = Math.min(height[i], height[j]);
             int area = width * minHeight;
             maxArea = Math.max(maxArea, area);
 
-            if (heights[left] < heights[right]) {
-                left++;
-            } else if (heights[right] < heights[left]) {
-                right--;
-            } else { // heights[left]==heights[right]
-                left++;
-                right--;
+            /*
+             * We know that the water container is a rectangle, so the area is simply:
+             * height × width. To maximize the area, we need to either increase the height 
+             * or the width.
+             * 
+             * - Placing the two pointers at both ends of the array gives the maximum width.
+             * - Moving either pointer will reduce the width.
+             * - So, to compensate for this reduction, we must aim to increase the height.
+             * 
+             * Since the area depends on the shorter of the two heights, we move the pointer
+             * pointing to the smaller height — in the hope of finding a taller line that 
+             * could result in a larger area.
+             * 
+             * Why do we move both pointers if height[i] == height[j]?
+             * - Area depends on both width and the minimum of the two heights.
+             * - Since width will decrease regardless, the only way to potentially increase
+             *   area is by increasing height.
+             * - In the case of equal heights:
+             *     - Moving only one pointer retains the same min height but reduces width,
+             *       which will not improve the area.
+             *     - Moving both pointers gives a chance to find taller lines on either end.
+             *     - If the new height increases: area might increase.
+             *     - If the new height decreases: area obviously decreases.
+             * - Therefore, when heights are equal, moving both pointers is the optimal choice
+             *   as width is shrinking anyway and we want to explore taller lines on both ends.
+             */
+            
+            if (height[i] == height[j]) {
+                i++;
+                j--;
+            } else if (height[i] < height[j]) {
+                i++;
+            } else {
+                j--;
             }
         }
 
         return maxArea;
     }
 }
-
-/*
-We know that water container is a rectangle so area will be simply l(height)xb(breadth) = area so either we need to increase the length or the breadth to maximise the area . 
-Placing the pointer at two ends maximises the breadth 
-now the interesting part if you move any of the two pointer then you are reducing the breadth so to balance it you must increase the height. 
-There are two pointer pointing to two different height now obviously we need to move that pointer which has less height among the two,in hope of getting a taller line hence greater area. 
-*/
