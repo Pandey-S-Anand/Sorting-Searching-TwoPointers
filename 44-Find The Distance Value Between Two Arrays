@@ -1,0 +1,92 @@
+//Bruteforce Approach
+
+class Solution {
+    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {
+        int distance = 0;  // This will count the number of elements in arr1 that satisfy the distance condition
+
+        // Iterate through each element of arr1
+        for (int val1 : arr1) {
+            boolean lessThanD = false;  // Flag to mark if val1 is within d distance to any element in arr2
+
+            // Check every element in arr2 against val1
+            for (int val2 : arr2) {
+                // If the absolute difference between val1 and val2 is <= d, then val1 does not satisfy the distance condition, so break early
+                if (Math.abs(val1 - val2) <= d) {
+                    lessThanD = true;
+                    break;
+                }
+            }
+
+            // If no element in arr2 is within distance d of val1, then val1 contributes to the distance count
+            if (!lessThanD) {
+                distance++;
+            }
+        }
+
+        return distance;  // Return the total count
+    }
+}
+
+
+/* Optimal Approach :
+   
+The math rule is: |x| <= d equals to -d <= x <= d.
+
+the Given inequality is: |arr1[i] - arr2[j]| <= d
+
+according to the rule: -d <= (arr1[i] - arr2[j]) <= d
+
+then add - arr1[i] to the all sides of inequality: (-d - arr1[i]) <= (arr1[i] - arr2[j]) - arr1[i] <= (d - arr1[i])
+                                                 => - (d + arr1[i]) <= - arr2[j]  <= - (arr1[i] -d )
+
+then multiply it by -1 (remembering to reverse the inequality signs): (d + arr1[i]) >= arr2[j] >= (arr1[i] - d)
+
+that's the same as: (arr1[i] - d) <= arr2[j] <= (arr1[i] + d)
+
+Expression |arr1[i] - arr2[j]| <= d equals to (arr1[i] - d) <= arr2[j] <= (arr1[i] + d)  
+
+So for every value val in the array arr1 we need to check (using binary search) if the array arr2 contains any value in range from val - d to val + d. If not, increment distance.
+*/
+
+//Optimal Approach
+
+class Solution {
+    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {
+        int distance = 0;
+        // Sort arr2 to enable binary search for efficient range checks
+        Arrays.sort(arr2);
+
+        for (int val : arr1) {
+            // Check if no element in arr2 lies within [val - d, val + d]
+            if (isNotInRange(arr2, val - d, val + d)) {
+                distance++; // If no element found in range, increment distance count
+            }
+        }
+        return distance; // Return the total count of such elements in arr1
+    }
+
+    private boolean isNotInRange(int[] arr, int from, int to) {
+        int low = 0, high = arr.length - 1;
+
+        // Binary search to check if any element in arr is within [from, to]
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // If mid element lies within the given range, return false (means element found in range)
+            if (arr[mid] >= from && arr[mid] <= to) {
+                return false;
+            }
+
+            // If mid element is less than from, discard left half by moving low up
+            if (arr[mid] < from) {
+                low = mid + 1;
+            } else {
+                // If mid element is greater than to, discard right half by moving high down
+                high = mid - 1;
+            }
+        }
+
+        // If no element found within range after binary search, return true
+        return true;
+    }
+}
