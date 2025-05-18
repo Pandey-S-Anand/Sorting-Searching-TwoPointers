@@ -1,0 +1,69 @@
+// Bruteforce Approach
+
+//Time optimised Approach
+
+class Solution {
+    public int sumOfNonOverlapping(int[] arr1, int[] arr2) {
+        Set<Integer> nonCommon = new HashSet<>();
+        
+        // Add all elements of arr1 to the set
+        for (int val : arr1) {
+            nonCommon.add(val);
+        }
+        
+        // Process arr2 elements
+        for (int val : arr2) {
+            if (nonCommon.contains(val)) {
+                // Element is common → remove it
+                nonCommon.remove(val);
+            } else {
+                // Unique to arr2 → add it
+                nonCommon.add(val);
+            }
+        }
+        
+        // Sum all elements remaining in the set (non-common)
+        Optional<Integer> sum = nonCommon.stream().reduce((num1, num2) -> num1 + num2);
+        return sum.orElse(0);  // return 0 if the set is empty
+    }
+}
+
+
+//Space optimised Approach
+
+class Solution {
+    public int sumOfNonOverlapping(int[] arr1, int[] arr2) {
+        // Sort both arrays to make it easier to find common elements using two-pointer approach
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+
+        int i = 0, j = 0, sum = 0;
+
+        // Traverse both arrays using two pointers
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] == arr2[j]) {
+                // Common element found, skip both (do not add to sum)
+                i++;
+                j++;
+            } else if (arr1[i] < arr2[j]) {
+                // arr1[i] is unique at this point (not in arr2), add it to sum
+                sum += arr1[i++];
+            } else {
+                // arr2[j] is unique at this point (not in arr1), add it to sum
+                sum += arr2[j++];
+            }
+        }
+
+        // Add any remaining elements from arr1 (no match in arr2)
+        while (i < arr1.length) {
+            sum += arr1[i++];
+        }
+
+        // Add any remaining elements from arr2 (no match in arr1)
+        while (j < arr2.length) {
+            sum += arr2[j++];
+        }
+
+        return sum;
+    }
+}
