@@ -1,52 +1,25 @@
-/*
-We can easily observe that the number of rotations in an array is equal to the index(0-based index) of its minimum element.
-So, in order to solve this problem, we have to find the index of the minimum element.
-*/
-
 //Bruteforce Approach
 
 class Solution {
     public int findKRotation(List<Integer> arr) {
-        return findMinimumIndex(arr);
+      /**
+       * Finds the number of times a sorted array has been right rotated.
+       * The number of right rotations equals the index of the minimum element in the array.
+       */
+        return findMinIndex(arr);
     }
-
-    private int findMinimumIndex(List<Integer> arr) {
-      int size=arr.size(),minimum=arr.get(0),minimumIndex=0;
-      
-      for(int i=1;i<size;i++){
-        if(arr.get(i)<minimum){
-            minimum=arr.get(i);
-            minimumIndex=i;
+    
+    private int findMinIndex(List<Integer> arr) {
+        int minIndex = 0; // Assume first element is minimum initially
+        
+        // Traverse array to find index of minimum element
+        for (int i = 1; i < arr.size(); i++) {
+            if (arr.get(i) < arr.get(minIndex)) {
+                minIndex = i; // Update minimum element index
+            }
         }
-      }
-      
-      return minimumIndex;
-    }
-}
-
-
-//Better Approach
-
-class Solution {
-    public int findKRotation(List<Integer> arr) {
-        return findMinimumIndex(arr);
-    }
-
-    private int findMinimumIndex(List<Integer> arr) {
-      int size=arr.size();
-      //Array is sorted but not rotated so minimum element is at index 0
-      if(size==1 || arr.get(0)<arr.get(size-1)){
-          return 0;
-      }
-      
-      for(int i=0;i<size-1;i++){
-        if(arr.get(i)>arr.get(i+1)){
-            return i+1; //index of minimum element in sorted rotated array
-        } 
-      }
-      
-      // This return statement is never reached
-      return -1;
+        
+        return minIndex;
     }
 }
 
@@ -55,62 +28,95 @@ class Solution {
 
 class Solution {
     public int findKRotation(List<Integer> arr) {
-        return findMinimumIndex(arr);
+        return findMinIndex(arr);
     }
-
-    private int findMinimumIndex(List<Integer> arr) {
-         /*
-          Note :
-          1: If the array(with distinct elements) is sorted and rotated by any position
-             (either left or right) the first element will always be
-             greater than the last element.
-          
-          2: If the array(with distinct elements) is sorted and not rotated the
-             first element will always be less than the last element. 
-
-          3: Why mid never reaches arr.length - 1 ?
-             When (arr[mid] > arr[mid + 1]),it means mid points to the maximum element in the rotated sorted array it is the rotation point.
-             Since the array is rotated, mid will not be the last element (arr.length - 1), because after rotation, elements wrap 
-             around to the beginning of the array. Thus, mid is always less than arr.length - 1.
-         */
-        int size = arr.size();
-        if (size == 1 || arr.get(0) < arr.get(size - 1)) {
-            return 0; //Index of minimum element
+    
+    public int findMinIndex(List<Integer> arr) {
+       /* 
+         Edge Case 1: Single element array → it's the pivot
+         Edge Case 2: Array is already sorted (not rotated) → first element is the smallest
+        */
+        if (arr.size() == 1 || arr.get(0) < arr.get(arr.size() - 1)) {
+            return 0; // return index of the smallest element
         }
 
+        // If the above condition is false, it confirms that the array is both sorted and rotated
         int low = 0, high = arr.size() - 1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            // Check if mid is the partition point
+            // Case 1: mid is the pivot if it is greater than the next element so the pivot is max element and mid+1 is the smallest
             if (arr.get(mid) > arr.get(mid + 1)) {
-                return mid + 1; //Index of minimum element
+                return mid + 1; // return index of the smallest element
             }
 
-            // Decide which half to continue the search in
             /*
-               Why arr[low] <= arr[mid] not arr[low] < arr[mid] ?  given the array contains distinct elements !
-               Since the array contains distinct elements, arr[low] will never be equal to arr[mid] unless low == mid.
-               When low == mid, the condition arr[low] <= arr[mid] ensures that we do not miss the target and adjust the search bounds properly.
-               Ex: 
-               nums =[3,1]
-               partitionIndex : 0
+                🔹 How to determine if the left half is sorted?
+                   If arr[low] < arr[mid], then the segment [low...mid] is sorted.
+                   In a rotated sorted array with all unique elements, a properly sorted
+                   half will always have the first element < the last element.
+            
+                ✅ Example:
+                   arr = [4, 5, 6, 7, 0, 1, 2]
+                   low = 0, mid = 3 → arr[low] = 4, arr[mid] = 7 → 4 < 7 → left half is sorted
+            
+                🔸 Binary Search Use Case:
+                   - If the pivot is not in the sorted half, eliminate that half
+                   - Continue searching in the unsorted half
+             */
 
-               Ex:
-               nums =[15,16,19,20,25,1,3,4,5,7,10,14] 
-               partitionIndex : 4
-            */
-            if (arr.get(low) <= arr.get(mid)) {
-                // Left half is sorted, so the rotation point must be in the right half
+            /*
+                🔹 Why is the condition (low == mid) important?
+            
+                ⚠️ Edge Case Example: [8, 9, 2, 3, 4]
+                Step-by-step:
+                - Initially: low = 0, high = 4
+                - mid = (0 + 4) / 2 = 2
+                - arr[mid] = 2, arr[low] = 8
+            
+                Since arr[low] > arr[mid], pivot lies in the left half
+                → Move left: low = 0, high = 1
+            
+                Now:
+                - mid = (0 + 1) / 2 = 0
+            
+                If we check: arr[low] < arr[mid] → 8 < 8 → false
+                This would incorrectly indicate an unsorted left half.
+                We move left → high = mid - 1 = -1 → out of bounds!
+            
+                ❌ Problem: We exit the loop without finding the pivot.
+            
+                ✅ Solution:
+                When low == mid, it means the left half contains only one element,
+                which is trivially sorted. So, we must move to the right (low = mid + 1)
+                to avoid incorrect movement.
+             */
+
+            // Note:  Since the array is rotated (Ascending order), the largest element (pivot) cannot be at the last index, so mid will never equal arr.size() - 1 during pivot search
+            if (low == mid || arr.get(low) < arr.get(mid)) {
+                // Left half is sorted or only one element → pivot is in the right half
                 low = mid + 1;
             } else {
-                // Right half is sorted, so the rotation point must be in the left half
+                // Right half is sorted, so pivot must be in the left half → move search to left half
+                /*
+                      Important note:
+                      So, in a rotated sorted array (with or without duplicates), at least one half (left or right) is always sorted.
+                      
+                      Example: arr = [6, 7, 1, 2, 3, 4, 5]
+                      low = 0, high = 6, mid = 3, arr[mid] = 2
+                
+                      Check left half [low..mid]: arr[low] = 6, arr[mid] = 2
+                      Since 6 > 2, left half is NOT sorted.
+                      That means right half [mid..high] is sorted.
+                      Therefore, pivot must lie in the left half.
+                      So, we move 'high' pointer to mid - 1 to search left half.
+                */
                 high = mid - 1;
             }
         }
 
-        // This return statement is never reached
+        // Ideally unreachable for a valid rotated sorted array
         return -1;
     }
 }
