@@ -172,7 +172,20 @@ class Solution {
                 // Left half is sorted or only one element → pivot is in the right half
                 low = mid + 1;
             } else {
-                // Right half is unsorted → pivot is in the left half
+                // Right half is sorted, so pivot must be in the left half → move search to left half
+                /*
+                      Important note:
+                      So, in a rotated sorted array (with or without duplicates), at least one half (left or right) is always sorted.
+                      
+                      Example: arr = [6, 7, 1, 2, 3, 4, 5]
+                      low = 0, high = 6, mid = 3, arr[mid] = 2
+                
+                      Check left half [low..mid]: arr[low] = 6, arr[mid] = 2
+                      Since 6 > 2, left half is NOT sorted.
+                      That means right half [mid..high] is sorted.
+                      Therefore, pivot must lie in the left half.
+                      So, we move 'high' pointer to mid - 1 to search left half.
+                */
                 high = mid - 1;
             }
         }
