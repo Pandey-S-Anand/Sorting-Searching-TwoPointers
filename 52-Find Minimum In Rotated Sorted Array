@@ -2,10 +2,25 @@
 
 class Solution {
     public int findMin(int[] arr) {
-        Arrays.sort(arr);
-        return arr[0]; //Minimum element
+        // Initialize min to index 0, assuming first element is the smallest initially
+        int min = 0;
+
+        /*
+         * Traverse the array starting from index 1
+         * Compare each element with the current minimum (arr[min])
+         * If a smaller element is found, update the min index
+         */
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] < arr[min]) {
+                min = i; // Update index of the new minimum element
+            }
+        }
+
+        // Return the minimum value found at index 'min'
+        return arr[min];
     }
 }
+
 
 
 //Optimal Approach
