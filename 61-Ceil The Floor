@@ -1,0 +1,106 @@
+//Bruteforce Approach
+
+public class Solution {
+    /**
+     * Returns both the floor and ceil of a given number `x` in a sorted array.
+     *
+     * Floor: The greatest element in the array <= x
+     * Ceil:  The smallest element in the array >= x
+     *
+     * If no floor or ceil exists, -1 is returned in their place respectively.
+     */
+    public static int[] getFloorAndCeil(int[] arr, int n, int x) {
+        return new int[] { findFloor(arr, n, x), findCeil(arr, n, x) };
+    }
+
+    private static int findFloor(int[] arr, int n, int x) {
+        int low = 0, high = n - 1;
+        int floor = -1; // Initialize floor as -1 (not found)
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if(arr[mid] == x){
+               // Exact match found, floor will be x
+               floor = arr[mid];
+               break;
+            }
+
+            if (arr[mid] < x) {
+                // Current element is a possible floor, move right to find a better (closer) candidate
+                floor = arr[mid];
+                low = mid + 1;
+            } else {
+                // Too big, move left
+                high = mid - 1;
+            }
+        }
+
+        return floor;
+    }
+
+    private static int findCeil(int[] arr, int n, int x) {
+        int low = 0, high = n - 1;
+        int ceil = -1; // Initialize ceil as -1 (not found)
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if(arr[mid] == x){
+               // Exact match found, ceil will be x
+               ceil = arr[mid];
+               break;
+            }
+
+            if (arr[mid] > x) {
+                // Current element is a possible ceil, move left to find a better (closer) candidate
+                ceil = arr[mid];
+                high = mid - 1;
+            } else {
+                // Too small, move right
+                low = mid + 1;
+            }
+        }
+
+        return ceil;
+    }
+}
+
+
+//Optimal Approach
+
+public class Solution {
+
+    /**
+     * This method finds the floor and ceil of a given number 'x' in a sorted array.
+     * - Floor: Greatest number less than or equal to x
+     * - Ceil : Smallest number greater than or equal to x
+     */
+    public static int[] getFloorAndCeil(int[] arr, int n, int x) {
+        int low = 0, high = n - 1;
+        int floor = -1, ceil = -1;  // Initialize floor and ceil to -1 (default if no floor/ceil found)
+
+        // Binary search loop to find floor and ceil
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == x) {
+                // Exact match found, both floor and ceil will be x
+                floor = ceil = arr[mid];
+                
+                // Search ends since exact match is found
+                break;
+            } else if (arr[mid] < x) {
+                // arr[mid] can be a floor candidate (less than x)
+                floor = arr[mid];
+                low = mid + 1; // Move right to find a larger floor if exists
+            } else {
+                // arr[mid] can be a ceil candidate (greater than x)
+                ceil = arr[mid];
+                high = mid - 1; // Move left to find a smaller ceil if exists
+            }
+        }
+
+        return new int[]{floor, ceil};
+    }
+}
