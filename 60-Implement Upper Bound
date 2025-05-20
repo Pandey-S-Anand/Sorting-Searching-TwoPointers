@@ -1,0 +1,47 @@
+//Bruteforce Approach
+
+public class Solution {
+    //The **upper bound** of `x` is the **first index** at which the element is **strictly greater than** `x`.
+    public static int upperBound(int[] arr, int x, int n) {
+        // Traverse the array linearly to find the first element > x
+        for (int i = 0; i < n; i++) {
+            if (arr[i] > x) {
+                return i; // Found the upper bound at index i
+            }
+        }
+
+        // If all elements are <= x, upper bound is at the end (n)
+        return n;
+    }
+}
+
+
+
+//Optimal Approach
+
+public class Solution {
+
+    /**
+     * The **upper bound** of `x` is the **first index** where the element is **strictly greater than** `x`.
+     *
+     * If all elements are less than or equal to `x`, then return `n`(i.e., position to insert `x` such that the array remains sorted).
+     */
+    public static int upperBound(int[] arr, int x, int n) {
+        int low = 0, high = n - 1;
+        int upperBound = n; // Default to n in case all elements <= x
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // If arr[mid] is strictly greater than x, this might be our upper bound
+            if (arr[mid] > x) {
+                upperBound = mid;
+                high = mid - 1; // Try to find a smaller index with arr[mid] > x
+            } else {
+                low = mid + 1; // Skip elements <= x
+            }
+        }
+
+        return upperBound;
+    }
+}
