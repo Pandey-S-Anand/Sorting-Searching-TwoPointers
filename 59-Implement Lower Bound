@@ -3,53 +3,42 @@
 public class Solution {
     public static int lowerBound(int[] arr, int n, int x) {
         for (int i = 0; i < n; i++) {
+            // As soon as we find an element >= x, we return its index
             if (arr[i] >= x) {
                 return i;
             }
         }
 
+        // If no such element is found, return n (insertion at end)
         return n;
     }
 }
+
 
 
 //Optimal Approach
 
 public class Solution {
     public static int lowerBound(int[] arr, int n, int x) {
-        int low = 0, high = n - 1, lowerBound = n;
+       //The lower bound of a number `x` is the **index of the first element** in the array that is **greater than or equal to** `x`.
+        int low = 0, high = arr.length - 1;
+
+        // Default to arr.length in case no element >= x is found
+        int lowerBound = arr.length;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
             if (arr[mid] >= x) {
+                // Potential candidate for lower bound found, but we continue searching on the left side for smaller valid index
                 lowerBound = mid;
                 high = mid - 1;
             } else {
+                // Current mid is too small, search in the right half
                 low = mid + 1;
             }
         }
 
         return lowerBound;
-    }
-}
-
-//Aliter
-
-public class Solution {
-    public static int lowerBound(int[] arr, int n, int x) {
-        int low = 0, high = n - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (arr[mid] >= x) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return low;
     }
 }
