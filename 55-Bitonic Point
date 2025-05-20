@@ -1,0 +1,103 @@
+//Bruteforce Approach
+
+class Solution {
+    int findMaximum(int[] arr, int n) {
+        int low = 0, high = n - 1;
+        int maximum = Integer.MIN_VALUE;
+
+        /*
+         * This is a simple linear approach using two pointers:
+         * - One starting from the beginning (`low`)
+         * - One starting from the end (`high`)
+         * 
+         * At each step, we compare both ends and update the `maximum`.
+         * We move both pointers toward the center to cover the full array.
+         * 
+         */
+        while (low <= high) {
+            maximum = Math.max(maximum, Math.max(arr[low++], arr[high--]));
+        }
+
+        return maximum;
+    }
+}
+
+
+//Good Approach
+
+class Solution {
+    int findMaximum(int[] arr, int n) {
+        /*
+         * Linear scan approach to find the peak in a bitonic array.
+         * As soon as we find an element greater than its next one,
+         * we return it — this handles both bitonic arrays and strictly
+         * descending arrays.
+         */
+        for (int i = 0; i < n - 1; i++) {
+            if (arr[i] > arr[i + 1]) {
+                // Found the turning point (peak) in bitonic or descending array
+                return arr[i];
+            }
+        }
+
+        // If no such element is found, the array is strictly increasing
+        return arr[n - 1]; // Last element is the maximum
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public int findMaximum(int[] arr) {
+        int low = 0;
+        int high = arr.length - 1;
+
+         /*
+         * According to the problem constraints, the array is bitonic (first strictly increasing and then maybe strictly decreasing and has length >= 3)
+         * Therefore, the peak (maximum element) will never be at index 0 or at index n - 1.
+         * So, it's safe to access arr[mid - 1] and arr[mid + 1] without risking out-of-bound errors.
+         * 
+         * However, to make the implementation robust and handle edge cases like strictly 
+         * increasing or strictly decreasing arrays, we still include checks for mid == 0 
+         * and mid == n - 1 inside the loop.
+         */
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            
+            // Handle edge cases: Entirely decreasing or increasing
+            if (mid == 0) {
+                return arr[0]; // Strictly decreasing array
+            }
+
+            if (mid == arr.length - 1) {
+                return arr[arr.length - 1]; // Strictly increasing array
+            }
+
+            // Case 1: arr[mid] is the peak (greater than both neighbors)
+            if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
+                return arr[mid]; // Found the maximum
+            }
+
+            /*
+             * Case 2: We are in the decreasing part of the array
+             * i.e., arr[mid] < arr[mid - 1] && arr[mid] > arr[mid + 1] → Move left
+             * because the peak lies in the left half
+             */
+            if (arr[mid] < arr[mid - 1] && arr[mid] > arr[mid + 1]) {
+                high = mid - 1;
+            } else {
+                /*
+                 * Case 3: We are in the increasing part of the array
+                 * i.e., arr[mid] > arr[mid - 1] && arr[mid] < arr[mid+1] → Move right
+                 * because the peak lies in the right half
+                 */
+                low = mid + 1;
+            }
+        }
+
+        // This line should never be reached if the input is a valid bitonic array
+        return -1;
+    }
+}
