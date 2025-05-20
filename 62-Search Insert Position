@@ -2,18 +2,29 @@
 
 class Solution {
     public int searchInsert(int[] arr, int target) {
+        // Step 1: Perform binary search to find the target
         int index = binarySearch(arr, target);
 
+        // Step 2: If target found, return its index
         if (index != -1) {
             return index;
         }
 
+        // Step 3: If not found, create a new array with one extra space to insert the target
         int[] newArr = new int[arr.length + 1];
 
-        System.arraycopy(arr, 0, newArr, 0, arr.length);
+        // Step 4: Copy old array elements to the new array
+        for (int i = 0; i < arr.length; i++) {
+            newArr[i] = arr[i];
+        }
+
+        // Step 5: Add the target at the end
         newArr[arr.length] = target;
+
+        // Step 6: Sort the array so target gets inserted at its correct position
         Arrays.sort(newArr);
 
+        // Step 7: Perform binary search again to find the new index of the inserted target
         return binarySearch(newArr, target);
     }
 
@@ -32,7 +43,8 @@ class Solution {
             }
         }
 
-        return -1;// key doesnot exists
+        // Key does not exist
+        return -1;
     }
 }
 
@@ -41,20 +53,22 @@ class Solution {
 
 class Solution {
     public int searchInsert(int[] arr, int target) {
+         // Step 1: Try to find the target using binary search
         int index = binarySearch(arr, target);
 
+        // Step 2: If target is found, return its index
         if (index != -1) {
             return index;
         }
 
-        // Using insertion sort logic
-
-        int i = arr.length - 1;
-        while (i >= 0 && arr[i] > target) {
-            i--;
+        // Step 3: If target is not found, find the correct insert position by scanning from the end to find the last element less than the target
+        int j = arr.length - 1;
+        while (j >= 0 && arr[j] > target) {
+            j--;
         }
 
-        return i + 1;
+        // Step 4: Return j + 1, which gives the correct insert position
+        return j + 1;
     }
 
     private int binarySearch(int[] arr, int key) {
@@ -71,16 +85,18 @@ class Solution {
                 low = mid + 1;
             }
         }
-        return -1;// key doesnot exists
+
+        // Key does not exist
+        return -1;
     }
 }
 
 
 //Optimal Approach
 
-
 class Solution {
     public int searchInsert(int[] arr, int target) {
+        //The lower bound of a target is the first index at which the value is greater than or equal to the target.
         return lowerBound(arr, target);
     }
 
@@ -103,86 +119,6 @@ class Solution {
         }
 
         return lowerBound;
-    }
-}
-
-
-//Aliter
-
-class Solution {
-    public int searchInsert(int[] arr, int target) {
-        return lowerBound(arr, target);
-    }
-
-    private int lowerBound(int[] arr, int x) {
-        int low = 0, high = arr.length - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (arr[mid] == x) {
-                return mid;
-            }
-
-            if (arr[mid] > x) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return low;
-    }
-}
-
-
-//Aliter
-
-class Solution {
-    public int searchInsert(int[] arr, int target) {
-        return lowerBound(arr, target);
-    }
-
-    private int lowerBound(int[] arr, int x) {
-        int low = 0, high = arr.length - 1, lowerBound = arr.length;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (arr[mid] >= x) {
-                lowerBound = mid;
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return lowerBound;
-    }
-}
-
-
-//Aliter
-
-class Solution {
-    public int searchInsert(int[] arr, int target) {
-        return lowerBound(arr, target);
-    }
-
-    private int lowerBound(int[] arr, int x) {
-        int low = 0, high = arr.length - 1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (arr[mid] >= x) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return low;
     }
 }
 
