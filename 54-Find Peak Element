@@ -1,54 +1,48 @@
-/*
-In this question we will always be having a peak element because arr[-1]=arr[arr.length]= -INFINITY
-*/
 //Bruteforce Approach
 
+// In this question, we are guaranteed to always have a peak element. This is because we assume: arr[-1] = -∞ and arr[arr.length] = -∞
 class Solution {
     public int findPeakElement(int[] arr) {
+        // Edge Case 1: If the array has only one element, it is trivially the peak.
         if (arr.length == 1) {
             return 0;
         }
-        
-        if (arr[0] > arr[1]){
+
+        // Edge Case 2: If the first element is greater than the second, it's a peak. Since arr[-1] is -∞ (as per question assumption), compare only arr[0] and arr[1].
+        if (arr[0] > arr[1]) {
             return 0;
         }
 
-        if (arr[arr.length - 1] > arr[arr.length - 2]){
+        // Edge Case 3: If the last element is greater than the second-last, it's a peak. Since arr[n] is -∞, only compare arr[n-1] and arr[n-2].
+        if (arr[arr.length - 1] > arr[arr.length - 2]) {
             return arr.length - 1;
         }
-        
-        int i;
-        for (i = 1; i < (arr.length - 1); i++){
-            if ((arr[i] > arr[i - 1]) && (arr[i] > arr[i + 1])){
-                break;
+
+        // General Case: Check for peak element in the middle of the array. A peak is defined as an element greater than both its neighbors.
+        for (int i = 1; i < arr.length - 1; i++) {
+            if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) {
+                return i; // Found a peak
             }
         }
 
-        return i;
+        // This line should never be reached due to the problem guarantee of a peak.
+        return -1;
     }
 }
+
 
 
 //Optimal Solution
 
 class Solution {
     public int findPeakElement(int[] arr) {
-        if (arr.length == 1) {
+        // Edge Case 1: If the array has only one element, it is trivially the peak.
+        // Edge Case 2: If the first element is greater than the second, it's a peak. Since arr[-1] is -∞ (as per question assumption), compare only arr[0] and arr[1].
+        if (arr.length == 1 || arr[0] > arr[1]) {
             return 0;
         }
 
-        /** 
-         * If the first element is greater than the second,
-         * it's a peak (assuming -∞ to the left).
-         */
-        if (arr[0] > arr[1]) {
-            return 0;
-        }
-
-        /**
-         * If the last element is greater than the second last,
-         * it's a peak (assuming -∞ to the right).
-         */
+        // Edge Case 3: If the last element is greater than the second-last, it's a peak. Since arr[n] is -∞, only compare arr[n-1] and arr[n-2].
         if (arr[arr.length - 1] > arr[arr.length - 2]) {
             return arr.length - 1;
         }
