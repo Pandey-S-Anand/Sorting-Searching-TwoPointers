@@ -1,0 +1,51 @@
+//Bruteforce Approach
+
+public class Solution {
+    public char nextGreatestLetter(char[] letters, char target) {
+        // Initialize result with the first letter of the array  This handles the wrap-around case when no letter is greater than target
+        char result = letters[0];
+
+        // Iterate over each character in the letters array
+        for (char ch : letters) {
+            // Check if the current character is greater than the target
+            if (ch > target) {
+                // Update result to the first character greater than target
+                result = ch;
+                break; // Exit loop early since we found the smallest greater letter
+            }
+        }
+
+        // Return the smallest letter greater than target or the first letter if none found
+        return result;
+    }
+}
+
+
+//Optimal Approach
+
+public class Solution {
+    public char nextGreatestLetter(char[] letters, char target) {
+        int low = 0, high = letters.length - 1;
+
+        // Initialize result with the first letter (smallest letter) This will be returned if no letter greater than target is found in the binary search
+        char result = letters[0];
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // If mid letter is greater than target, it is a potential answer
+            if (letters[mid] > target) {
+                // Update result to this candidate
+                result = letters[mid];
+                // Move left to find if there's an even smaller letter greater than target
+                high = mid - 1;
+            } else {
+                // If letters[mid] is less than or equal to target, discard mid and all elements to its left, and continue searching to the right for a greater character
+                low = mid + 1;
+            }
+        }
+
+        // Return the smallest letter greater than target,  or the first letter if none found
+        return result;
+    }
+}
