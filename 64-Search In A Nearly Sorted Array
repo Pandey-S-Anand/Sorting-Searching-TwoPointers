@@ -1,0 +1,42 @@
+//Bruteforce Approach
+
+public class Solution {
+    public int searchInAlmostSorted(int[] arr, int n, int key) {
+        for (int i = 0; i < n; i++) {
+            if (arr[i] == key) {
+                return i;
+            }
+        }
+        // Element is not present in the array
+        return -1;
+    }
+}
+
+
+//Optimal Approach
+
+public class Solution {
+    public int searchInAlmostSorted(int[] arr, int n, int key) {
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // 1. Check if the mid element is the key
+            if (arr[mid] == key) {
+                return mid;
+            } else if (mid > 0 && arr[mid - 1] == key) { // 2. Since elements can be swapped with adjacent ones, also check the left neighbor of mid (if valid)
+                return mid - 1;
+            } else if (mid < arr.length - 1 && arr[mid + 1] == key) { // 3. Similarly, check the right neighbor of mid (if valid)
+                return mid + 1;
+            } else if (key < arr[mid]) { // 4. If key is less than arr[mid], then target can only be present to the left side of mid - 2 (since mid-1 already checked, move high pointer two steps left)
+                high = mid - 2;
+            }else { // 5. Otherwise, key must be on the right side of mid + 2  (mid+1 already checked, so move low pointer two steps right)
+                low = mid + 2;
+            }
+        }
+
+        // Key not found in the array
+        return -1;
+    }
+}
