@@ -15,79 +15,51 @@ than 'k' as in 1 operation we can remove only one small element
 
 //Bruteforce Approach
 
-//Naive Implementation
+/*
+Approach to solve the problem:
+
+Case 1: 'k' exists in the array
+-----------------------------------
+- We need to find the **first index of 'k'** in the sorted array.
+- This index gives us the **count of elements smaller than 'k'**.
+- Since one operation can remove only one smaller element, this index will be the **minimum number of operations required**.
+
+Case 2: 'k' does not exist in the array
+-----------------------------------------
+- We find the **lower bound index** (correct insert position for 'k') in the sorted array.
+- This also gives the count of elements strictly smaller than 'k'.
+- Again, that count is the **minimum number of operations required** to remove smaller elements.
+*/
 
 class Solution {
     public int minOperations(int[] arr, int k) {
+        // Step 1: Sort the array
         Arrays.sort(arr);
 
-        int firstIndex = findFirstIndex(arr, k);
-        if (firstIndex != -1) {
-            return firstIndex;
-        }
-
-        return findInsertionIndex(arr, k);
+        // Step 2: Find first index of 'k' if present, or insert position if not
+        return searchInsertPosition(arr, k);
     }
 
-    private int findFirstIndex(int[] arr, int key) {
-        int low = 0, high = arr.length - 1, firstIndex = -1;
+    private int searchInsertPosition(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+        int firstIndex = -1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            if (arr[mid] == key) {
+            if (arr[mid] == target) {
+                // Found 'target', but keep looking to the left for first occurrence
                 firstIndex = mid;
                 high = mid - 1;
-            } else if (key < arr[mid]) {
-                high = mid - 1;
+            } else if (arr[mid] > target) {
+                high = mid - 1; // Search left half
             } else {
-                low = mid + 1;
+                low = mid + 1; // Search right half
             }
         }
 
-        return firstIndex;
-    }
-
-    private int findInsertionIndex(int[] arr, int k) {
-        int low = 0, high = arr.length - 1, insertIndex = arr.length;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (arr[mid] > k) {
-                insertIndex = mid;
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return insertIndex;
-    }
-}
-
-
-
-//Optimal Implementation
-
-class Solution {
-    public int minOperations(int[] arr, int k) {
-        Arrays.sort(arr);
-
-        int low = 0, high = arr.length - 1, operationCount = -1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (arr[mid] >= k) {
-                operationCount = mid;
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return operationCount;
+        // If 'target' was found, return its first index. Otherwise, return the index where it should be inserted.
+        return firstIndex == -1 ? low : firstIndex;
     }
 }
 
@@ -100,16 +72,19 @@ Since each operation allows the removal of only one smaller element, the minimum
 make all elements in the array greater than or equal to 'k' is equal to the count of numbers in the array that are less than 'k'.
 */
 
+
 class Solution {
     public int minOperations(int[] arr, int k) {
         int operationCount = 0;
 
+        // Traverse the array and count how many elements are less than k
         for (int val : arr) {
             if (val < k) {
                 operationCount++;
             }
         }
 
+        // Return the count as the result
         return operationCount;
     }
 }
