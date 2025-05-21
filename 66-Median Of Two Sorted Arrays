@@ -1,0 +1,377 @@
+// Bruteforce Approach
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        // Merge the two sorted arrays into one sorted array
+        int[] arr = mergeTwoSortedArrays(arr1, arr2);
+
+        // Check if the merged array length is even
+        if ((arr.length % 2) == 0) {
+            // For even length, median is average of two middle elements
+            return (double) (arr[(arr.length - 1) / 2] + arr[arr.length / 2]) / 2D;
+        }
+        // For odd length, median is the middle element
+        return (double) arr[arr.length / 2];
+    }
+
+    private int[] mergeTwoSortedArrays(int[] arr1, int[] arr2) {
+        int[] arr = new int[arr1.length + arr2.length]; // Result array
+        int i = 0, j = 0, k = 0; // Pointers for arr1, arr2, and arr respectively
+
+        // Traverse both arrays and copy the smaller element to the merged array
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] <= arr2[j]) {
+                arr[k++] = arr1[i++];
+            } else {
+                arr[k++] = arr2[j++];
+            }
+        }
+
+        // If any elements left in arr1, copy them
+        while (i < arr1.length) {
+            arr[k++] = arr1[i++];
+        }
+
+        // If any elements left in arr2, copy them
+        while (j < arr2.length) {
+            arr[k++] = arr2[j++];
+        }
+
+        return arr; // Return the merged sorted array
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        // Variables to keep track of current and previous values during merge
+        int current = 0, previous = 0;
+
+        // Total size of the merged array
+        int size = arr1.length + arr2.length;
+
+        // Pointers for both arrays and the overall count
+        int i = 0, j = 0, k = 0;
+
+        // Merge the arrays only until we reach the middle (median) index
+        while ((i < arr1.length && j < arr2.length) && k <= (size / 2)) {
+            previous = current; // Store last value before updating current
+
+            if (arr1[i] <= arr2[j]) {
+                current = arr1[i++];
+            } else {
+                current = arr2[j++];
+            }
+            k++; // Count how many elements have been processed
+        }
+
+        // If elements are left in arr1 and we haven’t yet reached the middle
+        while (i < arr1.length && k <= (size / 2)) {
+            previous = current;
+            current = arr1[i++];
+            k++;
+        }
+
+        // If elements are left in arr2 and we haven’t yet reached the middle
+        while (j < arr2.length && k <= (size / 2)) {
+            previous = current;
+            current = arr2[j++];
+            k++;
+        }
+
+        // If total number of elements is even, median is average of middle two
+        if (size % 2 == 0) {
+            return (current + previous) / 2D;
+        }
+
+        // If total number of elements is odd, median is the middle element
+        return current;
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        // 'current' and 'previous' will track the latest and second latest elements while merging
+        int current = 0, previous = 0;
+
+        // Total length of the merged array
+        int size = arr1.length + arr2.length;
+
+        // Pointers for both arrays and a counter to track number of merged elements
+        int i = 0, j = 0, k = 0;
+
+        // Merge process runs only until we reach the median position (size / 2)
+        while (k <= size / 2) {
+            previous = current; // Save the last value before updating
+
+            if (i < arr1.length && j < arr2.length) {
+                // Pick the smaller element from the two arrays
+                if (arr1[i] <= arr2[j]) {
+                    current = arr1[i++];
+                } else {
+                    current = arr2[j++];
+                }
+            } else if (i < arr1.length) {
+                // If arr2 is exhausted, take element from arr1
+                current = arr1[i++];
+            } else {
+                // If arr1 is exhausted, take element from arr2
+                current = arr2[j++];
+            }
+
+            k++; // Increment merged element count
+        }
+
+        // If total size is even, median is the average of the two middle elements
+        if (size % 2 == 0) {
+            return (current + previous) / 2D;
+        }
+
+        // If total size is odd, median is the current middle element
+        return current;
+    }
+}
+
+
+//Optimal Approach
+
+/*
+
+Case 1: When merged array size is Even:
+
+Given,
+arr1[] ={1, 3, 4, 7, 10, 12}
+arr2[]= {2, 3, 6, 15}
+
+          0  1  2  3  4  5  6   7   8   9
+merged[]={1, 2, 3, 3, 4, 6, 7, 10, 12, 15};     //only possible valid configuration for merged[] array
+
+median = arr[9/2] + arr[10/2] = (4+6) / 2 = 5
+
+left half = {1, 2, 3, 3, 4} and right half = {6, 7, 10, 12, 15} 
+
+median = (max of left half(i.e 4) + min of right subarray(i.e 6)) / 2 = (4 + 6) / 2 = 5
+
+
+Case 2: When merged array size is Odd :
+
+Given,
+arr1[]={1, 3, 4, 7,  10, 12}
+arr2[]={2, 3, 6, 15, 18}
+
+merged[] = {1, 2, 3, 3, 4, 6, 7, 10, 12, 15, 18} //only possible valid configuration for merged[] array
+
+Let half ={1, 2, 3, 3, 4, 6} and right half ={7, 10, 12, 15, 18}
+
+Median = max left half = 6
+
+Note : 1 : For any two sorted  arrays(that forms odd length merged array on merging), the left half size will be (n/2 + 1)  and right half size will be (n/2)  (where n = size of the merged array)
+           2: For any two sorted arrays (that form even length merged array on merging), both the left half and right half will have equal size (i.e n/2 , where n = size of merged array)
+           3: For any two sorted arrays ,there exists only 1 valid configuration of merged[] array that satisfies the below mentioned conditions.
+             >All the elements of the left part of the merged[] array will be less than or equal to the elements in the right half of the merged array.
+             >To test if all the elements in the left half are smaller than than or equal to the elements in the right half, compare the last element(max of left half)
+               With the first element of the right half (min of right half) since both the left and right half are sorted.
+             >Since we are not actually merging the arrays, so we won’t be having left half and right half in the form of array, to find the max in the left half, we need to 
+                take maximum out of elements chosen from arr1(for left half) and arr2 (for left half),the maximum of two will give us the maximum of left half. Similarly to find the 
+                Minimum of right half we need to take the minimum of elements chosen from arr1(for right half) and arr2(for right half), the minimum of two will give us the minimum of 
+                right half.
+
+==================================================
+Ex: (when merged[] array Is of even length)
+Given,
+arr1[] ={1, 3, 4, 7, 10, 12}
+arr2[]={2, 3, 6, 15}
+
+All possible combination to form merged[] array :
+
+1: 
+=> No. of elements picked from arr1 for left half = 0
+>Then remaining no. of elements to be picked picked from arr2 for left half= 4  i.e {2, 3, 6, 15} 
+>Then remaining no. of elements to be picked from arr1  for right half= 6  i.e {1, 3, 4, 7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 0
+
+{}              |  {1, 3, 4, 7, 10, 12}
+{2, 3, 6, 15}   |  {}
+                       
+//Invalid Configuration both left and right half needs to be of size n/2 = 10/2 =5
+
+
+2:
+
+=> No. of elements picked picked from arr1 for left half = 1  I.e {1}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 4  i.e  {2, 3, 6, 15} 
+>Then remaining no. of elements to be picked from arr1  for right half= 5  i.e {3, 4, 7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 0
+
+
+{1}               |  {3, 4, 7, 10, 12}
+{2, 3, 6, 15}     |  {}
+
+merged[]={1, 2, 3, 6, 15 , 3, 4, 7, 10, 12} // not a valid configuration because Max(left part) > Min(right part) I.e  Max({1}, {2, 3, 6, 15}) > Min({3, 4, 7, 10, 12}, {}) or 15 > 3
+
+
+
+3:
+
+=> No. of elements picked picked from arr1 for left half = 2  I.e {1 ,3}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 3  i.e  {2, 3, 6} 
+>Then remaining no. of elements to be picked from arr1  for right half= 4  i.e {4, 7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 1 I.e {15}
+
+{1, 3}        |  {4, 7, 10, 12}
+{2, 3, 6}     |  {15}
+
+
+merged[]={1, 2, 3, 3, 6, 4, 7, 10, 12, 15}   // In Valid configuration because Max(left part) > Min(right part) I.e Max({1, 3} , {2, 3, 6}) > Min({4, 7, 10, 12},  {15}) or 6 > 4
+
+
+
+4:
+
+=> No. of elements picked picked from arr1 for left half = 3  I.e {1 ,3, 4}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 2  i.e  {2, 3} 
+>Then remaining no. of elements to be picked from arr1  for right half= 3  i.e {7, 10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 2 i.e {6, 15}
+
+{1, 3, 4}    |  {7, 10, 12}
+{2, 3}       |  {6, 15}
+
+
+merged[]={1, 2, 3, 3, 4, 6, 7, 10, 12, 15}   // VALID CONFIGURATION, because Max(left part) < Min(right part) I.e Max({1, 3, 4), {2, 3} ) < Min({7, 10, 12},  {6, 15}) or 4 < 6
+
+Thus median = (max(of left part) + min(of right part))/2 = (4+6)/2 = 5
+
+
+5:
+
+=> No. of elements picked picked from arr1 for left half = 4  i.e {1 ,3, 4, 7}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 1  i.e  {2} 
+>Then remaining no. of elements to be picked from arr1  for right half= 2  i.e {10, 12}
+>Then remaining no. of elements to be picked from arr2  for right half= 3 i.e {3, 6, 15}
+
+{1, 3, 4, 7}    |  {10, 12}
+{2}             |  {3, 6, 15}
+
+
+merged[]={1, 2, 3, 4, 7, 3, 6, 10, 12, 15}   //Invalid configuration, because Max(left part) > Min(right part) I.e  Max({1, 3, 4, 7}, {2}) > Min( {10, 12},  {3, 6, 15}) or 7 > 3
+
+
+6:
+
+=> No. of elements picked picked from arr1 for left half = 5  i.e {1 ,3, 4, 7, 10}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 0  i.e  {} 
+>Then remaining no. of elements to be picked from arr1  for right half= 1  i.e {12}
+>Then remaining no. of elements to be picked from arr2  for right half= 4 I.e  {2, 3, 6, 15}
+
+{1, 3, 4, 7, 10}    |  {12}
+{}                  |  {2, 3, 6, 15}
+
+
+merged[]={1, 3, 4, 7,10, 2,  3, 6, 12, 15}   //Invalid configuration, because Max(left part) > Min(right part) I.e Max({1, 3, 4, 7, 10}, {}) > Min({12} , {2, 3, 6, 15}) or 10 > 2
+
+
+
+7:
+
+=> No. of elements picked picked from arr1 for left half = 6  I.e {1 ,3, 4, 7, 10, 12}
+>Then remaining no. of elements to be picked picked from arr2 for left half= 0  i.e  {} 
+>Then remaining no. of elements to be picked from arr1  for right half= 0  i.e {}
+>Then remaining no. of elements to be picked from arr2  for right half= 4  I.e {2, 3, 6, 15}
+
+{1 ,3, 4, 7, 10, 12}    |  {}
+{}                      |  {2, 3, 6, 15}
+
+
+//Invalid Configuration both left and right half needs to be of size n/2 = 10/2 =5
+*/
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        if (arr1.length > arr2.length) {
+            return findMedianSortedArrays(arr2, arr1); // Ensure binary search is performed on the smaller array
+        }
+
+        /*
+          'low' is initialized to 0 to consider the scenario where no elements from arr1 are included in the left part.
+          'high' is initialized to arr1.length to consider the scenario where all elements from arr1 are included in the left part.
+        */
+        int low = 0, high = arr1.length;
+
+        while (low <= high) {
+            int elementsChosenFromArr1ForLeftPart = low + (high - low) / 2;
+            int elementsChosenFromArr2ForLeftPart = (arr1.length + arr2.length + 1) / 2
+                    - elementsChosenFromArr1ForLeftPart;
+
+            /* 
+               If you choose x elements from arr1 for the left half, then the index of the xth element is x - 1, 
+               and that element is maxInLeftPartFromArr1.
+               If we pick 0 elements from arr1 for the left half, then there is no max element on the left side of arr1.
+               To ensure correct comparison, we use Integer.MIN_VALUE (smallest possible value) to safely ignore this part.
+            */
+            int maxInLeftPartFromArr1 = (elementsChosenFromArr1ForLeftPart == 0) ? Integer.MIN_VALUE
+                    : arr1[elementsChosenFromArr1ForLeftPart - 1];
+
+            /* 
+             If you choose x elements from arr2 for the left half, then the index of the xth element is x - 1,
+             and that element is maxInLeftPartFromArr2.
+             
+             If we pick 0 elements from arr2 for the left half, we use Integer.MIN_VALUE to represent "nothing on left".
+             This case occurs when all the elements needed for the left half have already been chosen from arr1,
+             so there is no room left to pick any elements from arr2 for the left half.
+            */
+            int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE
+                    : arr2[elementsChosenFromArr2ForLeftPart - 1];
+
+            /* If x elements are chosen from arr1 for the left half, then the element at index x 
+               will be the smallest in the right part, i.e., minInRightPartFromArr1.
+              
+              Similarly, if we pick all elements from arr2 into the left half, right part of arr2 is empty.
+              Again, use Integer.MAX_VALUE to represent "nothing on right".
+            */
+            int minInRightPartFromArr1 = (elementsChosenFromArr1ForLeftPart == arr1.length) ? Integer.MAX_VALUE
+                    : arr1[elementsChosenFromArr1ForLeftPart];
+
+            /*
+             If x elements are chosen from arr2 for the left half, then the element at index x 
+             will be the smallest in the right part, i.e., minInRightPartFromArr2.
+
+             We use Integer.MAX_VALUE when all elements from arr2 have been chosen for the left half.
+             This situation arises when 0 elements are picked from arr1 for the left half — 
+             meaning all required elements for the left side must come from arr2.
+             As a result, there are no elements left in arr2 to contribute to the right half,
+             so we use Integer.MAX_VALUE to represent an "empty right half" safely in comparisons.
+            */
+            int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE : arr2[elementsChosenFromArr2ForLeftPart];
+
+            // Find the maximum element in the left half
+            int maxInLeftHalf = Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
+
+            // Find the minimum element in the right half
+            int minInRightHalf = Math.min(minInRightPartFromArr1, minInRightPartFromArr2);
+
+            if (maxInLeftHalf <= minInRightHalf) {
+                // If total number of elements is even, return the average of two middle elements
+                if ((arr1.length + arr2.length) % 2 == 0) {
+                    return (maxInLeftHalf + minInRightHalf) / 2.0;
+                }
+
+                // If total number of elements is odd, return the maximum of left half
+                return maxInLeftHalf;
+            } else if (maxInLeftPartFromArr1 > minInRightPartFromArr2) {
+                // Chosen too many elements from arr1 for the left half, reduce the count
+                high = elementsChosenFromArr1ForLeftPart - 1;
+            } else {
+                // Chosen too few elements from arr1 for the left half, increase the count
+                low = elementsChosenFromArr1ForLeftPart + 1;
+            }
+        }
+
+        // This line should never be reached if input arrays are sorted
+        return -1;
+    }
+}
