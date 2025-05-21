@@ -304,8 +304,13 @@ class Solution {
 
         while (low <= high) {
             int elementsChosenFromArr1ForLeftPart = low + (high - low) / 2;
-            int elementsChosenFromArr2ForLeftPart = (arr1.length + arr2.length + 1) / 2
-                    - elementsChosenFromArr1ForLeftPart;
+            /* 
+               Add 1 to the total length so that in case of an odd-length combined array,
+               the left half will have one extra element. This ensures correct median logic
+               because we always take the maximum of the left half when total elements are odd.
+            */
+            int elementsRequiredInLeftHalf = (arr1.length + arr2.length + 1) / 2;
+            int elementsChosenFromArr2ForLeftPart = elementsRequiredInLeftHalf - elementsChosenFromArr1ForLeftPart;
 
             /* 
                If you choose x elements from arr1 for the left half, then the index of the xth element is x - 1, 
@@ -327,7 +332,8 @@ class Solution {
             int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE
                     : arr2[elementsChosenFromArr2ForLeftPart - 1];
 
-            /* If x elements are chosen from arr1 for the left half, then the element at index x 
+            /* 
+               If x elements are chosen from arr1 for the left half, then the element at index x 
                will be the smallest in the right part, i.e., minInRightPartFromArr1.
               
               Similarly, if we pick all elements from arr2 into the left half, right part of arr2 is empty.
@@ -339,14 +345,15 @@ class Solution {
             /*
              If x elements are chosen from arr2 for the left half, then the element at index x 
              will be the smallest in the right part, i.e., minInRightPartFromArr2.
-
+            
              We use Integer.MAX_VALUE when all elements from arr2 have been chosen for the left half.
              This situation arises when 0 elements are picked from arr1 for the left half — 
              meaning all required elements for the left side must come from arr2.
              As a result, there are no elements left in arr2 to contribute to the right half,
              so we use Integer.MAX_VALUE to represent an "empty right half" safely in comparisons.
             */
-            int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE : arr2[elementsChosenFromArr2ForLeftPart];
+            int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE
+                    : arr2[elementsChosenFromArr2ForLeftPart];
 
             // Find the maximum element in the left half
             int maxInLeftHalf = Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
@@ -362,13 +369,19 @@ class Solution {
 
                 // If total number of elements is odd, return the maximum of left half
                 return maxInLeftHalf;
-            } else if (maxInLeftPartFromArr1 > minInRightPartFromArr2) {
-                // Chosen too many elements from arr1 for the left half, reduce the count
+            }
+            if (maxInLeftPartFromArr1 > minInRightPartFromArr2) {
+                // We have chosen too many elements from arr1 for the left half,  so we need to reduce the count by moving 'high' to the left.
                 high = elementsChosenFromArr1ForLeftPart - 1;
-            } else {
-                // Chosen too few elements from arr1 for the left half, increase the count
+            } else if (maxInLeftPartFromArr2 > minInRightPartFromArr1) {
+                /* 
+                 Too many elements have been chosen from arr2 for the left half.
+                 To fix this, we increase the number of elements chosen from arr1, 
+                 which effectively reduces elements chosen from arr2 for the left half.
+                 */
                 low = elementsChosenFromArr1ForLeftPart + 1;
             }
+
         }
 
         // This line should never be reached if input arrays are sorted
