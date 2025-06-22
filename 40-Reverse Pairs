@@ -51,7 +51,6 @@ class Solution {
 
     private int mergeAndCount(int[] arr, int low, int mid, int high) {
         int count = 0;
-
         int leftSize = mid - low + 1;
         int rightSize = high - mid;
 
