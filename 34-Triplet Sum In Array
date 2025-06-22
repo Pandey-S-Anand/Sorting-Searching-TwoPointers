@@ -1,7 +1,7 @@
 //Bruteforce Approach
 
 class Solution {
-    public static boolean hasTripletSum(int arr[], int target) {
+    public boolean hasTripletSum(int arr[], int target) {
         // Try all combinations of triplets
         for (int i = 0; i < arr.length; i++) {
             for (int j = i + 1; j < arr.length; j++) {
@@ -22,7 +22,7 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    public static boolean hasTripletSum(int arr[], int target) {
+    public boolean hasTripletSum(int arr[], int target) {
         // Sort the array to apply two-pointer technique
         Arrays.sort(arr);
 
