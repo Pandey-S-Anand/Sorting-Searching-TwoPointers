@@ -1,5 +1,3 @@
-//Method 1
-
 class Solution {
     public int findMaxConsecutiveOnes(int[] arr) {
         // Variable to store the maximum consecutive 1's found so far
@@ -23,30 +21,5 @@ class Solution {
 
         // After the loop, compare the last streak with the maximum streak found so far
         return Math.max(count1, maxConsecutive1s);
-    }
-}
-
-
-//Method 2 (Using Sliding Window)
-
-class Solution {
-    public int findMaxConsecutiveOnes(int[] arr) {
-        int maxConsecutive1s = 0, left = 0, right = 0;
-
-        while (right < arr.length) {
-            if (arr[right] == 1) {
-                right++;
-            } else {
-                // When control enters else statement , the right always points to 0
-                // Calculate the length of the current window of 1's
-                maxConsecutive1s = Math.max(maxConsecutive1s, right - left);
-                // Move both pointers to the next index after the current 0
-                right++;
-                left = right;
-            }
-        }
-
-        maxConsecutive1s = Math.max(maxConsecutive1s, right - left);
-        return maxConsecutive1s;
     }
 }
