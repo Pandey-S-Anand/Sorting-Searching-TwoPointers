@@ -78,34 +78,6 @@ class Solution {
 }
 
 
-//Good Approach
-
-class Solution {
-    public int findKthPositive(int[] arr, int k) {
-        int missingCount = 0;
-
-        // Convert the input array to a Set for O(1) lookup of elements
-        Set<Integer> set = Arrays.stream(arr).boxed().collect(Collectors.toSet());
-
-        // Iterate over the range [1, arr.length + k]:  This upper bound ensures that we don't miss the kth missing positive number
-        for (int num = 1; num <= (arr.length + k); num++) {
-            // If the current number is not in the set, it's a missing positive integer
-            if (!set.contains(num)) {
-                missingCount++;
-            }
-
-            // As soon as we find the kth missing number, return it
-            if (missingCount == k) {
-                return num;
-            }
-        }
-
-        // Fallback case (this should not happen due to the loop's upper bound)
-        return -1;
-    }
-}
-
-
 //Better Approach
 
 class Solution {
@@ -153,6 +125,11 @@ class Solution {
     */
 
     public int findKthPositive(int[] arr, int k) {
+        //For fully filled range [1, n]:  If arr = [1,2,3,...,n], then kth missing = n + k
+        if (arr[arr.length - 1] == arr.length) {
+            return arr.length + k;
+        }
+
         int i = 0; // Pointer for traversing the array
         int num = 1; // Current number to check if it's missing
 
@@ -177,6 +154,7 @@ class Solution {
         return num + k;
     }
 }
+
 
 
 
