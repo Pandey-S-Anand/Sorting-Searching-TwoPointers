@@ -1,7 +1,7 @@
 //Using extra space
 
 class Solution {
-    public static ArrayList<Integer> bitonicGenerator(int arr[]) {
+    public ArrayList<Integer> bitonicGenerator(int arr[]) {
         // List to store elements from even indices
         ArrayList<Integer> evenIndexed = new ArrayList<>();
 
@@ -37,7 +37,7 @@ class Solution {
 //Without using extra space
 
 class Solution {
-    public static ArrayList<Integer> bitonicGenerator(int[] arr) {
+    public ArrayList<Integer> bitonicGenerator(int[] arr) {
         // Step 1: Segregate elements at even indices to the front
         // firstOddIndex refers to the first index with an odd index element
         int firstOddIndex = segregate(arr); 
@@ -58,21 +58,21 @@ class Solution {
         return result;
     }
 
-    private static int segregate(int[] arr) {
-        int evenIndexTracker = 0;
+    private int segregate(int[] arr) {
+        int oddIndex = 0;
 
         for (int i = 0; i < arr.length; i++) {
             // Check for even index (not value!)
             if (i % 2 == 0) {
-                swap(arr, i, evenIndexTracker);
-                evenIndexTracker++;
+                swap(arr, i, oddIndex);
+                oddIndex++;
             }
         }
 
-        return evenIndexTracker; // Points to the first odd-indexed element now
+        return oddIndex; // Points to the first odd-indexed element now
     }
 
-    private static void reverse(int[] arr, int i, int j) {
+    private void reverse(int[] arr, int i, int j) {
         while (i < j) {
             swap(arr, i, j);
             i++;
@@ -80,7 +80,7 @@ class Solution {
         }
     }
 
-    private static void swap(int[] arr, int i, int j) {
+    private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
