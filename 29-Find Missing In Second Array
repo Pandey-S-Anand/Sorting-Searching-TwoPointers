@@ -6,10 +6,7 @@ class Solution {
         ArrayList<Integer> missing = new ArrayList<>();
 
         // Store all elements of arr2 in a HashSet for fast lookup (O(1) average time)
-        Set<Integer> set = new HashSet<>();
-        for (int val : arr2) {
-            set.add(val);
-        }
+        Set<Integer> set = Arrays.stream(arr2).boxed().collect(Collectors.toSet());
 
         // Check every element in arr1 — if not found in arr2 (set), it's missing
         for (int val : arr1) {
