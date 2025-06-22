@@ -68,6 +68,57 @@ class Solution {
 }
 
 
+/*
+Initial State:
+arr1 = [1, 4, 7, 8, 10]
+arr2 = [2, 3, 9]
+
+Total length = 8
+Initial gap = ceil(8 / 2) = 4
+
+=== GAP = 4 ===
+i=0, j=4 → arr1[0] vs arr1[4] → 1 vs 10 → OK
+i=1, j=5 → arr1[1] vs arr2[0] → 4 vs 2 → swap → arr1[1]=2, arr2[0]=4
+    arr1 = [1, 2, 7, 8, 10]
+    arr2 = [4, 3, 9]
+i=2, j=6 → arr1[2] vs arr2[1] → 7 vs 3 → swap → arr1[2]=3, arr2[1]=7
+    arr1 = [1, 2, 3, 8, 10]
+    arr2 = [4, 7, 9]
+i=3, j=7 → arr1[3] vs arr2[2] → 8 vs 9 → OK
+
+gap = ceil(4 / 2) = 2
+
+=== GAP = 2 ===
+i=0, j=2 → arr1[0] vs arr1[2] → 1 vs 3 → OK
+i=1, j=3 → arr1[1] vs arr1[3] → 2 vs 8 → OK
+i=2, j=4 → arr1[2] vs arr1[4] → 3 vs 10 → OK
+i=3, j=5 → arr1[3] vs arr2[0] → 8 vs 4 → swap → arr1[3]=4, arr2[0]=8
+    arr1 = [1, 2, 3, 4, 10]
+    arr2 = [8, 7, 9]
+i=4, j=6 → arr1[4] vs arr2[1] → 10 vs 7 → swap → arr1[4]=7, arr2[1]=10
+    arr1 = [1, 2, 3, 4, 7]
+    arr2 = [8, 10, 9]
+i=5, j=7 → arr2[0] vs arr2[2] → 8 vs 9 → OK
+
+gap = ceil(2 / 2) = 1
+
+=== GAP = 1 ===
+i=0, j=1 → arr1[0] vs arr1[1] → 1 vs 2 → OK
+i=1, j=2 → arr1[1] vs arr1[2] → 2 vs 3 → OK
+i=2, j=3 → arr1[2] vs arr1[3] → 3 vs 4 → OK
+i=3, j=4 → arr1[3] vs arr1[4] → 4 vs 7 → OK
+i=4, j=5 → arr1[4] vs arr2[0] → 7 vs 8 → OK
+i=5, j=6 → arr2[0] vs arr2[1] → 8 vs 10 → OK
+i=6, j=7 → arr2[1] vs arr2[2] → 10 vs 9 → swap → arr2[1]=9, arr2[2]=10
+    arr2 = [8, 9, 10]
+
+gap = ceil(1 / 2) = 0 → TERMINATE
+
+Final Merged Arrays:
+arr1 = [1, 2, 3, 4, 7]
+arr2 = [8, 9, 10]
+*/
+
 //Optimal Approach
 
 class Solution {
@@ -76,7 +127,7 @@ class Solution {
         int gap = (int) Math.ceil(((m + n) / 2.0);
 
         while (gap > 0) {
-            int i = 0, j = gap;
+            int i = 0, j = i + gap;
 
             while (j < (m + n)) {
                 if (i < m && j >= m) { // case 1: i in arr1[] and j in arr2[]:
