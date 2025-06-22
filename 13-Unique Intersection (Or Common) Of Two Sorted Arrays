@@ -116,11 +116,9 @@ class Solution {
                 prevArr2Index = j;
                 i++;
                 j++;
-            } else if (arr1[i] < arr2[j]) {// If arr1[i] is smaller, move i forward and update prev1 because arr1[i] cannot match with any future arr2[j]
-                prevArr1Index = i;
+            } else if (arr1[i] < arr2[j]) {// If arr1[i] is smaller, move i forward because arr1[i] cannot match with any future arr2[j]
                 i++;
-            } else { // If arr2[j] is smaller, move j forward and update prev2 because arr2[j] cannot match with any future arr1[i]
-                prevArr2Index = j;
+            } else { // If arr2[j] is smaller, move j forward because arr2[j] cannot match with any future arr1[i]
                 j++;
             }
         }
