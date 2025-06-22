@@ -65,11 +65,11 @@ class Solution {
      * improving the time complexity from O(n^2) to O(n log n).
      */
 
-    static int inversionCount(int arr[]) {
+    int inversionCount(int arr[]) {
         return inversionCount(arr, 0, arr.length - 1);
     }
 
-    private static int inversionCount(int arr[], int low, int high) {
+    private int inversionCount(int arr[], int low, int high) {
         int inversionCount = 0;
 
         // Only divide if more than one element
@@ -89,7 +89,7 @@ class Solution {
         return inversionCount;
     }
 
-    private static int merge(int[] arr, int low, int mid, int high) {
+    private int merge(int[] arr, int low, int mid, int high) {
         int inversionCount = 0;
 
         int leftSize = mid - low + 1;
