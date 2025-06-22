@@ -48,8 +48,7 @@ class Solution {
             } else if (arr[i] < subset[j]) {
                 // Move ahead in arr to find a possible match for subset[j]
                 i++;
-            } else {
-                // If arr[i] > subset[j], then subset[j] cannot be found further in arr (since arr is sorted), hence subset[j] is missing
+            } else { // If subset[j] < arr[i] , then subset[j] cannot be found further in arr (since arr is sorted), hence subset[j] is missing
                 return false;
             }
         }
