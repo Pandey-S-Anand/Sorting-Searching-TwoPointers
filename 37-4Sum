@@ -130,7 +130,6 @@ class Solution {
 }
 
 
-
 //Optimal Approach
 
 class Solution {
@@ -158,33 +157,33 @@ class Solution {
                 continue;
             }
 
-            // Use Long.MIN_VALUE to safely initialize prev* values, avoiding collision with actual int values in array
-            long prevJ = Integer.MIN_VALUE;
+            // Tracks the last used value for j to skip duplicates
+            int lastJIndex = -1;
 
             // Second loop (j): picks the second number
             for (int j = i + 1; j < arr.length - 2; j++) {
 
                 // Skip duplicate j values manually using prevJ
-                if (arr[j] == prevJ) {
+                if (lastJIndex != -1 && arr[j] == arr[lastJIndex]) {
                     continue;
                 }
 
                 int k = j + 1; // third number (left pointer)
                 int l = arr.length - 1; // fourth number (right pointer)
 
-                long prevK = Integer.MIN_VALUE;
-                long prevL = Integer.MIN_VALUE;
+                int lastKIndex = -1; // Tracks last used value at k to skip duplicates
+                int lastLIndex = -1; // Tracks last used value at l to skip duplicates
 
                 // Two-pointer search for k and l
                 while (k < l) {
 
                     // Skip duplicate k values
-                    while (k < l && arr[k] == prevK) {
+                    while (k < arr.length && (lastKIndex != -1 && arr[lastKIndex] == arr[k])) {
                         k++;
                     }
 
                     // Skip duplicate l values
-                    while (k < l && arr[l] == prevL) {
+                    while (l >= 0 && (lastLIndex != -1 && arr[lastLIndex] == arr[l])) {
                         l--;
                     }
 
@@ -199,25 +198,23 @@ class Solution {
                         // Found a valid unique quadruplet
                         quadruplets.add(List.of(arr[i], arr[j], arr[k], arr[l]));
 
-                        // Save current k and l to skip duplicates in next iteration
-                        prevK = arr[k];
-                        prevL = arr[l];
+                        // Update last seen values to skip their duplicates
+                        lastKIndex = k;
+                        lastLIndex = l;
 
                         k++;
                         l--;
 
                     } else if (sum < target) {
                         // Need a bigger sum → move k forward
-                        prevK = arr[k];
                         k++;
                     } else {
                         // Need a smaller sum → move l backward
-                        prevL = arr[l];
                         l--;
                     }
                 }
 
-                prevJ = arr[j]; // Update prevJ to skip duplicates
+                lastJIndex = j; // Update lastJIndex to skip duplicates
             }
         }
 
