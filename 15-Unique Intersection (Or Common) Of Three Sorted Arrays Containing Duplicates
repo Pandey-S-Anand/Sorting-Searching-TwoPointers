@@ -56,53 +56,54 @@ class Solution {
     public List<Integer> commonElements(List<Integer> arr1, List<Integer> arr2, List<Integer> arr3) {
         int i = 0, j = 0, k = 0;
 
-        // Track last seen elements to avoid duplicates
-        Integer prev1 = Integer.MIN_VALUE, prev2 = Integer.MIN_VALUE, prev3 = Integer.MIN_VALUE;
+        // Variables to store the indices of last processed elements in arr1 and arr2 to help skip duplicates
+        int prevArr1Index = -1;
+        int prevArr2Index = -1;
+        int prevArr3Index = -1;
 
         List<Integer> intersection = new ArrayList<>();
 
         while (i < arr1.size() && j < arr2.size() && k < arr3.size()) {
             // Skip duplicates in arr1
-            while (i < arr1.size() && arr1.get(i).equals(prev1)) {
+            while (i < arr1.size() && (prevArr1Index != -1 && arr1.get(i).equals(arr1.get(prevArr1Index)))) {
                 i++;
             }
 
             // Skip duplicates in arr2
-            while (j < arr2.size() && arr2.get(j).equals(prev2)) {
+            while (j < arr2.size() && (prevArr2Index != -1 && arr2.get(j).equals(arr2.get(prevArr2Index)))) {
                 j++;
             }
 
             // Skip duplicates in arr3
-            while (k < arr3.size() && arr3.get(k).equals(prev3)) {
+            while (k < arr3.size() && (prevArr3Index != -1 && arr3.get(k).equals(arr3.get(prevArr3Index)))) {
                 k++;
             }
 
             // Ensure indices are still valid after skipping
-            if (i < arr1.size() && j < arr2.size() && k < arr3.size()) {
-                int val1 = arr1.get(i), val2 = arr2.get(j), val3 = arr3.get(k);
+            if (i == arr1.size() || j == arr2.size() || k == arr3.size()) {
+                break;
+            }
 
-                // If all three values are equal, it's a common element
-                if (val1 == val2 && val2 == val3) {
-                    intersection.add(val1);
-                    prev1 = val1;
-                    prev2 = val2;
-                    prev3 = val3;
+            int val1 = arr1.get(i), val2 = arr2.get(j), val3 = arr3.get(k);
+
+            // If all three values are equal, it's a common element
+            if (val1 == val2 && val2 == val3) {
+                intersection.add(val1);
+                prevArr1Index = i;
+                prevArr2Index = j;
+                prevArr3Index = k;
+                i++;
+                j++;
+                k++;
+            } else {
+                // Move the pointer with the smallest value forward
+                int min = Math.min(val1, Math.min(val2, val3));
+                if (min == val1) {
                     i++;
+                } else if (min == val2) {
                     j++;
-                    k++;
                 } else {
-                    // Move the pointer with the smallest value forward
-                    int min = Math.min(val1, Math.min(val2, val3));
-                    if (min == val1) {
-                        prev1 = val1;
-                        i++;
-                    } else if (min == val2) {
-                        prev2 = val2;
-                        j++;
-                    } else {
-                        prev3 = val3;
-                        k++;
-                    }
+                    k++;
                 }
             }
         }
@@ -123,7 +124,6 @@ class Solution {
 
         // Traverse all three arrays simultaneously
         while (i < arr1.size() && j < arr2.size() && k < arr3.size()) {
-
             // Get current values from each list
             int val1 = arr1.get(i);
             int val2 = arr2.get(j);
@@ -131,7 +131,12 @@ class Solution {
 
             // Case 1: If all three values are equal, we found a common element
             if (val1 == val2 && val2 == val3) {
-                // To avoid duplicates in the result, add only if not already added
+                /*
+                To avoid duplicates in the result:
+                - intersection.isEmpty(): ensures the first element is always added
+                - intersection.get(intersection.size() - 1) != val1: 
+                prevents adding a duplicate when consecutive values are equal
+                */
                 if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != val1) {
                     intersection.add(val1);
                 }
