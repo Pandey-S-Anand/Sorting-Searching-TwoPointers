@@ -1,15 +1,16 @@
 //Intuitive Implementation
 
 class Solution {
-    static int[] calSum(int arr1[], int arr2[], int m, int n) {
-        List<Integer> sum = new ArrayList<>();
+    public int[] calSum(int arr1[], int arr2[], int m, int n) {
+        // Using LinkedList because insertion at front is constant time (O(1))
+        LinkedList<Integer> sum = new LinkedList<>();
         int i = m - 1, j = n - 1, carry = 0, base;
 
         // Traverse both arrays from the end (least significant digit)
         while (i >= 0 && j >= 0) {
-            base = (arr1[i] + arr2[j] + carry) % 10; // calculate current digit
-            carry = (arr1[i] + arr2[j] + carry) / 10; // calculate carry
-            sum.add(0, base); // insert at beginning to build number from most significant digit
+            base = (arr1[i] + arr2[j] + carry) % 10;   // Calculate current digit
+            carry = (arr1[i] + arr2[j] + carry) / 10;  // Calculate carry
+            sum.addFirst(base);                        // Insert at beginning (most significant digit first)
             i--;
             j--;
         }
@@ -18,7 +19,7 @@ class Solution {
         while (i >= 0) {
             base = (arr1[i] + carry) % 10;
             carry = (arr1[i] + carry) / 10;
-            sum.add(0, base);
+            sum.addFirst(base);
             i--;
         }
 
@@ -26,17 +27,20 @@ class Solution {
         while (j >= 0) {
             base = (arr2[j] + carry) % 10;
             carry = (arr2[j] + carry) / 10;
-            sum.add(0, base);
+            sum.addFirst(base);
             j--;
         }
 
-        // Note : if(carry==0) then sum.size() == Math.max(m,n) and if(carry==1) then sum.size() == (Math.max(m,n) +1)
-        // If there is a leftover carry
+        /*
+         * Note:
+         * - If carry == 0 → sum.size() == max(m, n)
+         * - If carry == 1 → sum.size() == max(m, n) + 1
+         */
         if (carry == 1) {
-            sum.add(0, carry);
+            sum.addFirst(carry);
         }
 
-        // Convert the List<Integer> to int[] array
+        // Convert the LinkedList to an int[] array
         int[] arraySum = new int[sum.size()];
         i = 0;
         for (int val : sum) {
@@ -52,15 +56,15 @@ class Solution {
 //Optimal Implementation
 
 class Solution {
-    static int[] calSum(int arr1[], int arr2[], int m, int n) {
-        List<Integer> sum = new ArrayList<>();
+    public int[] calSum(int arr1[], int arr2[], int m, int n) {
+        LinkedList<Integer> sum = new LinkedList<>();
         int i = m - 1, j = n - 1, carry = 0;
 
         while (i >= 0 || j >= 0 || carry > 0) {
             int digit1 = (i >= 0) ? arr1[i--] : 0;
             int digit2 = (j >= 0) ? arr2[j--] : 0;
             int base = digit1 + digit2 + carry;
-            sum.add(0, base % 10);
+            sum.offerFirst(base % 10);
             carry = base / 10;
         }
 
