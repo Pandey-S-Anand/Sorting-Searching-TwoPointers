@@ -171,19 +171,18 @@ class Solution {
             // remainingTarget is what we want to find with arr[j] + arr[k]
             int remainingTarget = target - arr[i];
 
-            // prevJ and prevJ track previous elements at j and k to avoid duplicate pairs
-            int prevJ = Integer.MIN_VALUE, prevK = Integer.MIN_VALUE;
+            // lastJIndex and lastKIndex track the last processed indices at j and k to avoid duplicate pairs
+            int lastJIndex = -1, lastKIndex = -1;
 
             // While pointers don't cross
             while (j < k) {
-
                 // Skip duplicates at j pointer
-                while (j < arr.length && prevJ == arr[j]) {
+                while (j < arr.length && (lastJIndex != -1 && arr[lastJIndex] == arr[j])) {
                     j++;
                 }
 
                 // Skip duplicates at k pointer
-                while (k >= 0 && prevK == arr[k]) {
+                while (k >= 0 && (lastKIndex != -1 && arr[lastKIndex] == arr[k])) {
                     k--;
                 }
 
@@ -198,9 +197,9 @@ class Solution {
                     // Found a valid triplet summing to target
                     triplets.add(List.of(arr[i], arr[j], arr[k]));
 
-                    // Update previous values to avoid duplicates
-                    prevJ = arr[j];
-                    prevK = arr[k];
+                    // Update previous indices to avoid duplicates
+                    lastJIndex = j;
+                    lastKIndex = k;
 
                     // Move both pointers inward to look for new pairs
                     j++;
@@ -208,12 +207,10 @@ class Solution {
 
                 } else if (sum < remainingTarget) {
                     // Sum too small, move j forward to increase sum
-                    prevJ = arr[j];
                     j++;
 
                 } else {
                     // Sum too large, move k backward to decrease sum
-                    prevK = arr[k];
                     k--;
                 }
             }
