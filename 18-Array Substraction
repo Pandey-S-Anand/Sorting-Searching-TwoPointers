@@ -2,7 +2,7 @@ class Solution {
     /**
      * Subtracts arr1 from arr2 (arr2 - arr1), where both are represented as arrays.
      * Assumes arr2 >= arr1 and both arrays represent non-negative integers
-     * with digits stored in reverse order (least significant digit at index 0).
+     * with least significant digit at index 0.
      */
     public void subtract(int[] arr1, int[] arr2) {
         // The result will be stored in this array; its size is the size of the bigger number (arr2)
@@ -52,6 +52,27 @@ class Solution {
             j--;
             k--;
         }
+
+        /*
+        * 🔍 When can we have leading zeroes in the result array?
+        *
+        * Case 1: arr2 has leading zeroes
+        * ----------------------------------
+        * Example:
+        *   arr1 = [1, 2, 3]          // Represents 123
+        *   arr2 = [0, 0, 2, 2, 3]    // Represents 00223 → Effectively 223
+        *   Result (before trimming): [0, 0, 1, 0, 0]  → 223 - 123 = 100
+        *   Final Output (after trimming): [1, 0, 0]
+        *
+        *
+        * Case 2: arr1 and arr2 are equal
+        * ----------------------------------
+        * Example:
+        *   arr1 = [1, 0, 5]          // Represents 105
+        *   arr2 = [1, 0, 5]          // Represents 105
+        *   Result (before trimming): [0, 0, 0] → 105 - 105 = 0
+        *   Final Output (after trimming): [0]
+        */
 
         // Remove leading zeroes from the result
         k = 0;
