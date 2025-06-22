@@ -11,7 +11,7 @@ class Solution {
     }
 
     // Removes duplicates from a sorted array in-place and returns new length
-    private static int removeDuplicatesFromSortedArray(int[] arr) {
+    private int removeDuplicatesFromSortedArray(int[] arr) {
         int idx = 0;
 
         // Traverse from start to second last element
@@ -29,7 +29,7 @@ class Solution {
     }
 
     // Finds intersection of two sorted arrays (with unique elements only)
-    private static ArrayList<Integer> intersectionOfTwoSortedArrays(int[] arr1, int m, int[] arr2, int n) {
+    private ArrayList<Integer> intersectionOfTwoSortedArrays(int[] arr1, int m, int[] arr2, int n) {
         ArrayList<Integer> intersection = new ArrayList<>();
         int i = 0, j = 0;
 
@@ -88,7 +88,7 @@ class Solution {
         int i = 0, j = 0;
         ArrayList<Integer> intersection = new ArrayList<>();
         
-        // To track previously processed values and skip duplicates
+        // Variables to store the indices of last processed elements in arr1 and arr2 to help skip duplicates
         int prevArr1Index = -1;
         int prevArr2Index = -1;
 
