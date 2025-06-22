@@ -1,12 +1,12 @@
 //Bruteforce Approach
 
 class Solution {
-    public static int closestToZero(int arr[], int n) {
+    public int closestToZero(int arr[], int n) {
         // Find the pair whose sum is closest to zero
         return closestToTarget(arr, n, 0);
     }
 
-    private static int closestToTarget(int arr[], int n, int target) {
+    private int closestToTarget(int arr[], int n, int target) {
         int minDiff = Integer.MAX_VALUE;     // Minimum absolute difference from target seen so far
         int closestSum = Integer.MAX_VALUE;  // Sum of the pair with minDiff
 
@@ -15,13 +15,13 @@ class Solution {
             for (int j = i + 1; j < n; j++) {
                 int sum = arr[i] + arr[j];
 
-                // If the pair sum is exactly equal to the target, return immediately
-                if (sum == target) {
-                    return sum;
-                }
-
                 // Calculate absolute difference from the target
                 int currDiff = Math.abs(target - sum);
+                
+                // If the pair sum is exactly equal to the target, return immediately
+                if(currDiff == 0){
+                   return sum;  
+                }
 
                 // If a smaller difference is found, update closestSum and minDiff
                 if (currDiff < minDiff) {
@@ -43,12 +43,12 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    public static int closestToZero(int arr[], int n) {
+    public int closestToZero(int arr[], int n) {
         // Find the pair whose sum is closest to zero
         return closestToTarget(arr, n, 0);
     }
 
-    private static int closestToTarget(int arr[], int n, int target) {
+    private int closestToTarget(int arr[], int n, int target) {
         // Sort the array to apply the two-pointer technique
         Arrays.sort(arr);
 
@@ -59,18 +59,18 @@ class Solution {
         while (left < right) {
             int sum = arr[left] + arr[right];
             
+            int currentdiff = Math.abs(target - sum); // Calculate how close this sum is to the target
+            
             // If an exact match with the target is found, return immediately
-            if(sum == target){
+            if(currentdiff == 0){
                return sum;  
             }
             
-            int diff = Math.abs(target - sum); // Calculate how close this sum is to the target
-
-            // Update closest sum if a better (smaller diff) pair is found
-            if (diff < minDiff) {
-                minDiff = diff;
+            // Update closest sum if a better (smaller difference) pair is found
+            if (currentdiff < minDiff) {
+                minDiff = currentdiff;
                 closestSum = sum;
-            } else if (diff == minDiff && sum > closestSum) {
+            } else if (currentdiff == minDiff && sum > closestSum) {
                 // If difference is equal but sum is greater, prefer the larger sum
                 closestSum = sum;
             }
