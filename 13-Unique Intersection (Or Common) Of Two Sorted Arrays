@@ -136,15 +136,17 @@ class Solution {
         int i = 0, j = 0;
         ArrayList<Integer> intersection = new ArrayList<>();
 
+        // Traverse both arrays using two pointers
         while (i < arr1.length && j < arr2.length) {
-            /*
-             Check for equality AND ensure no duplicate is added to result:
-             - intersection.isEmpty() handles the first insertion case.
-             - intersection.get(intersection.size() - 1) != arr1[i] ensures
-               we don't add the same element multiple times from duplicate runs.
-            */
-            if (arr1[i] == arr2[j] && (intersection.isEmpty() || intersection.get(intersection.size() - 1) != arr1[i])) {
-                intersection.add(arr1[i]);
+            if (arr1[i] == arr2[j]) {
+                /*
+                 Check for equality AND ensure no duplicate is added to result:
+                 - intersection.isEmpty() handles the first insertion case.
+                 - intersection.get(intersection.size() - 1) != arr1[i] avoids inserting duplicates.
+                */
+                if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != arr1[i]) {
+                    intersection.add(arr1[i]);
+                }
                 i++;
                 j++;
             } else if (arr1[i] < arr2[j]) {
