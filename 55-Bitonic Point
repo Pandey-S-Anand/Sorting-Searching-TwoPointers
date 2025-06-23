@@ -59,12 +59,7 @@ class Solution {
          * According to the problem constraints, the array is bitonic (first strictly increasing and then maybe strictly decreasing and has length >= 3)
          * Therefore, the peak (maximum element) will never be at index 0 or at index n - 1.
          * So, it's safe to access arr[mid - 1] and arr[mid + 1] without risking out-of-bound errors.
-         * 
-         * However, to make the implementation robust and handle edge cases like strictly 
-         * increasing or strictly decreasing arrays, we still include checks for mid == 0 
-         * and mid == n - 1 inside the loop.
          */
-
         int low = 1, high = arr.length - 2, mid = 0;
 
         while (low <= high) {
