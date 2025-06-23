@@ -59,7 +59,7 @@ class Solution {
              * - In the case of equal heights:
              *     - Moving only one pointer retains the same min height but reduces width,
              *       which will not improve the area.
-             *     - Moving both pointers gives a chance to find taller lines on either end.
+             *     - Moving both pointers gives a chance to find taller lines on both end.
              *     - If the new height increases: area might increase.
              *     - If the new height decreases: area obviously decreases.
              * - Therefore, when heights are equal, moving both pointers is the optimal choice
