@@ -27,9 +27,6 @@ In the case of a mixed array (containing both positive and negative numbers), th
 1 : The product of the last three elements in the sorted (ascending) array — these are the three largest numbers.
 2 : The product of the first two elements (both negative, which when multiplied give a positive product) and the last element (the largest positive number).
 
-Taking the last two elements (which are the two largest values, usually both positive or sometimes the second last negative and the last positive) 
-along with one element from the beginning (which will be negative, since the array is sorted in ascending order) will almost always produce a negative product. 
-Therefore, this combination will always yield a negative product and cannot be the maximum.
 
 Ex:1 arr[]={3,1,4,-9,2};
 
@@ -59,6 +56,14 @@ Ex:4 arr[]={-9,-7,-7,1,2,1};
 
     After Sorting :
     arr[]={-9,-7,-7,1,1,2};
+      
+    MaxProduct= -9*-7*2=126.
+
+
+Ex:5 arr[]={-9,-7,-7,1,2,1};
+
+    After Sorting :
+    arr[]={-9,-7,-7, 2};
       
     MaxProduct= -9*-7*2=126.
  
@@ -118,39 +123,36 @@ class Solution {
 class Solution {
     public int maximumProduct(int[] arr) {
         // Initialize three variables to track the top 3 maximum values
-        int max = Integer.MIN_VALUE;
-        int secondMax = Integer.MIN_VALUE;
-        int thirdMax = Integer.MIN_VALUE;
+        int maxIndex = -1, secondMaxIndex = -1, thirdMaxIndex = -1;
 
         // Initialize two variables to track the two smallest values (minimums)
-        int min = Integer.MAX_VALUE;
-        int secondMin = Integer.MAX_VALUE;
+        int minIndex = -1, secondMinIndex = -1;
 
         // Traverse the array once to find required max and min values
-        for (int val : arr) {
+        for (int i = 0; i < arr.length; i++) {
             // Update the top three maximum values
-            if (val > max) {
+            if (maxIndex == -1 || arr[i] > arr[maxIndex]) {
                 // Shift max and secondMax down, assign new max
-                thirdMax = secondMax;
-                secondMax = max;
-                max = val;
-            } else if (val > secondMax) {
+                thirdMaxIndex = secondMaxIndex;
+                secondMaxIndex = maxIndex;
+                maxIndex = i;
+            } else if (secondMaxIndex == -1 || arr[i] > arr[secondMaxIndex]) {
                 // Shift secondMax to thirdMax, assign new secondMax
-                thirdMax = secondMax;
-                secondMax = val;
-            } else if (val > thirdMax) {
+                thirdMaxIndex = secondMaxIndex;
+                secondMaxIndex = i;
+            } else if (thirdMaxIndex == -1 || arr[i] > arr[thirdMaxIndex]) {
                 // Update thirdMax if val fits here
-                thirdMax = val;
+                thirdMaxIndex = i;
             }
 
             // Update the two minimum values
-            if (val < min) {
+            if (minIndex == -1 || arr[i] < arr[minIndex]) {
                 // Shift min to secondMin, assign new min
-                secondMin = min;
-                min = val;
-            } else if (val < secondMin) {
+                secondMinIndex = minIndex;
+                minIndex = i;
+            } else if (secondMinIndex == -1 || arr[i] < arr[secondMinIndex]) {
                 // Update secondMin if val fits here
-                secondMin = val;
+                secondMinIndex = i;
             }
         }
 
@@ -159,6 +161,6 @@ class Solution {
          1. Product of two smallest (could be negative) and the largest number
          2. Product of three largest numbers
         */
-        return Math.max(min * secondMin * max, max * secondMax * thirdMax);
+        return Math.max(arr[minIndex] * arr[secondMinIndex] * arr[maxIndex], arr[maxIndex] * arr[secondMaxIndex] * arr[thirdMaxIndex]);
     }
 }
