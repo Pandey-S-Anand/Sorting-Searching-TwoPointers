@@ -40,8 +40,8 @@ class Solution {
             }
         }
 
-        // If no such element is found, the array is strictly increasing
-        return arr[n - 1]; // Last element is the maximum
+        // This line should never be reached due to the problem guarantee of a bitonic point.
+        return -1;
     }
 }
 
@@ -51,10 +51,11 @@ class Solution {
 
 class Solution {
     public int findMaximum(int[] arr) {
-        int low = 0;
-        int high = arr.length - 1;
-
-         /*
+       return findPeakElement(arr);
+    }
+    
+    private int findPeakElement(int[] arr) {
+        /*
          * According to the problem constraints, the array is bitonic (first strictly increasing and then maybe strictly decreasing and has length >= 3)
          * Therefore, the peak (maximum element) will never be at index 0 or at index n - 1.
          * So, it's safe to access arr[mid - 1] and arr[mid + 1] without risking out-of-bound errors.
@@ -63,41 +64,74 @@ class Solution {
          * increasing or strictly decreasing arrays, we still include checks for mid == 0 
          * and mid == n - 1 inside the loop.
          */
+
+        int low = 1, high = arr.length - 2, mid = 0;
+
         while (low <= high) {
-            int mid = low + (high - low) / 2;
-            
-            // Handle edge cases: Entirely decreasing or increasing
-            if (mid == 0) {
-                return arr[0]; // Strictly decreasing array
-            }
+            mid = low + (high - low) / 2;
 
-            if (mid == arr.length - 1) {
-                return arr[arr.length - 1]; // Strictly increasing array
-            }
-
-            // Case 1: arr[mid] is the peak (greater than both neighbors)
-            if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
-                return arr[mid]; // Found the maximum
-            }
-
-            /*
-             * Case 2: We are in the decreasing part of the array
-             * i.e., arr[mid] < arr[mid - 1] && arr[mid] > arr[mid + 1] → Move left
-             * because the peak lies in the left half
+            /** 
+             * Case 1:
+             * If the middle element is a peak, return it.
              */
-            if (arr[mid] < arr[mid - 1] && arr[mid] > arr[mid + 1]) {
-                high = mid - 1;
-            } else {
-                /*
-                 * Case 3: We are in the increasing part of the array
-                 * i.e., arr[mid] > arr[mid - 1] && arr[mid] < arr[mid+1] → Move right
-                 * because the peak lies in the right half
-                 */
+            if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
+                return arr[mid];
+            }
+
+            /** 
+             * Case 2:
+             * If arr[mid] is greater than its left neighbor but less than its right neighbor,
+             * then the slope is rising to the right.
+             *
+             * This implies that on the right side, either the sequence continues increasing
+             * (in which case the rightmost element is a peak, since we assume -∞ after the last element),
+             * or the sequence eventually drops, making the element just before the drop a peak.
+             *
+             * Moreover, even if there are multiple ups and downs, multiple peaks may exist in the right half,
+             * but we are guaranteed that at least one peak is present on the right side.
+             *
+             * Therefore, we move right by setting low = mid + 1.
+             * Note: A peak could exist on the left as well but is not guaranteed...
+             * so we will move to the right where a peak is guaranteed.
+             */
+            else if (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1]) {
                 low = mid + 1;
             }
-        }
 
-        // This line should never be reached if the input is a valid bitonic array
+            /** 
+             * Case 3:
+             * If arr[mid] is less than its left neighbor but greater than its right neighbor,
+             * then the slope is rising to the left.
+             *
+             * This implies that on the left side, either the sequence continues increasing
+             * (in which case the leftmost element is a peak, since we assume -∞ before the first element),
+             * or the sequence eventually drops, making the element just after the drop a peak.
+             *
+             * Moreover, even if there are multiple ups and downs, multiple peaks may exist in the left half,
+             * but we are guaranteed that at least one peak is present on the left side.
+             *
+             * Therefore, we move left by setting high = mid - 1.
+             * Note: A peak could exist on the right as well but is not guaranteed...
+             * so we will move to the left where a peak is guaranteed.
+             */
+
+            /**
+            * Case 4:
+            * In a valley situation where the middle element is less than both its left and right neighbors,
+            * for example in the array [1, 2, 1, 2, 1] at index 2 (value 1, with left and right both 2),
+            * you could move right just as well as moving left.
+            *
+            * Both directions will eventually lead to a region containing a peak
+            * because a peak is guaranteed to exist on at least one side.
+            *
+            * In our implementation, we consistently choose to move left
+            * (i.e., set high = mid - 1) to maintain a deterministic strategy.
+            */
+            else {
+                high = mid - 1;
+            }
+        }
+        // This line should never be reached due to the problem guarantee of a bitonic point.
         return -1;
     }
 }
