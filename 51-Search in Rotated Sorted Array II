@@ -20,20 +20,12 @@ class Solution {
         // Step 1: Find the index where the rotation has happened. This will be the index of the largest element.
         int pivotIndex = findPivotIndex(arr);
 
-        /*
-         * Step 2: Once we know the pivot, the array is split into two sorted subarrays:
-         * - From index 0 to pivot (first part)
-         * - From pivot + 1 to end (second part)
-         * 
-         * Perform binary search in both subarrays to find the target.
-         */
-        // Search in the left sorted subarray
-        boolean found = binarySearch(arr, 0, pivotIndex, target);
-        if (found) {
-            return true;
+        // Step 2: Perform binary search in the left sorted portion [0...pivot]
+        if (target >= arr[0] && target <= arr[pivotIndex]) {
+            return binarySearch(arr, 0, pivotIndex, target);
         }
 
-        // If not found in left, search in the right sorted subarray
+        // Step 3: Otherwise perform binary search in the right sorted portion [pivot + 1....n - 1]
         return binarySearch(arr, pivotIndex + 1, arr.length - 1, target);
     }
 
@@ -81,12 +73,11 @@ class Solution {
         int pivotIndex = findPivotIndex(arr, n);
 
         // Step 2: Perform binary search in the left sorted portion [0...pivot]
-        boolean found = binarySearch(arr, 0, pivotIndex, target);
-        if (found) {
-            return true;
+        if (target >= arr[0] && target <= arr[pivotIndex]) {
+            return binarySearch(arr, 0, pivotIndex, target);
         }
 
-        // Step 3: If not found in the left, search in the right sorted portion [pivot+1...end]
+        // Step 3: Otherwise perform binary search in the right sorted portion [pivot + 1....n - 1]
         return binarySearch(arr, pivotIndex + 1, n - 1, target);
     }
 
@@ -124,6 +115,7 @@ class Solution {
             int mid = low + (high - low) / 2;
 
             // Case 1: mid is the pivot if it is greater than the next element
+            // Note:  Since the array is rotated (Ascending order), the largest element (pivot) cannot be at the last index, so mid will never equal arr.length - 1 during pivot search
             if (arr[mid] > arr[mid + 1]) {
                 return mid;
             }
@@ -169,8 +161,6 @@ class Solution {
                 which is trivially sorted. So, we must move to the right (low = mid + 1)
                 to avoid incorrect movement.
              */
-
-            // Note:  Since the array is rotated (Ascending order), the largest element (pivot) cannot be at the last index, so mid will never equal arr.length - 1 during pivot search
             if (low == mid || arr[low] < arr[mid]) {
                 // Left half is sorted or only one element → pivot is in the right half
                 low = mid + 1;
@@ -223,13 +213,7 @@ class Solution {
              * arr[low] = arr[mid] = arr[high] = 1
              *
              * Without special handling, the usual condition arr[low] <= arr[mid] would incorrectly suggest
-             * that the left half is sorted. Based on this, we would try to determine if the target lies in that
-             * half by checking:
-             *      if (target >= arr[low] && target < arr[mid])
-             * which becomes:
-             *      if (0 >= 1 && 0 < 1) → false
-             *
-             * As a result, we wrongly move the search to the right half (low = mid + 1),
+             * that the left half is sorted. As a result, we wrongly move the search to the right half (low = mid + 1),
              * even though the actual target (0) is in the left unsorted half.
              *
              * To avoid this incorrect elimination, we shrink both ends (low++ and high--) 
@@ -262,7 +246,8 @@ class Solution {
                 } else {
                     low = mid + 1;
                 }
-            } else {  // Right half [mid+1..high] must be sorted
+            } else {  // Right half [mid+1..high] must be sorted 
+                // NOTE: In a rotated sorted array (with or without duplicates), at any given mid, one half (either left or right) will always be sorted.
                 /*
                 * Examples where the right half [mid+1..high] is sorted but the left half contains the pivot or duplicates:
                 * 
