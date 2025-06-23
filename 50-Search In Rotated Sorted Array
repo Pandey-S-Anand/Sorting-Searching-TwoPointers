@@ -77,13 +77,15 @@ class Solution {
         // Step 1: Find the pivot index (i.e., the index of the largest element)
         int pivotIndex = findPivotIndex(arr);
 
-        // Step 2: Perform binary search in the left sorted portion [0...pivot]
-        int index = binarySearch(arr, 0, pivotIndex, target);
-        if (index != -1) {
-            return index;
+        /*
+        * Step 2: If target lies within the range of the left sorted subarray [0...pivot],
+        * perform binary search on that segment.
+        */
+        if (target >= arr[0] && target <= arr[pivotIndex]) {
+            return binarySearch(arr, 0, pivotIndex, target);
         }
 
-        // Step 3: If not found in the left, search in the right sorted portion [pivot+1...end]
+        // Step 3: Otherwise, search in the right sorted portion [pivot+1...end]
         return binarySearch(arr, pivotIndex + 1, arr.length - 1, target);
     }
 
@@ -106,6 +108,7 @@ class Solution {
     }
 
     private int findPivotIndex(int[] arr) {
+        int low = 0, high = arr.length - 1;
         /* 
          Edge Case 1: Single element array → it's the pivot
          Edge Case 2: Array is already sorted (not rotated) → last element is the largest
@@ -114,31 +117,28 @@ class Solution {
             return arr.length - 1;
         }
 
-        // If the above condition is false, it confirms that the array is both sorted and rotated
-        int low = 0, high = arr.length - 1;
-
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            // Case 1: mid is the pivot if it is greater than the next element
+            // Note:  Since the array is rotated (Ascending order), the largest element (pivot) cannot be at the last index, so mid will never equal arr.length - 1 during pivot search
+            // Case 1: mid is the pivot if it's greater than right neighbor
             if (arr[mid] > arr[mid + 1]) {
                 return mid;
             }
-
             /*
-                🔹 How to determine if the left half is sorted?
-                   If arr[low] < arr[mid], then the segment [low...mid] is sorted.
-                   In a rotated sorted array with all unique elements, a properly sorted
-                   half will always have the first element < the last element.
+            🔹 How to determine if the left half is sorted?
+            If arr[low] < arr[mid], then the segment [low...mid] is sorted.
+            In a rotated sorted array with all unique elements, a properly sorted
+            half will always have the first element < the last element.
             
-                ✅ Example:
-                   arr = [4, 5, 6, 7, 0, 1, 2]
-                   low = 0, mid = 3 → arr[low] = 4, arr[mid] = 7 → 4 < 7 → left half is sorted
+            ✅ Example:
+            arr = [4, 5, 6, 7, 0, 1, 2]
+            low = 0, mid = 3 → arr[low] = 4, arr[mid] = 7 → 4 < 7 → left half is sorted
             
-                🔸 Binary Search Use Case:
-                   - If the pivot is not in the sorted half, eliminate that half
-                   - Continue searching in the unsorted half
-             */
+            🔸 Binary Search Use Case:
+            - If the pivot is not in the sorted half, eliminate that half
+            - Continue searching in the unsorted half
+            */
 
             /*
                 🔹 Why is the condition (low == mid) important?
@@ -167,9 +167,7 @@ class Solution {
                 to avoid incorrect movement.
              */
 
-            // Note:  Since the array is rotated (Ascending order), the largest element (pivot) cannot be at the last index, so mid will never equal arr.length - 1 during pivot search
             if (low == mid || arr[low] < arr[mid]) {
-                // Left half is sorted or only one element → pivot is in the right half
                 low = mid + 1;
             } else {
                 // Right half is sorted, so pivot must be in the left half → move search to left half
