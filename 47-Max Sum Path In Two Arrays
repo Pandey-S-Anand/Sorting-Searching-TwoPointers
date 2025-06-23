@@ -1,31 +1,47 @@
 /*
-Ex:
+Example:
 
 Consider the arrays:
-	•	A = [1, 5, 10, 15, 20, 25]
-	•	B = [2, 5, 7, 15, 18, 30]
-Here, the common elements are 5 and 15.
-Let's list all possible paths from the beginning of any array to the end of any of the arrays.
+    A = [1, 5, 10, 15, 20, 25]
+    B = [2, 5, 7, 15, 18, 30]
 
-Possible Paths:
-	1	Path 1: Stay entirely in A
-	◦	1 -> 5 -> 10 -> 15 -> 20 -> 25
-	◦	Sum: 76
-	2	Path 2: Stay entirely in B
-	◦	2 -> 5 -> 7 -> 15 -> 18 -> 30
-	◦	Sum: 77
-	3	Path 3: Start in A, switch to B at 5, then switch back to A at 15
-	◦	1 -> 5 (switch to B) -> 7 -> 15 (switch to A) -> 20 -> 25
-	◦	Sum: 1 + 5 + 7 + 15 + 20 + 25 = 73
-	4	Path 4: Start in A, switch to B at 5, stay in B until the end
-	◦	1 -> 5 (switch to B) -> 7 -> 15 -> 18 -> 30
-	◦	Sum: 1 + 5 + 7 + 15 + 18 + 30 = 76
-	5	Path 5: Start in B, switch to A at 5, then switch back to B at 15
-	◦	2 -> 5 (switch to A) -> 10 -> 15 (switch to B) -> 18 -> 30
-	◦	Sum: 2 + 5 + 10 + 15 + 18 + 30 = 80
-	6	Path 6: Start in B, switch to A at 5, stay in A until the end
-	◦	2 -> 5 (switch to A) -> 10 -> 15 -> 20 -> 25
-	◦	Sum: 2 + 5 + 10 + 15 + 20 + 25 = 77
+Common elements: [5, 15]
+
+All possible valid paths (switching allowed only at common elements):
+
+--- A-origin Paths ---
+1. Path A1: Stay entirely in A  
+   → 1 → 5 → 10 → 15 → 20 → 25  
+   → Sum: 76
+
+2. Path A2: Start in A, switch to B at 5, then switch back to A at 15  
+   → 1 → 5 (B) → 7 → 15 (A) → 20 → 25  
+   → Sum: 1 + 5 + 7 + 15 + 20 + 25 = 73
+
+3. Path A3: Start in A, switch to B at 5, stay in B until end  
+   → 1 → 5 (B) → 7 → 15 → 18 → 30  
+   → Sum: 76
+
+4. Path A4: Start in A, switch to B at 15 only  
+   → 1 → 5 → 10 → 15 (B) → 18 → 30  
+   → Sum: 1 + 5 + 10 + 15 + 18 + 30 = 79 ✅
+
+--- B-origin Paths ---
+5. Path B1: Stay entirely in B  
+   → 2 → 5 → 7 → 15 → 18 → 30  
+   → Sum: 77
+
+6. Path B2: Start in B, switch to A at 5, then switch back to B at 15  
+   → 2 → 5 (A) → 10 → 15 (B) → 18 → 30  
+   → Sum: 80 ✅
+
+7. Path B3: Start in B, switch to A at 5, stay in A until end  
+   → 2 → 5 (A) → 10 → 15 → 20 → 25  
+   → Sum: 77
+
+8. Path B4: Start in B, stay in B until 15, then switch to A  
+   → 2 → 5 → 7 → 15 (A) → 20 → 25  
+   → Sum: 2 + 5 + 7 + 15 + 20 + 25 = 74 ✅
 */
 
 class Solution {
