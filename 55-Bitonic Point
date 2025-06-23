@@ -2,31 +2,6 @@
 
 class Solution {
     int findMaximum(int[] arr, int n) {
-        int low = 0, high = n - 1;
-        int maximum = Integer.MIN_VALUE;
-
-        /*
-         * This is a simple linear approach using two pointers:
-         * - One starting from the beginning (`low`)
-         * - One starting from the end (`high`)
-         * 
-         * At each step, we compare both ends and update the `maximum`.
-         * We move both pointers toward the center to cover the full array.
-         * 
-         */
-        while (low <= high) {
-            maximum = Math.max(maximum, Math.max(arr[low++], arr[high--]));
-        }
-
-        return maximum;
-    }
-}
-
-
-//Good Approach
-
-class Solution {
-    int findMaximum(int[] arr, int n) {
         /*
          * Linear scan approach to find the peak in a bitonic array.
          * As soon as we find an element greater than its next one,
@@ -51,82 +26,59 @@ class Solution {
 
 class Solution {
     public int findMaximum(int[] arr) {
-       return findPeakElement(arr);
+        return findPeakElement(arr);
     }
-    
+
     private int findPeakElement(int[] arr) {
         /*
-         * According to the problem constraints, the array is bitonic (first strictly increasing and then maybe strictly decreasing and has length >= 3)
-         * Therefore, the peak (maximum element) will never be at index 0 or at index n - 1.
-         * So, it's safe to access arr[mid - 1] and arr[mid + 1] without risking out-of-bound errors.
+         * According to the problem constraints:
+         * 🔹 The array contains exactly one bitonic point.
+         * 🔹 The length is guaranteed to be ≥ 3.
+         *
+         * Therefore, the peak (maximum element) will NEVER be at index 0 or index n - 1.
+         * So it's 100% safe to access arr[mid - 1] and arr[mid + 1] without out-of-bound checks.
          */
-        int low = 1, high = arr.length - 2, mid = 0;
+        int low = 1, high = arr.length - 2;
 
         while (low <= high) {
-            mid = low + (high - low) / 2;
+            int mid = low + (high - low) / 2;
 
-            /** 
-             * Case 1:
-             * If the middle element is a peak, return it.
+            /*
+             * Case 1: Found the bitonic peak
+             * If current element is greater than both its neighbors, it's the peak.
              */
             if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
                 return arr[mid];
             }
 
-            /** 
-             * Case 2:
-             * If arr[mid] is greater than its left neighbor but less than its right neighbor,
-             * then the slope is rising to the right.
+            /*
+             * Case 2: We are on the **increasing slope** of the bitonic array.
+             * That means the peak lies to the right.
              *
-             * This implies that on the right side, either the sequence continues increasing
-             * (in which case the rightmost element is a peak, since we assume -∞ after the last element),
-             * or the sequence eventually drops, making the element just before the drop a peak.
-             *
-             * Moreover, even if there are multiple ups and downs, multiple peaks may exist in the right half,
-             * but we are guaranteed that at least one peak is present on the right side.
-             *
-             * Therefore, we move right by setting low = mid + 1.
-             * Note: A peak could exist on the left as well but is not guaranteed...
-             * so we will move to the right where a peak is guaranteed.
+             * Why? Because values are still increasing, and since a bitonic point is guaranteed,
+             * there MUST be a peak in the right half.
              */
-            else if (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1]) {
+            if (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1]) {
                 low = mid + 1;
             }
-
-            /** 
-             * Case 3:
-             * If arr[mid] is less than its left neighbor but greater than its right neighbor,
-             * then the slope is rising to the left.
-             *
-             * This implies that on the left side, either the sequence continues increasing
-             * (in which case the leftmost element is a peak, since we assume -∞ before the first element),
-             * or the sequence eventually drops, making the element just after the drop a peak.
-             *
-             * Moreover, even if there are multiple ups and downs, multiple peaks may exist in the left half,
-             * but we are guaranteed that at least one peak is present on the left side.
-             *
-             * Therefore, we move left by setting high = mid - 1.
-             * Note: A peak could exist on the right as well but is not guaranteed...
-             * so we will move to the left where a peak is guaranteed.
-             */
-
-            /**
-            * Case 4:
-            * In a valley situation where the middle element is less than both its left and right neighbors,
-            * for example in the array [1, 2, 1, 2, 1] at index 2 (value 1, with left and right both 2),
-            * you could move right just as well as moving left.
+            /*
+            * Case 3: We are on the **decreasing slope** of the bitonic array.
+            * That means the peak lies to the left.
             *
-            * Both directions will eventually lead to a region containing a peak
-            * because a peak is guaranteed to exist on at least one side.
-            *
-            * In our implementation, we consistently choose to move left
-            * (i.e., set high = mid - 1) to maintain a deterministic strategy.
+            * Why? Because values are descending now, and the peak was earlier.
+            * So move to the left half.
             */
-            else {
+            else if (arr[mid] < arr[mid - 1] && arr[mid] > arr[mid + 1]) {
                 high = mid - 1;
             }
+
+            /*
+             * Case 4: Case of a valley (i.e., mid < both neighbors)
+             * Technically not possible in a strictly bitonic array,
+             */
         }
-        // This line should never be reached due to the problem guarantee of a bitonic point.
+
+        // Ideally unreachable due to guaranteed bitonic structure
         return -1;
     }
 }
