@@ -7,13 +7,13 @@ public class Solution {
     
     public int solve(ArrayList<Integer> arr, int target) {
         // In a bitonic array, the peak element is the maximum element.
-        int maxElementIndex = findPivotIndex(arr);
+        int peakIndex = findPivotIndex(arr);
 
         /*
-        * Perform binary search on the increasing part of the array (from index 0 to peak).
+        * Perform binary search on the increasing part of the array (from index 0 to peakIndex).
         * Since this part is strictly increasing, we pass SortOrder.ASCENDING.
         */
-       int index = binarySearch(arr, 0, maxElementIndex, target, SortOrder.ASCENDING);
+       int index = binarySearch(arr, 0, peakIndex, target, SortOrder.ASCENDING);
 
        if (index != -1) {
          return index; // Target found in the increasing part
@@ -24,7 +24,7 @@ public class Solution {
         * This part is from (peak + 1) to end of the array.
         * Since it is strictly decreasing, we pass SortOrder.DESCENDING.
         */
-        return binarySearch(arr, maxElementIndex + 1, arr.size() - 1, target, SortOrder.DESCENDING);
+        return binarySearch(arr, peakIndex + 1, arr.size() - 1, target, SortOrder.DESCENDING);
     }
     
     private int findPivotIndex(List<Integer>arr) {
@@ -72,67 +72,93 @@ public class Solution {
     private enum SortOrder {
         ASCENDING, DESCENDING
     }
-    
+
     public int solve(ArrayList<Integer> arr, int target) {
+        /*
+        Example:
+        A = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11]
+        B = 12
+        
+        Explanation:
+        - Peak Element = 20 at index 10
+        - B = 12 lies in the decreasing half (index 11 to 19)
+        - Binary Search on descending part → Found at index 18
+        
+        Output: 18
+        */
         // In a bitonic array, the peak element is the maximum element.
-        int maxElementIndex = findPivotIndex(arr);
+        int peakIndex = findPeakElementIndex(arr);
 
         /*
-        * Perform binary search on the increasing part of the array (from index 0 to peak).
+        * Perform binary search on the increasing part of the array (from index 0 to peakIndex).
         * Since this part is strictly increasing, we pass SortOrder.ASCENDING.
         */
-       int index = binarySearch(arr, 0, maxElementIndex, target, SortOrder.ASCENDING);
+        int index = binarySearch(arr, 0, peakIndex, target, SortOrder.ASCENDING);
+        if (index != -1) {
+            return index;
+        }
 
-       if (index != -1) {
-         return index; // Target found in the increasing part
-       }
-
-       /*
+        /*
         * If the target is not found in the increasing part, search in the decreasing part.
         * This part is from (peak + 1) to end of the array.
         * Since it is strictly decreasing, we pass SortOrder.DESCENDING.
         */
-        return binarySearch(arr, maxElementIndex + 1, arr.size() - 1, target, SortOrder.DESCENDING);
+        return binarySearch(arr, peakIndex + 1, arr.size() - 1, target, SortOrder.DESCENDING);
     }
-    
-    private int findPivotIndex(List<Integer>arr) {
-        int low = 0;
-        int high = arr.size() - 1;
 
-         /*
-         * According to the problem constraints, the array is bitonic (first strictly increasing and then maybe strictly decreasing and has length >= 3)
-         * Therefore, the peak (maximum element) will never be at index 0 or at index n - 1.
-         * So, it's safe to access arr[mid - 1] and arr[mid + 1] without risking out-of-bound errors.
+    private int findPeakElementIndex(List<Integer> arr) {
+        /*
+         * According to the problem constraints:
+         *  The array contains exactly one bitonic point.
+         *  The length is guaranteed to be >= 3.
+         * Therefore, the peak (maximum element) will NEVER be at index 0 or index n - 1.
+         * So it's safe to access arr[mid - 1] and arr[mid + 1] without out-of-bound checks.
          */
+        int low = 1, high = arr.size() - 2;
+
         while (low <= high) {
             int mid = low + (high - low) / 2;
-            
-            // Case 1: arr[mid] is the peak (greater than both neighbors)
+
+            /*
+             * Case 1: Found the bitonic peak
+             * If current element is greater than both its neighbors, it's the peak.
+             */
             if (arr.get(mid) > arr.get(mid - 1) && arr.get(mid) > arr.get(mid + 1)) {
-                return mid; // peak element is the  max element return its index
+                return mid;
             }
 
             /*
-             * Case 2: We are in the decreasing part of the array
-             * i.e., arr[mid] < arr[mid - 1] && arr[mid] > arr[mid + 1] => Move left
-             * because the peak lies in the left half
+             * Case 2: We are on the **increasing slope** of the bitonic array.
+             * That means the peak lies to the right.
+             *
+             * Why? Because values are still increasing, and since a bitonic point is guaranteed,
+             * there MUST be a peak in the right half.
              */
-            if (arr.get(mid) < arr.get(mid - 1)) {
-                high = mid - 1;
-            } else {
-                /*
-                 * Case 3: We are in the increasing part of the array
-                 * i.e., arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1] => Move right
-                 * because the peak lies in the right half
-                 */
+            if (arr.get(mid) > arr.get(mid - 1) && arr.get(mid) < arr.get(mid + 1)) {
                 low = mid + 1;
             }
+            /*
+            * Case 3: We are on the **decreasing slope** of the bitonic array.
+            * That means the peak lies to the left.
+            *
+            * Why? Because values are descending now, and the peak was earlier.
+            * So move to the left half.
+            */
+            else if (arr.get(mid) < arr.get(mid - 1) && arr.get(mid) > arr.get(mid + 1)) {
+                high = mid - 1;
+            }
+
+            /*
+             * Note:
+             * A strict bitonic array will never have a true "valley" (mid < both neighbors),
+             * so no separate handling for that is required.
+             */
         }
 
-        // This line should never be reached if the input is a valid bitonic array
+        // Ideally unreachable due to guaranteed bitonic structure
         return -1;
     }
-    
+
     private int binarySearch(List<Integer> arr, int low, int high, int target, SortOrder sortOrder) {
         while (low <= high) {
             int mid = low + (high - low) / 2;
@@ -158,4 +184,5 @@ public class Solution {
 
         return -1; // key doesnot exists
     }
+}
 }
