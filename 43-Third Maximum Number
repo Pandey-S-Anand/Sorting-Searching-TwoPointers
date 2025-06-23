@@ -37,21 +37,30 @@ class Solution {
 
 class Solution {
     public int thirdMax(int[] arr) {
-        TreeSet<Integer> set = new TreeSet<>();
+        // TreeSet with descending order to keep elements sorted in reverse (largest to smallest)
+        TreeSet<Integer> set = new TreeSet<>((num1, num2) -> Integer.compare(num2, num1));
 
-        // Add all unique elements to the TreeSet (sorted ascending)
+        // Step 1: Add all elements to TreeSet — automatically removes duplicates and keeps them sorted descending
         for (int num : arr) {
             set.add(num);
         }
 
-        // If we have at least 3 unique elements, remove the largest two elements to get the third max at the end
+        /*
+         * Step 2:
+         * If the set contains at least 3 distinct numbers, we remove the largest two.
+         * The third element (next largest) will now be at the front.
+         */
         if (set.size() >= 3) {
-            set.pollLast(); // remove largest
-            set.pollLast(); // remove second largest
+            set.pollFirst(); // Remove 1st largest
+            set.pollFirst(); // Remove 2nd largest
         }
 
-        // The last element now is either the third max or the maximum if fewer than 3 unique elements
-        return set.pollLast();
+        /*
+         * Step 3:
+         * Either return the 3rd distinct maximum (if ≥ 3 unique numbers),
+         * or return the overall maximum (if < 3 unique numbers).(arr[] contains at least one element as per problem constraints)
+         */
+        return set.pollFirst();
     }
 }
 
@@ -61,35 +70,31 @@ class Solution {
 
 class Solution {
     public int thirdMax(int[] arr) {
-        // Use long to avoid confusion with Integer.MIN_VALUE present in the array
-        long max = Long.MIN_VALUE;
-        long secondMax = Long.MIN_VALUE;
-        long thirdMax = Long.MIN_VALUE;
+        // Indices to track the max, second max, and third max elements (distinct)
+        int maxIndex = -1, secondMaxIndex = -1, thirdMaxIndex = -1;
 
         for (int i = 0; i < arr.length; i++) {
-            int num = arr[i];
-
-            // Skip duplicates: if num is already max, secondMax or thirdMax, ignore
-            if (num == max || num == secondMax || num == thirdMax) {
+            // Skip duplicates: if num is already max, secondMax or thirdMax, ignore it
+            if ((maxIndex != -1 && arr[i] == arr[maxIndex]) || (secondMaxIndex != -1 && arr[i] == arr[secondMaxIndex]) || (thirdMaxIndex != -1 && arr[i] == arr[thirdMaxIndex])) {
                 continue;
             }
 
-            if (num > max) {
-                // New max found; shift current max and secondMax down
-                thirdMax = secondMax;
-                secondMax = max;
-                max = num;
-            } else if (num > secondMax) {
-                // New secondMax found; shift secondMax down to thirdMax
-                thirdMax = secondMax;
-                secondMax = num;
-            } else if (num > thirdMax) {
-                // New thirdMax found
-                thirdMax = num;
+            // New maximum found
+            if (maxIndex == -1 || arr[i] > arr[maxIndex]) {
+                // Shift down previous max and second max
+                thirdMaxIndex = secondMaxIndex;
+                secondMaxIndex = maxIndex;
+                maxIndex = i;
+            } else if (secondMaxIndex == -1 || arr[i] > arr[secondMaxIndex]) { // New second maximum found
+                // Shift down previous second max
+                thirdMaxIndex = secondMaxIndex;
+                secondMaxIndex = i;
+            } else if (thirdMaxIndex == -1 || arr[i] > arr[thirdMaxIndex]) { // New third maximum found
+                thirdMaxIndex = i;
             }
         }
 
-        // If thirdMax is unchanged, it means less than 3 distinct elements, so return max; otherwise, return thirdMax
-        return thirdMax == Long.MIN_VALUE ? (int) max : (int) thirdMax;
+        // Return third max if found, otherwise return the maximum
+        return thirdMaxIndex == -1 ? arr[maxIndex] : arr[thirdMaxIndex];
     }
 }
