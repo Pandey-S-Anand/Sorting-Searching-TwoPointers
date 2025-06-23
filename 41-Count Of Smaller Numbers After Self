@@ -153,6 +153,10 @@ class Solution {
  * Without this index mapping, we would lose track of the positions of the elements in the original array
  * and thus update the wrong index in the result.
  *
+ * * Why do we sort in descending order during merge?
+ *
+ * If left[i] > right[j], then all elements from right[j] onward are also < left[i]
+ * (since both halves are sorted in descending order).
  *
  * CRUX of the Counting Logic:
  * When left[i] > right[j], we know:
