@@ -24,19 +24,15 @@ class Solution {
         int pivotIndex = findPivotIndex(arr);
 
         /*
-         * Step 2: Once we know the pivot, the array is split into two sorted subarrays:
-         * - From index 0 to pivot (first part)
-         * - From pivot + 1 to end (second part)
-         * 
-         * Perform binary search in both subarrays to find the target.
-         */
-        // Search in the left sorted subarray
+        * Step 2: If target lies within the range of the left sorted subarray [0...pivot],
+        * perform binary search on that segment.
+        */
         int index = binarySearch(arr, 0, pivotIndex, target);
         if (index != -1) {
             return index;
         }
 
-        // If not found in left, search in the right sorted subarray
+        // Step 3: Otherwise, search in the right sorted portion [pivot+1...end]
         return binarySearch(arr, pivotIndex + 1, arr.length - 1, target);
     }
 
