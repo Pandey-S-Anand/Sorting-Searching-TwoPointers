@@ -51,10 +51,10 @@ class Solution {
          * Now, search in the middle part of the array.
          * We set low = 1 and high = arr.length - 2 because we already checked the boundaries.
          */
-        int low = 1, high = arr.length - 2, mid = 0;
+        int low = 1, high = arr.length - 2;
 
         while (low <= high) {
-            mid = low + (high - low) / 2;
+            int mid = low + (high - low) / 2;
 
             /** 
              * Case 1:
@@ -118,7 +118,7 @@ class Solution {
             }
         }
 
-        return mid;
+        return -1; // This line should never be reached due to the problem guarantee of a peak.
     }
 }
 
