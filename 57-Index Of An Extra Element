@@ -74,6 +74,7 @@ class Solution {
          * - If they are equal → mismatch must be on the right side.
          * - If not equal → mismatch occurred at or before mid.
          */
+        int mismatchIndex = arr1.length - 1;
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
@@ -82,16 +83,11 @@ class Solution {
                 low = mid + 1;
             } else {
                 // Mismatch found or could be before, move to left half
+                mismatchIndex = mid;
                 high = mid - 1;
             }
         }
 
-        /*
-         * After the loop ends, low will be pointing to the index of the extra element in arr1.
-         * This is because:
-         * - If all previous elements matched, low reaches arr1.length - 1.
-         * - If a mismatch is found earlier, low will be set to the correct position.
-         */
-        return low;
+        return mismatchIndex;
     }
 }
