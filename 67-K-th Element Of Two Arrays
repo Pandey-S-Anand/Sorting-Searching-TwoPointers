@@ -1,65 +1,6 @@
 //Bruteforce Approach
 
 class Solution {
-    public long kthElement(int arr1[], int arr2[], int k) {
-        int[] merged = mergeTwoSortedArrayIntoThirdSortedArray(arr1, arr2);
-        return merged[k - 1];
-    }
-
-    private int[] mergeTwoSortedArrayIntoThirdSortedArray(int[] arr1, int[] arr2) {
-        int[] merged = new int[arr1.length + arr2.length];
-        int i = 0, j = 0, k = 0;
-
-        while (i < arr1.length && j < arr2.length) {
-            if (arr1[i] <= arr2[j]) {
-                merged[k++] = arr1[i++];
-            } else {
-                merged[k++] = arr2[j++];
-            }
-        }
-
-        if (i < arr1.length) {
-            System.arraycopy(arr1, i, merged, k, arr1.length - i);
-        }
-
-        if (j < arr2.length) {
-            System.arraycopy(arr2, j, merged, k, arr2.length - j);
-        }
-
-        return merged;
-    }
-}
-
-
-//Better Approach
-
-class Solution {
-    public long kthElement(int arr1[], int arr2[], int k) {
-        int[] merged = new int[k];
-        int i = 0, j = 0, index = 0;
-
-        while (index <= (k - 1)) {
-            if (i < arr1.length && j < arr2.length) {
-                if (arr1[i] <= arr2[j]) {
-                    merged[index++] = arr1[i++];
-                } else {
-                    merged[index++] = arr2[j++];
-                }
-            } else if (i < arr1.length) {
-                merged[index++] = arr1[i++];
-            } else { // if (j < arr2.length)
-                merged[index++] = arr2[j++];
-            }
-        }
-
-        return merged[k - 1];
-    }
-}
-
-
-//Good Approach
-
-class Solution {
     public int kthElement(int arr1[], int arr2[], int k) {
         int i = 0, j = 0, currentValue = 0;
 
@@ -102,13 +43,13 @@ class Solution {
               int elementsChosenFromArr2ForLeftPart = k - elementsChosenFromArr1ForLeftPart;
             
               if(elementsChosenFromArr2ForLeftPart < 0){
-                  // Too many elements taken from arr2, increase contribution from arr1
+                  // Too many elements taken from arr1, decrease contribution from arr1 (you can't take -ve elements from arr2)
                   high=elementsChosenFromArr1ForLeftPart-1;
                   continue;
               }
               
               if(elementsChosenFromArr2ForLeftPart>arr2.length){
-                  // Too many elements taken from arr2, increase contribution from arr1
+                  // Trying to pick more elements from arr2 than it has — increase elements from arr1, which will automatically reduce arr2’s share in the left part
                   low=elementsChosenFromArr1ForLeftPart+1;
                   continue;
               }
