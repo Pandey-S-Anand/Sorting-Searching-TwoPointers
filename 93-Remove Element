@@ -13,24 +13,55 @@ class Solution {
     }
 }
 
+
 // Optimal Approach
 
 class Solution {
+    /**
+     * Removes all instances of the given target from the array in-place.
+     * 
+     * ➤ Elements not equal to the target are moved to the front.
+     * ➤ The method returns the count of non-target elements.
+     * ➤ The relative order of non-target elements is **not preserved**.
+     * 
+     * Example:
+     * ----------
+     * Input: arr = [3, 2, 2, 3, 4], target = 3
+     * 
+     * Step-by-step:
+     * i = 0 → 3 == target → skip
+     * i = 1 → 2 ≠ target → swap(1, 0) → [2, 3, 2, 3, 4], next = 1
+     * i = 2 → 2 ≠ target → swap(2, 1) → [2, 2, 3, 3, 4], next = 2
+     * i = 3 → 3 == target → skip
+     * i = 4 → 4 ≠ target → swap(4, 2) → [2, 2, 4, 3, 3], next = 3
+     * 
+     * Output: 3 (First 3 elements are non-target → [2, 2, 4])
+     */
     public int removeElement(int[] arr, int target) {
         return segregateTarget(arr, target);
     }
 
-    private int segregateTarget(int[] arr, int target) {
-        int nonTargetTracker = 0;
+    /**
+     * Rearranges the array in-place such that all elements not equal to the target
+     * appear at the front, and returns the count of such elements.
+     */
+    public int segregateTarget(int[] arr, int target) {
+        int nextNonTargetPlacementIndex = 0;
+
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] != target) {
-                int temp = arr[i];
-                arr[i] = arr[nonTargetTracker];
-                arr[nonTargetTracker] = temp;
-                nonTargetTracker++;
+                swap(arr, i, nextNonTargetPlacementIndex);
+                nextNonTargetPlacementIndex++;
             }
         }
 
-        return nonTargetTracker;
+        // After this loop, elements from index 0 to nextNonTargetPlacementIndex - 1 are all non-target values.
+        return nextNonTargetPlacementIndex;
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
     }
 }
