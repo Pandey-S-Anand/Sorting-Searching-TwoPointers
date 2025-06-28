@@ -1,0 +1,138 @@
+//Bruteforce Approach
+
+class Solution {
+    public void segregatePosAndNeg(int[] arr) {
+        int index = 0;
+        int aux[] = new int[arr.length];
+
+        // Collect all negative numbers in order
+        for (int num : arr) {
+            if (num < 0) {
+                aux[index++] = num;
+            }
+        }
+
+        // Collect all positive numbers in order
+        for (int num : arr) {
+            if (num > 0) {
+                aux[index++] = num;
+            }
+        }
+
+        // Copy modified result back to original array
+        System.arraycopy(aux, 0, arr, 0, arr.length);        
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    /**
+     * Rearranges the array such that all negative numbers appear before all positive numbers.
+     *
+     * Approach:
+     * - Uses the **two-pointer method**.
+     * - Pointer `start` begins from the left and moves forward until a positive number is found.
+     * - Pointer `end` begins from the right and moves backward until a negative number is found.
+     * - When both such numbers are found and `start < end`, they are swapped.
+     *
+     * This approach does NOT preserve the relative order of elements.
+     *
+     * 🔁 Dry Run Example:
+     * --------------------
+     * Input: [12, -7, 5, -3, -1, 6, -9]
+     * 
+     * Initial: start = 0, end = 6
+     *
+     * start = 0 → arr[start] = 12 → stop
+     * end = 6 → arr[end] = -9 → stop
+     * swap(0, 6) → [-9, -7, 5, -3, -1, 6, 12], start = 1, end = 5
+     *
+     * start = 1 → arr[1] = -7 → start++
+     * start = 2 → arr[2] = 5 → stop
+     * end = 5 → arr[5] = 6 → end--
+     * end = 4 → arr[4] = -1 → stop
+     * swap(2, 4) → [-9, -7, -1, -3, 5, 6, 12], start = 3, end = 3 → loop ends
+     *
+     * Final Output: [-9, -7, -1, -3, 5, 6, 12]
+     */
+    public void segregatePosAndNeg(int[] arr) {
+        int start = 0, end = arr.length - 1;
+
+        while (start < end) {
+            // Move start forward until a non-negative element is found
+            while (start < arr.length && arr[start] < 0) {
+                start++;
+            }
+
+            // Move end backward until a non-negative element is found
+            while (end >= 0 && arr[end] >= 0) {
+                end--;
+            }
+
+            // If start and end haven't crossed, swap the elements
+            if (start < end) {
+                swap(arr, start, end);
+                start++;
+                end--;
+            }
+        }
+    }
+
+    /**
+     * Utility method to swap two elements in the array.
+     */
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    /**
+     * Rearranges the array such that all negative numbers appear before all non-negative numbers.
+     *
+     * This approach does NOT preserve the original relative order of elements.
+     *
+     * We use a pointer `nextNegativePlacementIndex` to track the index
+     *    where the next negative number should be placed.
+     *
+     * Dry Run Example:
+     * -------------------
+     * Input: [2, -3, 5, -1, 6, -7, 4]
+     *
+     * i = 0 → 2 is non-negative → skip
+     * i = 1 → -3 is negative → swap(1, 0) → [-3, 2, 5, -1, 6, -7, 4], nextNegativePlacementIndex = 1
+     * i = 2 → 5 is non-negative → skip
+     * i = 3 → -1 is negative → swap(3, 1) → [-3, -1, 5, 2, 6, -7, 4], nextNegativePlacementIndex = 2
+     * i = 4 → 6 is non-negative → skip
+     * i = 5 → -7 is negative → swap(5, 2) → [-3, -1, -7, 2, 6, 5, 4], nextNegativePlacementIndex = 3
+     * i = 6 → 4 is non-negative → skip
+     *
+     * Final Output: [-3, -1, -7, 2, 6, 5, 4]
+     * (All negative numbers moved to the front, order not preserved)
+     */
+    public void segregatePosAndNeg(int[] arr) {
+        int nextNegativePlacementIndex = 0;
+
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] < 0) {
+                swap(arr, i, nextNegativePlacementIndex);
+                nextNegativePlacementIndex++;
+            }
+        }
+        
+        //At the end of the loop, 'nextNegativePlacementIndex' ends up pointing to the index of the first positive  (if any exist).
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
