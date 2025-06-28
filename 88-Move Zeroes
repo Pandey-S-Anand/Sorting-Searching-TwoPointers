@@ -3,30 +3,62 @@
 class Solution {
     public void moveZeroes(int[] arr) {
         int index = 0;
+
+        // First pass: move all non-zero elements to the front
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] != 0) {
                 arr[index++] = arr[i];
             }
         }
 
+        // Second pass: fill the rest of the array with 0s
         Arrays.fill(arr, index, arr.length, 0);
     }
 }
 
 
+
 //Optimal Approach
 
 class Solution {
+    /**
+     * Rearranges the array such that all non-zero elements appear before all zero elements.
+     *
+     *   This approach does NOT preserve the original order of elements.
+     *
+     *   We use a pointer `nextNonzeroPlacementIndex` to track the index
+     *   where the next non-zero element should be placed.
+     *
+     * 🔁 Dry Run Example:
+     * -------------------
+     * Input: [0, 3, 0, 1, 0, 5, 0, 2]
+     *
+     * i = 0 → 0 → skip
+     * i = 1 → 3 → swap(1, 0) → [3, 0, 0, 1, 0, 5, 0, 2], nextNonzeroPlacementIndex = 1
+     * i = 2 → 0 → skip
+     * i = 3 → 1 → swap(3, 1) → [3, 1, 0, 0, 0, 5, 0, 2], nextNonzeroPlacementIndex = 2
+     * i = 4 → 0 → skip
+     * i = 5 → 5 → swap(5, 2) → [3, 1, 5, 0, 0, 0, 0, 2], nextNonzeroPlacementIndex = 3
+     * i = 6 → 0 → skip
+     * i = 7 → 2 → swap(7, 3) → [3, 1, 5, 2, 0, 0, 0, 0], nextNonzeroPlacementIndex = 4
+     *
+     * Final Output: [3, 1, 5, 2, 0, 0, 0, 0]
+     * (All non-zero values moved to front, order not preserved)
+     */
     public void moveZeroes(int[] arr) {
-        int zeroTracker = 0;
+        int nextNonzeroPlacementIndex = 0;
+
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] != 0) {
-                swap(arr, i, zeroTracker);
-                zeroTracker++;
+                swap(arr, i, nextNonzeroPlacementIndex);
+                nextNonzeroPlacementIndex++;
             }
         }
+
+        // After this loop, all non-zero elements are at the front, followed by all zeroes.
     }
 
+    //Utility method to swap elements at index i and j.
     private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
