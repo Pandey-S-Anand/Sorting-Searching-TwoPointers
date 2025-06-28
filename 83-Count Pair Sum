@@ -1,33 +1,15 @@
 //Bruteforce Approach
 
 class Solution {
-    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
-        if (m > n) {
-            return countPairs(arr2, arr1, n, m, target);
-        }
-
-        int count = 0;
-        for (int val1 : arr1) {
-            for (int val2 : arr2) {
-                if ((val1 + val2) == target) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-}
-
-// Better Approach
-
-class Solution {
-    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
-        if (m > n) {
-            return countPairs(arr2, arr1, n, m, target);
+    int countPairs(int arr1[], int arr2[], int target) {
+        // Always use the smaller array for iteration to reduce time complexity
+        if (arr1.length > arr2.length) {
+            return countPairs(arr2, arr1, target);
         }
 
         int count = 0;
 
+        // For each element in arr1, check if (target - element) exists in arr2
         for (int val : arr1) {
             if (binarySearch(arr2, target - val)) {
                 count++;
@@ -37,56 +19,42 @@ class Solution {
         return count;
     }
 
-    private static boolean binarySearch(int[] arr, int key) {
+    private boolean binarySearch(int[] arr, int key) {
         int low = 0, high = arr.length - 1;
 
+        // Standard binary search loop
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
             if (arr[mid] == key) {
-                return true;
+                return true; // Key found
             } else if (key < arr[mid]) {
                 high = mid - 1;
             } else {
                 low = mid + 1;
             }
         }
-        return false;// key doesnot exists
+
+        return false; // Key not found
     }
 }
 
-// Good Approach
-
-class Solution {
-    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
-        if (m > n) {
-            return countPairs(arr2, arr1, n, m, target);
-        }
-
-        int count = 0;
-        Set<Integer> set = new HashSet<>();
-
-        for (int val : arr2) {
-            set.add(val);
-        }
-
-        for (int val : arr1) {
-            if (set.contains(target - val)) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-}
 
 // Optimal Approach
 
 class Solution {
-    static int countPairs(int arr1[], int arr2[], int m, int n, int target) {
-        int i = 0, j = n - 1, count = 0;
+    static int countPairs(int arr1[], int arr2[], int target) {
+        int i = 0; // Pointer for arr1 (left to right)
+        int j = arr2.length - 1; // Pointer for arr2 (right to left)
+        int count = 0; // Count of valid pairs
 
-        while (i < m & j >= 0) {
+        /*
+         * Move both pointers based on the sum:
+         * - If sum equals target → valid pair found → move both pointers
+         * - If sum < target → move i to get a larger value from arr1
+         * - If sum > target → move j to get a smaller value from arr2
+         */
+        while (i < arr1.length && j >= 0) {
             int sum = arr1[i] + arr2[j];
 
             if (sum == target) {
@@ -95,7 +63,7 @@ class Solution {
                 j--;
             } else if (sum < target) {
                 i++;
-            } else { // (sum>target)
+            } else { // sum > target
                 j--;
             }
         }
