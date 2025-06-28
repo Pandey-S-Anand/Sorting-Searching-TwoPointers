@@ -28,7 +28,7 @@ class Solution {
 class Solution {
     public int kthElement(int arr1[], int arr2[], int k) {
         if (arr1.length > arr2.length) {
-            return kthElement(arr2, arr1,k); // Ensure binary search is performed on the smaller array
+            return kthElement(arr2, arr1, k); // Ensure binary search is performed on the smaller array
         }
 
         /*
@@ -39,29 +39,30 @@ class Solution {
 
         while (low <= high) {
             int elementsChosenFromArr1ForLeftPart = low + (high - low) / 2;
-              // Below line ensures that the total number of elements in the left part of the combined array is exactly k.
-              int elementsChosenFromArr2ForLeftPart = k - elementsChosenFromArr1ForLeftPart;
-            
-              if(elementsChosenFromArr2ForLeftPart < 0){
-                  // Too many elements taken from arr1, decrease contribution from arr1 (you can't take -ve elements from arr2)
-                  high=elementsChosenFromArr1ForLeftPart-1;
-                  continue;
-              }
-              
-              if(elementsChosenFromArr2ForLeftPart>arr2.length){
-                  // Trying to pick more elements from arr2 than it has — increase elements from arr1, which will automatically reduce arr2’s share in the left part
-                  low=elementsChosenFromArr1ForLeftPart+1;
-                  continue;
-              }
-              
+
+            int elementsRequiredInLeftHalf = k;
+            // Below line ensures that the total number of elements in the left part of the combined array is exactly k.
+            int elementsChosenFromArr2ForLeftPart = k - elementsRequiredInLeftHalf;
+
+            if (elementsChosenFromArr2ForLeftPart < 0) {
+                // Too many elements taken from arr1, decrease contribution from arr1 (you can't take -ve elements from arr2)
+                high = elementsChosenFromArr1ForLeftPart - 1;
+                continue;
+            }
+
+            if (elementsChosenFromArr2ForLeftPart > arr2.length) {
+                // Too many elements taken from arr2, decrease contribution from arr2 — increase elements from arr1, which will automatically reduce arr2’s share in the left part
+                low = elementsChosenFromArr1ForLeftPart + 1;
+                continue;
+            }
+
             /* 
                If you choose x elements from arr1 for the left half, then the index of the xth element is x - 1, 
                and that element is maxInLeftPartFromArr1.
                If we pick 0 elements from arr1 for the left half, then there is no max element on the left side of arr1.
                To ensure correct comparison, we use Integer.MIN_VALUE (smallest possible value) to safely ignore this part.
             */
-            int maxInLeftPartFromArr1 = (elementsChosenFromArr1ForLeftPart == 0) ? Integer.MIN_VALUE
-                    : arr1[elementsChosenFromArr1ForLeftPart - 1];
+            int maxInLeftPartFromArr1 = (elementsChosenFromArr1ForLeftPart == 0) ? Integer.MIN_VALUE : arr1[elementsChosenFromArr1ForLeftPart - 1];
 
             /* 
              If you choose x elements from arr2 for the left half, then the index of the xth element is x - 1,
@@ -71,8 +72,11 @@ class Solution {
              This case occurs when all the elements needed for the left half have already been chosen from arr1,
              so there is no room left to pick any elements from arr2 for the left half.
             */
-            int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE
-                    : arr2[elementsChosenFromArr2ForLeftPart - 1];
+            int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE : arr2[elementsChosenFromArr2ForLeftPart - 1];
+            
+             // Find the maximum element in the left half
+            int maxInLeftHalf = Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
+
 
             /* 
                If x elements are chosen from arr1 for the left half, then the element at index x 
@@ -97,16 +101,13 @@ class Solution {
             int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE
                     : arr2[elementsChosenFromArr2ForLeftPart];
 
-            // Find the maximum element in the left half
-            int maxInLeftHalf = Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
-
             // Find the minimum element in the right half
             int minInRightHalf = Math.min(minInRightPartFromArr1, minInRightPartFromArr2);
 
             if (maxInLeftHalf <= minInRightHalf) {
-               return maxInLeftHalf;
+                return maxInLeftHalf;
             }
-            
+
             if (maxInLeftPartFromArr1 > minInRightPartFromArr2) {
                 // We have chosen too many elements from arr1 for the left half,  so we need to reduce the count by moving 'high' to the left.
                 high = elementsChosenFromArr1ForLeftPart - 1;
