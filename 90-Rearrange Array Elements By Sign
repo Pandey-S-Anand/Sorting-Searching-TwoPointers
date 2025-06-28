@@ -5,6 +5,7 @@ class Solution {
         List<Integer> positiveList = new ArrayList<>();
         List<Integer> negativeList = new ArrayList<>();
 
+        // Separate positive and negative elements into two lists
         for (int num : arr) {
             if (num >= 0) {
                 positiveList.add(num);
@@ -13,6 +14,7 @@ class Solution {
             }
         }
 
+        // Rebuild the array with alternating positive and negative numbers
         int i = 0, positiveIndex = 0, negativeIndex = 0;
 
         while (i < arr.length) {
@@ -28,187 +30,120 @@ class Solution {
 // Method 2 (Order of Appearence is Maintained) // TC: O(n^2), SC: O(1)
 
 class Solution {
-    public int[] rearrangeArray(int arr[]) {
-        int[] modifiedArray = new int[arr.length];
+    /**
+     * Rearranges the array so that positive and negative numbers appear in alternating positions,
+     * starting with a positive number. The relative order of appearance is preserved.
+     *
+     *  Steps:
+     * 1. Segregate the array in-place so that all non-negative (positive or 0) numbers
+     *    appear first, followed by negatives, maintaining the original relative order.
+     * 2. Alternate positive and negative numbers using two pointers into a new result array.
+     *
+     * Dry Run Example:
+     * -------------------
+     * Input: [3, -1, 2, -2, -5, 4]
+     *
+     * ➤ Step 1: segregateMaintainingOrder()
+     * Initial: [3, -1, 2, -2, -5, 4]
+     *
+     * i = 0 → 3 ≥ 0 → shift(0,0) → no change → [3, -1, 2, -2, -5, 4] → nextNonNegativeElementIndex = 1
+     * i = 1 → -1 < 0 → skip
+     * i = 2 → 2 ≥ 0 → shift(1,2)
+     *        - Move -1 to index 2
+     *        - Insert 2 at index 1 → [3, 2, -1, -2, -5, 4] → next = 2
+     * i = 3 → -2 → skip
+     * i = 4 → -5 → skip
+     * i = 5 → 4 ≥ 0 → shift(2,5)
+     *        - Move -1, -2, -5 to index 3,4,5
+     *        - Insert 4 at index 2 → [3, 2, 4, -1, -2, -5] → next = 3
+     *
+     * ➤ Final segregated: [3, 2, 4, -1, -2, -5]
+     * ➤ Positive index = 0, Negative index = 3
+     *
+     * ➤ Alternating fill into result:
+     * [3, -1, 2, -2, 4, -5]
+     */
+    public int[] rearrangeArray(int[] arr) {
+        int[] rearrangedArray = new int[arr.length];
+
         int firstNegativeIndex = segregateMaintainingOrder(arr);
         int positiveIndex = 0, negativeIndex = firstNegativeIndex, i = 0;
 
         while (i < arr.length) {
-            modifiedArray[i++] = arr[positiveIndex++];
-            modifiedArray[i++] = arr[negativeIndex++];
+            rearrangedArray[i++] = arr[positiveIndex++];
+            rearrangedArray[i++] = arr[negativeIndex++];
         }
 
-        return modifiedArray;
+        return rearrangedArray;
     }
 
-    private int segregateMaintainingOrder(int arr[]) {
-        int negativeTracker = 0;
+    /**
+     * Rearranges the array such that all non-negative numbers appear at the front
+     * while maintaining their relative order. Returns the index where the first negative begins.(If present)
+     */
+    private int segregateMaintainingOrder(int[] arr) {
+        int nextNonNegativeElementIndex = 0;
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] >= 0) {
-                // This leftShiftBy1() method maintains the order of appearence
-                leftShiftBy1(arr, negativeTracker, i);
-                negativeTracker++;
+                rightShiftBy1(arr, nextNonNegativeElementIndex, i);
+                nextNonNegativeElementIndex++;
             }
         }
-
-        return negativeTracker;
+        //At the end of the loop, 'nextNonNegativeElementIndex' ends up pointing to the index of the first negative (if any exist).
+        return nextNonNegativeElementIndex;
     }
 
-    private void leftShiftBy1(int[] arr, int start, int end) {
+    private void rightShiftBy1(int[] arr, int start, int end) {
         int temp = arr[end];
         for (int i = end; i > start; i--) {
             arr[i] = arr[i - 1];
         }
-
         arr[start] = temp;
     }
 }
 
 
-// Method 3 (Order of Appearence is Maintained) // TC: O(n log n), SC: O(n)
+// Method 3 (Time Optimised) (Order of Appearence is Maintained) // TC: O(n), SC: O(n)
 
 class Solution {
-    public int[] rearrangeArray(int arr[]) {
-        segregateMaintainingOrder(arr);
-
-        int firstNegativeIndex = findFirstNegativeIndex(arr);
-        int[] modifiedArray = new int[arr.length];
-        int positiveIndex = 0, negativeIndex = firstNegativeIndex, i = 0;
-
-        while (i < arr.length) {
-            modifiedArray[i++] = arr[positiveIndex++];
-            modifiedArray[i++] = arr[negativeIndex++];
-        }
-
-        return modifiedArray;
-    }
-
-    private void segregateMaintainingOrder(int[] arr) {
-        mergeSort(arr, 0, arr.length - 1);
-    }
-
-    private void mergeSort(int[] arr, int lb, int ub) {
-        if (lb < ub) {
-            int mid = lb + (ub - lb) / 2;
-            mergeSort(arr, lb, mid);
-            mergeSort(arr, mid + 1, ub);
-            modifiedMerge(arr, lb, mid, ub);
-        }
-    }
-
-    private void modifiedMerge(int[] arr, int lb, int mid, int ub) {
-        int leftSize = (mid - lb + 1), rightSize = (ub - mid);
-        int[] left = new int[leftSize];
-        int[] right = new int[rightSize];
-
-        for (int i = 0; i < leftSize; i++) {
-            left[i] = arr[lb + i];
-        }
-
-        for (int i = 0; i < rightSize; i++) {
-            right[i] = arr[mid + 1 + i];
-        }
-
-        int positiveIndex = 0, negativeIndex = 0, arrIndex = lb;
-        // copy positive elements of left sublist
-        while (positiveIndex < leftSize && left[positiveIndex] >= 0) {
-            arr[arrIndex++] = left[positiveIndex++];
-        }
-
-        // copy positive elements of right sublist
-        while (negativeIndex < rightSize && right[negativeIndex] >= 0) {
-            arr[arrIndex++] = right[negativeIndex++];
-        }
-
-        // Copy negative elements of left sublist
-        while (positiveIndex < leftSize) {
-            arr[arrIndex++] = left[positiveIndex++];
-        }
-
-        // Copy negative elements of right sublist
-        while (negativeIndex < rightSize) {
-            arr[arrIndex++] = right[negativeIndex++];
-        }
-    }
-
-    private int findFirstNegativeIndex(int[] arr) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] < 0) {
-                return i;
-            }
-        }
-
-        return arr.length; // Return n if no negative number is found
-    }
-}
-
-
-// Method 4 (Space Optimised) (Order of Appearence is Maintained)  // TC: O(n ^ 2), SC: O(1)
-/*
- * in rearranged array Positive elements are found at Even index(0,2,4,6,8..)
- * and Negative Elements are found at odd index(1,3,5,7,9...)
- * The idea is to process array from left to right. While processing, find the
- * first out of place element in the remaining unprocessed array.
- * An element is out of place if it is positive and at odd index (0 based
- * index), or it is negative and at even index (0 based index) .
- * Once we find an out of place element, we find the first element after it with
- * opposite sign.
- * We right rotate the subarray between these two elements (including these
- * two).
- */
-
-class Solution {
-    public int[] rearrangeArray(int[] arr) {
-        int wrongIndex = -1;// No Wrong Index
-
-        for (int i = 0; i < arr.length; i++) {
-            if (wrongIndex != -1) {
-                if ((arr[wrongIndex] < 0 && arr[i] >= 0) || (arr[wrongIndex] >= 0 && arr[i] < 0)) {
-                    rightRotate(arr, wrongIndex, i);
-                    if ((i - wrongIndex) == 1) {
-                        wrongIndex = -1;
-                    } else { // ((i - wrongIndex)>= 2)
-                        wrongIndex += 2;
-                    }
-                }
-            }
-
-            if (wrongIndex == -1) {
-                if (((i % 2) == 0 && arr[i] < 0) || ((i % 2) == 1 && arr[i] >= 0)) {
-                    wrongIndex = i;
-                }
-            }
-        }
-
-        return arr;
-    }
-
-    private void rightRotate(int[] arr, int wrongIndex, int index) {
-        int temp = arr[index];
-        for (int i = index; i > wrongIndex; i--) {
-            arr[i] = arr[i - 1];
-        }
-
-        arr[wrongIndex] = temp;
-    }
-}
-
-
-// Method 5 (Time Optimised) (Order of Appearence is Maintained) // TC: O(n), SC: O(n)
-
-class Solution {
+    /**
+     * Rearranges the given array such that:
+     * - Positive and negative numbers alternate.
+     * - The first element is positive.
+     * - It assumes the number of positive and negative numbers are equal (as per constraint).
+     * - The **relative order is preserved**.
+     * 
+     * 
+     * 🔁 Dry Run Example:
+     * -------------------
+     * Input:  [3, -2, 1, -7, -5, 2]
+     * Step-by-step:
+     * - Initialize: 
+     *   → `nextPositivePlacementIndex = 0` → where next positive number will go
+     *   → `nextNegativePlacementIndex = 1` → where next negative number will go
+     * 
+     * i = 0 → 3 > 0 → place at modifiedArray[0] → [3, _, _, _, _, _] → nextPositivePlacementIndex = 2
+     * i = 1 → -2 < 0 → place at modifiedArray[1] → [3, -2, _, _, _, _] → nextNegativePlacementIndex = 3
+     * i = 2 → 1 > 0 → place at modifiedArray[2] → [3, -2, 1, _, _, _] → nextPositivePlacementIndex = 4
+     * i = 3 → -7 < 0 → place at modifiedArray[3] → [3, -2, 1, -7, _, _] → nextNegativePlacementIndex = 5
+     * i = 4 → -5 < 0 → place at modifiedArray[5] → [3, -2, 1, -7, _, -5] → nextNegativePlacementIndex = 7
+     * i = 5 → 2 > 0 → place at modifiedArray[4] → [3, -2, 1, -7, 2, -5] → nextPositivePlacementIndex = 6
+     * 
+     * Final Output: [3, -2, 1, -7, 2, -5]
+     */
     public int[] rearrangeArray(int[] arr) {
         int[] modifiedArray = new int[arr.length];
-        int positiveIndex = 0, negativeIndex = 1;
+        int nextPositivePlacementIndex = 0;
+        int nextNegativePlacementIndex = 1;
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] > 0) {
-                modifiedArray[positiveIndex] = arr[i];
-                positiveIndex += 2;
+                modifiedArray[nextPositivePlacementIndex] = arr[i];
+                nextPositivePlacementIndex += 2;
             } else {
-                modifiedArray[negativeIndex] = arr[i];
-                negativeIndex += 2;
+                modifiedArray[nextNegativePlacementIndex] = arr[i];
+                nextNegativePlacementIndex += 2;
             }
         }
 
