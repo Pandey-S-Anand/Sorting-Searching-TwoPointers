@@ -10,36 +10,110 @@ class Solution{
 //Better Approach
 
 class Solution {
+    /**
+     * Three-way partitioning using extra space.
+     *
+     * Objective:
+     * Partition the array into three parts based on range [a, b]:
+     *   1. Elements less than 'a'
+     *   2. Elements in the range [a, b]
+     *   3. Elements greater than 'b'
+     *
+     * This method uses a temporary array to store elements in the required order,
+     * and finally copies them back into the original array.
+     */
     public void threeWayPartition(int arr[], int a, int b) {
-        int[] temp = new int[arr.length];
-        int idx = 0;
+        int[] temp = new int[arr.length];  // Temporary array to hold partitioned result
+        int idx = 0;                       // Pointer to insert into temp
 
+        // Step 1: Insert elements less than 'a'
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] < a) {
                 temp[idx++] = arr[i];
             }
         }
 
+        // Step 2: Insert elements in the range [a, b]
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] >= a && arr[i] <= b) {
                 temp[idx++] = arr[i];
             }
         }
 
+        // Step 3: Insert elements greater than 'b'
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] > b) {
                 temp[idx++] = arr[i];
             }
         }
 
+        // Copy result from temp back to original array
         System.arraycopy(temp, 0, arr, 0, arr.length);
     }
 }
 
 
+
 //Optimal Approach (Dutch National Flag Algorithm)
 
 class Solution {
+    /*
+     * Pointer meanings:
+     *   lowIndex      → boundary for elements < lowerBound (all indices < lowIndex hold elements < lowerBound)
+     *   currentIndex  → current element under evaluation
+     *   highIndex     → boundary for elements > upperBound (all indices > highIndex hold elements > upperBound)
+     *
+     * Problem Goal:
+     * Partition the array into three parts:
+     *   1. Elements less than lowerBound
+     *   2. Elements in the range [lowerBound, upperBound]
+     *   3. Elements greater than upperBound
+     *
+     * Dry run example:
+     *
+     * Input: arr = [1, 4, 3, 2, 5, 6, 7], lowerBound = 3, upperBound = 5
+     * Initial: lowIndex = 0, currentIndex = 0, highIndex = 6
+     *
+     * Step-by-step:
+     *
+     * 1) currentIndex=0, arr[0]=1 < lowerBound → swap arr[lowIndex]=1 with arr[currentIndex]=1
+     *    → arr = [1, 4, 3, 2, 5, 6, 7]
+     *    → lowIndex = 1, currentIndex = 1
+     *
+     * 2) currentIndex=1, arr[1]=4 in range → just currentIndex++
+     *    → currentIndex = 2
+     *
+     * 3) currentIndex=2, arr[2]=3 in range → just currentIndex++
+     *    → currentIndex = 3
+     *
+     * 4) currentIndex=3, arr[3]=2 < lowerBound → swap arr[3]=2 with arr[lowIndex=1]=4
+     *    → arr = [1, 2, 3, 4, 5, 6, 7]
+     *    → lowIndex = 2, currentIndex = 4
+     *
+     * 5) currentIndex=4, arr[4]=5 in range → currentIndex++
+     *    → currentIndex = 5
+     *
+     * 6) currentIndex=5, arr[5]=6 > upperBound → swap arr[5]=6 with arr[highIndex=6]=7
+     *    → arr = [1, 2, 3, 4, 5, 7, 6]
+     *    → highIndex = 5
+     *    → DO NOT increment currentIndex because new arr[5]=7 needs to be evaluated again
+     *
+     * 7) currentIndex=5, arr[5]=7 > upperBound → swap arr[5]=7 with arr[highIndex=5]=7
+     *    → arr = [1, 2, 3, 4, 5, 7, 6]
+     *    → highIndex = 4
+     *    → DO NOT increment currentIndex
+     *
+     * Loop ends as currentIndex (5) > highIndex (4)
+     *
+     * Final Partitioned Array: [1, 2, 3, 4, 5, 7, 6]
+     *   → Elements < 3: [1, 2]
+     *   → Elements in [3, 5]: [3, 4, 5]
+     *   → Elements > 5: [7, 6]
+     *
+     * Why we DO NOT do currentIndex++ when arr[currentIndex] > upperBound:
+     *    The element swapped from the back (arr[highIndex]) could be < lowerBound, in range, or > upperBound,
+     *    and must be re-processed — just like in Dutch National Flag.
+     */
     public void threeWayPartition(int arr[], int lowerBound, int upperBound) {
         int lowIndex = 0, currentIndex = 0, highIndex = arr.length - 1;
 
@@ -57,7 +131,7 @@ class Solution {
         }
     }
 
-    private static void swap(int[] arr, int i, int j) {
+    private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
