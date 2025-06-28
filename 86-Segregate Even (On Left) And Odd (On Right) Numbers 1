@@ -1,19 +1,50 @@
 class Solution {
-    public static void segregateEvenAndOdd(int[] arr) {
-        int oddTracker = 0;
+    /**
+     * Rearranges the array such that:
+     * 1. All even numbers appear before all odd numbers.
+     * 2. Even numbers are sorted in ascending order.
+     * 3. Odd numbers are sorted in descending order.
+     *
+     * This approach does NOT preserve the original order of even/odd elements.
+     * 
+     * We use a pointer `nextEvenPlacementIndex` to track the index where the next even number should be placed.
+     * 
+     * Dry Run Example:
+     * -------------------
+     * Input: [12, 17, 70, 15, 22, 65, 21, 90]
+     * 
+     * i = 0 → 12 is even → swap(0, 0), nextEvenPlacementIndex = 1
+     * i = 1 → 17 is odd → skip
+     * i = 2 → 70 is even → swap(2, 1), nextEvenPlacementIndex = 2
+     * i = 3 → 15 is odd → skip
+     * i = 4 → 22 is even → swap(4, 2), nextEvenPlacementIndex = 3
+     * i = 5 → 65 is odd → skip
+     * i = 6 → 21 is odd → skip
+     * i = 7 → 90 is even → swap(7, 3), nextEvenPlacementIndex = 4
+     *
+     * Output: [12, 70, 22, 90, 17, 65, 21, 15]
+     * Step 2: Sort evens in ascending order → [12, 22, 70, 90]
+     * Step 3: Sort odds in descending order → [65, 21, 17, 15]
+     * Final Output: [12, 22, 70, 90, 65, 21, 17, 15] 
+     */
+    public void segregateEvenOdd(int[] arr) {
+        int nextEvenPlacementIndex = 0;
 
         for (int i = 0; i < arr.length; i++) {
             if ((arr[i] % 2) == 0) {
-                swap(arr, i, oddTracker);
-                oddTracker++;
+                swap(arr, i, nextEvenPlacementIndex);
+                nextEvenPlacementIndex++;
             }
         }
 
-        Arrays.sort(arr, 0, oddTracker);
-        Arrays.sort(arr, oddTracker, arr.length);
+        // Sort odd numbers in descending order
+        Arrays.sort(arr, 0, nextEvenPlacementIndex);
+        //Sort odd numbers in descending order
+        Arrays.sort(arr, nextEvenPlacementIndex, arr.length);
     }
 
-    private static void swap(int[] arr, int i, int j) {
+    // Utility method to swap elements at index i and j
+    private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
