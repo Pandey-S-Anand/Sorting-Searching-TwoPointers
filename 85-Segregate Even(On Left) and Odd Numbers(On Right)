@@ -135,6 +135,7 @@ class Solution {
                 nextEvenPlacementIndex++;
             }
         }
+        //At the end of the loop, 'nextEvenPlacementIndex' ends up pointing to the index of the first odd element (if any exist).
     }
 
     // Utility method to swap elements at index i and j
