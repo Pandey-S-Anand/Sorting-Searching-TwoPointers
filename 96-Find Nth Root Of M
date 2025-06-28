@@ -1,36 +1,55 @@
 //Bruteforce approach
 
 class Solution {
+    /**
+     * Problem Statement:
+     * ----------------------
+     * To find: M^(1/n) = ?
+     * 
+     * Let, x = M^(1/n)
+     * Then: x^n = M
+     * 
+     * Our task is to find an integer value of x such that:
+     *      x^n = M
+     * If no such integer x exists, return -1.
+     *
+     * Approach:
+     * ------------
+     * - Try all integer values from x = 1 to x = m
+     * - Check if x^n == m
+     * - If x^n exceeds m, break early (since x^n will only increase)
+     *
+     *  Why iterate up to `m`?
+     * --------------------------
+     * - Because any integer x > m will result in xⁿ > m (as n ≥ 1).
+     * - So, we only need to check x in the range [1, m].
+     *
+     *
+     * Dry Run:
+     * ----------
+     * Input: n = 3, m = 27
+     * Try x = 1 → 1^3 = 1 → not match
+     * Try x = 2 → 2^3 = 8 → not match
+     * Try x = 3 → 3^3 = 27 → match → return 3
+     */
     public int nthRoot(int n, int m) {
         for (int x = 1; x <= m; x++) {
-            int power = (int)Math.pow(x, n); // Compute x^n
+            int power = (int) Math.pow(x, n); // Compute x^n
 
             if (power == m) {
-                return x; // Found the integer nth root
+                return x; // Found integer nth root
             } else if (power > m) {
-                break; // Stop early if x^n exceeds M (no integer root exists)
+                break; // Early stop: x^n exceeded m
             }
         }
+
         return -1; // No integer nth root found
     }
 }
 
 
-//Optimal approach
 
-/**
- * To find: M ^ (1/n) = ?
- * 
- * Let, M ^ (1/n) = x
- * 
- * Then, x ^ n = M
- * 
- * Our task is to find an integer value of x such that:
- * 
- *      x ^ n = M
- * 
- * If no such integer x exists, we return -1.
- */
+//Optimal approach
 
 class Solution {
     public int nthRoot(int n, int m) {
@@ -51,6 +70,22 @@ class Solution {
         }
 
         return -1; // No integer nth root exists
+    }
+    
+    private int myPow(int base, int exponent) {
+        if (exponent == 0 || base == 1) {
+            return 1; // Any number raised to 0 is 1, and 1^anything is always 1
+        }
+
+        if (exponent == 1) {
+            return base; // Base case: x^1 = x
+        }
+
+        if (base == 0) {
+            return 0; // 0 raised to any power is always 0
+        }
+
+        return calculatePower(base, exponent);
     }
     
     /*
@@ -79,23 +114,6 @@ class Solution {
      *
      * Now, let's implement this approach based on the logic above.
      */
-
-    private int myPow(int base, int exponent) {
-        if (exponent == 0 || base == 1) {
-            return 1; // Any number raised to 0 is 1, and 1^anything is always 1
-        }
-
-        if (exponent == 1) {
-            return base; // Base case: x^1 = x
-        }
-
-        if (base == 0) {
-            return 0; // 0 raised to any power is always 0
-        }
-
-        return calculatePower(base, exponent);
-    }
-    
     private int calculatePower(int base, int power) {
         int result = 1;
 
@@ -111,4 +129,3 @@ class Solution {
         return result;
     }
 }  
-
