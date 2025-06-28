@@ -290,20 +290,14 @@ The steps are the following:
 For example, if the given array is {2,1,5,4,3,0,0}, the break-point will be index 1(0-based indexing), traversing from the back, index 1 is the first index where arr[1] (i.e. 1) is smaller than arr[i+1] (i.e. 5).
 
 2:
-If a break-point does not exist i.e.if the array is sorted in decreasing order, the given permutation is the last one in the sorted order of all possible permutations. 
+If a break-point does not exist i.e. if the array is sorted in decreasing order, the given permutation is the last one in the sorted order of all possible permutations. 
 So, the next permutation will be the first permutation in the sorted order Note that first permutation in the sorted order of all possible permutations is in increasing order.
-
-Optimisation Tip:
-Since the array is already sorted in descending order and an array sorted in descending order can be sorted into ascending order either by using Arrays.sort() or by reversing the array.
-(Note : Reversing the array is the effecient way to sort an array in descending order into ascending order)
 
 3:
 If a break-point exists:
 (Note: In every permutation after breakpoint(index) the sequence is sorted in descending order)
 Find the smallest number in the right half of the breakpoint which is greater than arr[breakPoint] 
 and swap it with arr[breakPoint].
-
-Note : Even after swapping the right half of the break point is still sorted in descending order because.
 
 Now sort the right half of the breakpoint in ascending order.
 (Note: Right half range: (breakpoint+1) to (arr.length-1)) 
@@ -313,21 +307,13 @@ Since the right half of the breakpoint is already sorted in descending order and
 (Note : Reversing the array is the effecient way to sort an array in descending order into ascending order)
 */
 
-
-
 //Optimal Approach
 
 //Naive Implementation 
 
 class Solution {
     public void nextPermutation(int[] arr) {
-        int breakPoint = -1;
-        for (int i = arr.length - 2; i >= 0; i--) {
-            if (arr[i] < arr[i + 1]) {
-                breakPoint = i;
-                break;
-            }
-        }
+        int breakPoint = findBreakPoint(arr);
 
         if (breakPoint == -1) {
             Arrays.sort(arr);
@@ -337,17 +323,26 @@ class Solution {
         for (int i = arr.length - 1; i >= 0; i--) {
             if (arr[i] > arr[breakPoint]) {
                 swap(arr, breakPoint, i);
-                break;
+                Arrays.sort(arr, breakPoint + 1, arr.length);
+                return;
             }
         }
-
-        Arrays.sort(arr, breakPoint + 1, arr.length);
     }
 
     private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
+    }
+
+    private int findBreakPoint(int[] arr) {
+        for (int i = arr.length - 2; i >= 0; i--) {
+            if (arr[i] < arr[i + 1]) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }
 
@@ -356,13 +351,7 @@ class Solution {
 
 class Solution {
     public void nextPermutation(int[] arr) {
-        int breakPoint = -1;
-        for (int i = arr.length - 2; i >= 0; i--) {
-            if (arr[i] < arr[i + 1]) {
-                breakPoint = i;
-                break;
-            }
-        }
+        int breakPoint = findBreakPoint(arr);
 
         if (breakPoint == -1) {
             reverse(arr, 0, arr.length - 1);
@@ -372,18 +361,9 @@ class Solution {
         for (int i = arr.length - 1; i >= 0; i--) {
             if (arr[i] > arr[breakPoint]) {
                 swap(arr, breakPoint, i);
-                break;
+                reverse(arr, breakPoint + 1, arr.length - 1);
+                return;
             }
-        }
-
-        reverse(arr, breakPoint + 1, arr.length - 1);
-    }
-
-    private void reverse(int[] arr, int start, int end) {
-        while (start < end) {
-            swap(arr, start, end);
-            start++;
-            end--;
         }
     }
 
@@ -391,5 +371,23 @@ class Solution {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
+    }
+
+    private int findBreakPoint(int[] arr) {
+        for (int i = arr.length - 2; i >= 0; i--) {
+            if (arr[i] < arr[i + 1]) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void reverse(int[] arr, int i, int j) {
+        while (i < j) {
+            swap(arr, i, j);
+            i++;
+            j--;
+        }
     }
 }
