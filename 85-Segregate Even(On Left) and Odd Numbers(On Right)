@@ -1,22 +1,27 @@
 //Bruteforce Approach
 
 class Solution {
-    public static void segregateEvenAndOdd(int[] arr) {
+    public void segregateEvenAndOdd(int[] arr) {
+        // Auxiliary array to hold the rearranged elements
         int aux[] = new int[arr.length];
+
         int index = 0;
 
+        // First pass: copy all even numbers to aux[]
         for (int num : arr) {
             if ((num % 2) == 0) {
                 aux[index++] = num;
             }
         }
 
+        // Second pass: copy all odd numbers to aux[]
         for (int num : arr) {
             if ((num % 2) == 1) {
                 aux[index++] = num;
             }
         }
 
+        // Copy the rearranged elements back into original array
         System.arraycopy(aux, 0, arr, 0, arr.length);
     }
 }
@@ -25,18 +30,60 @@ class Solution {
 //Better Approach
 
 class Solution {
-    public static void segregateEvenAndOdd(int[] arr) {
+    /**
+     * Rearranges the given array such that all even numbers appear before all odd numbers.
+     * 
+     * This is done in-place using two pointers:
+     * - 'start' starts from the beginning and moves forward until it finds an odd number.
+     * - 'end' starts from the end and moves backward until it finds an even number.
+     * - When both are ready, swap them.
+     * 
+     * Note:
+     * - This approach does NOT preserve the original order of even/odd elements.
+     * - It modifies the array in-place.
+     * 
+     * Example Dry Run:
+     * ----------------
+     * Input:  [12, 17, 70, 15, 22, 65, 21, 90]
+     * 
+     * Initial state:
+     * start = 0, end = 7
+     * 
+     * Iteration 1:
+     * arr[start] = 12 (even) → start++
+     * arr[start] = 17 (odd)
+     * arr[end] = 90 (even)
+     * ✅ Swap arr[1] and arr[7] → [12, 90, 70, 15, 22, 65, 21, 17]
+     * start = 2, end = 6
+     * 
+     * Iteration 2:
+     * arr[start] = 70 (even) → start++
+     * arr[start] = 15 (odd)
+     * arr[end] = 21 (odd) → end--
+     * arr[end] = 65 (odd) → end--
+     * arr[end] = 22 (even)
+     * ✅ Swap arr[3] and arr[4] → [12, 90, 70, 22, 15, 65, 21, 17]
+     * start = 4, end = 3 → loop exits
+     * 
+     * Final Output: [12, 90, 70, 22, 15, 65, 21, 17]
+     */
+    public void segregateEvenAndOdd(int[] arr) {
         int start = 0, end = arr.length - 1;
 
+        // Loop until the two pointers meet
         while (start < end) {
+
+            // Move start forward if current element is even
             while (start < arr.length && (arr[start] % 2) == 0) {
                 start++;
             }
 
+            // Move end backward if current element is odd
             while (end >= 0 && (arr[end] % 2) != 0) {
                 end--;
             }
 
+            // Swap only if valid
             if (start < end) {
                 swap(arr, start, end);
                 start++;
@@ -45,7 +92,7 @@ class Solution {
         }
     }
 
-    private static void swap(int[] arr, int i, int j) {
+    private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
@@ -56,18 +103,42 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    public static void segregateEvenAndOdd(int[] arr) {
-        int oddTracker = 0;
+    /**
+     * Rearranges the array such that all even numbers appear before all odd numbers.
+     *
+     * This approach does NOT preserve the original order of even/odd elements.
+     * 
+     * We use a pointer `nextEvenPlacementIndex` to track the index
+     *    where the next even number should be placed.
+     * 
+     * Dry Run Example:
+     * -------------------
+     * Input: [12, 17, 70, 15, 22, 65, 21, 90]
+     * 
+     * i = 0 → 12 is even → swap(0, 0), nextEvenPlacementIndex = 1
+     * i = 1 → 17 is odd → skip
+     * i = 2 → 70 is even → swap(2, 1), nextEvenPlacementIndex = 2
+     * i = 3 → 15 is odd → skip
+     * i = 4 → 22 is even → swap(4, 2), nextEvenPlacementIndex = 3
+     * i = 5 → 65 is odd → skip
+     * i = 6 → 21 is odd → skip
+     * i = 7 → 90 is even → swap(7, 3), nextEvenPlacementIndex = 4
+     * 
+     * Final Output: [12, 70, 22, 90, 17, 65, 21, 15]
+     */
+    public void segregateEvenAndOdd(int[] arr) {
+        int nextEvenPlacementIndex = 0;
 
         for (int i = 0; i < arr.length; i++) {
             if ((arr[i] % 2) == 0) {
-                swap(arr, i, oddTracker);
-                oddTracker++;
+                swap(arr, i, nextEvenPlacementIndex);
+                nextEvenPlacementIndex++;
             }
         }
     }
 
-    private static void swap(int[] arr, int i, int j) {
+    // Utility method to swap elements at index i and j
+    private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
