@@ -1,28 +1,31 @@
 //Bruteforce Approach
 
 class Solution {
+    /**
+     * Checks if a given number is a perfect square.
+     *
+     * Logic:
+     * ----------
+     * - Uses `Math.sqrt()` to compute the square root of the input number.
+     * - If the square root is an integer (i.e., no decimal part),
+     *   then the number is a perfect square.
+     *
+     *
+     * Dry Run Example:
+     * -------------------
+     * Input: 16
+     * sqrt = Math.sqrt(16) = 4.0
+     * (int) sqrt = 4
+     * 4.0 == 4 → true → 16 is a perfect square
+     *
+     * Input: 18
+     * sqrt = Math.sqrt(18) ≈ 4.24
+     * (int) sqrt = 4
+     * 4.24 != 4 → false → 18 is not a perfect square
+     */
     public boolean isPerfectSquare(int num) {
-        double sqrt = Math.sqrt(num);
-        return sqrt == Math.floor(sqrt);
-    }
-}
-
-//Aliter 
-
-class Solution {
-    public boolean isPerfectSquare(int num) {
-        double sqrt = Math.sqrt(num);
-        return sqrt == (int) (sqrt);
-    }
-}
-
-
-//Aliter
-
-class Solution {
-    public boolean isPerfectSquare(int num) {
-        double sqrt = Math.sqrt(num);
-        return sqrt == Math.ceil(sqrt);
+        double sqrt = Math.sqrt(num);             // Compute square root
+        return sqrt == (int) (sqrt);              // Compare float vs integer version
     }
 }
 
@@ -31,28 +34,23 @@ class Solution {
 
 class Solution {
     public boolean isPerfectSquare(int num) {
-        return mySqrt(num);
-    }
-
-    private boolean mySqrt(int x) {
-        if (x == 0 || x == 1) {
-            return true;
-        }
-
-        int low = 1, high = x - 1;
+        int low = 0, high = num;
 
         while (low <= high) {
-            long mid = low + (high - low) / 2;
+            int mid = low + (high - low) / 2;
 
-            if (mid * mid == x) {
-                return true; // num is a perfect Square Number
-            } else if (mid * mid < x) {
-                low = (int) mid + 1;
+            // Use long to avoid overflow from mid * mid
+            long square = (long) mid * mid;
+
+            if (square == num) {
+                return true; // Perfect square root found
+            } else if (square < num) {
+                low = mid + 1; // Try finding a higher root
             } else {
-                high = (int) mid - 1;
+                high = mid - 1; // Try lower half
             }
         }
 
-        return false; // num is not a perfect Square Number
+        return false; // num is not a perfect square
     }
 }
