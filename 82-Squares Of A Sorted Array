@@ -21,12 +21,11 @@ class Solution {
 
 class Solution {
     public int[] sortedSquares(int[] arr) {
-        int n = arr.length;
-        int[] squares = new int[n];
+        int[] squares = new int[arr.length];
 
         // Two pointers: left at start, right at end
-        int left = 0, right = n - 1;
-        int index = n - 1; // Position to fill in the result array (from end to start)
+        int left = 0, right = arr.length - 1;
+        int index = arr.length - 1; // Position to fill in the result array (from end to start)
 
         while (left <= right) {
             int leftSqr = arr[left] * arr[left];
