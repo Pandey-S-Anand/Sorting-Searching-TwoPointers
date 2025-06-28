@@ -6,6 +6,7 @@ class Solution {
     }
 }
 
+
 // Optimal Approach
 
 /*
@@ -23,71 +24,26 @@ class Solution {
  * ....
  */
 
-//Intuitive implementation
-
 class Solution {
     public int mySqrt(int x) {
-        return binarySearch(x);
-    }
-
-    public static int binarySearch(int x) {
-        int low = 0, high = x, squareRoot = -1;
-
-        while (low <= high) {
-            long mid = low + (high - low) / 2;
-            if ((mid * mid) == x) {
-                squareRoot = (int) mid; // Exact square root found; the number is a perfect square.
-                break;
-            } else if ((mid * mid) < x) {
-                squareRoot = (int) mid; // Update the closest approximate square root so far; this is maintained for non-perfect square numbers.
-                low = (int) mid + 1;
-            } else { // if(mid>(x/mid))
-                high = (int) mid - 1;
-            }
-        }
-
-        return squareRoot;
-    }
-}
-
-
-// Optimal implementation
-
-/* 
-1. Key Observations:
-   - No non-negative integer has a square root of 0, except for 0 itself (i.e., sqrt(0) = 0).
-   - Similarly, no non-negative integer has a square root equal to the number itself, except for 1 (i.e., sqrt(1) = 1).
-   - These special cases (0 and 1) are already handled. For all other numbers, the square root lies within the range [1, x - 1], i.e., 1 ≤ sqrt(x) ≤ (x - 1).
-
-2. Important Test Case:
-   - Input: x = 5
-   - In this case, the control is not supposed to enter the `if` statement (`if ((x / mid) == mid) return mid;`) because this condition is only meant for perfect square numbers (and 5 is not a perfect square number).
-   - Despite this, the code gives the correct output since we are concerned only with the integer part of the square root for non-perfect square numbers.
-   - However, this code would fail if the task were to check whether a given number 'x' is a perfect square, as it would incorrectly return "true" for x = 5.
- */
-
-class Solution {
-    public int mySqrt(int x) {
-        if (x == 0 || x == 1) {
-            return x;
-        }
-
-        int low = 1, high = x - 1, squareRoot = -1;
+        int low = 0, high = x, squareRoot = -1; // Stores the closest integer root found
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            if (mid == (x / mid)) {
-                squareRoot = mid;
-                break;
-            } else if (mid < (x / mid)) {
-                squareRoot = mid;
-                low = mid + 1;
+            // Use long to avoid overflow from mid * mid
+            long square = (long) mid * mid;
+
+            if (square == x) {
+                return mid; // Perfect square root found
+            } else if (square < x) {
+                squareRoot = mid; // Store current mid as potential answer
+                low = mid + 1; // Try finding a higher root
             } else {
-                high = mid - 1;
+                high = mid - 1; // Try lower half
             }
         }
 
-        return squareRoot;
+        return squareRoot; // x is not a perfect square; return the floored result
     }
 }
