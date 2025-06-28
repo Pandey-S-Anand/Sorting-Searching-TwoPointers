@@ -33,118 +33,25 @@
     - Maximum possible value of b = Math.sqrt(c)
 */
 
-
-/* 
-How to Efficiently Find the Next Perfect Square?
-
-The sequence of perfect squares is: 0, 1, 4, 9, 16, 25, 36, 49, 64...
-- The difference between 0 and 1 is 1.
-- The difference between 1 and 4 is 3.
-- The difference between 4 and 9 is 5, and so on.
-
-Observation:
-The difference between two consecutive perfect squares is always an odd number.
-
-Key Insight:
-To find the next perfect square efficiently, we can use the formula:
-(sqrt(X) * 2) + 1, where X is the current perfect square.
-
-This allows us to calculate the next perfect square directly.
-*/
-
-// Intuitive Approach
-
 class Solution {
     public boolean judgeSquareSum(int c) {
-        int squareA = 0; // 0 is the First perfect Square Number
-
-        while (squareA <= c) {
-            if (isPerfectSquare(c - squareA)) { // b^2 = (c-a^2); check if b^2 is perfect square or not
-                return true;
-            }
-
-            squareA = calculateNextPerfectSquare(squareA);
-        }
-        return false;
-    }
-
-    private boolean isPerfectSquare(int num) {
-        int low = 0, high = num;
-
-        while (low <= high) {
-            long mid = low + (high - low) / 2;
-
-            if ((mid * mid) == num) {
-                return true;
-            } else if ((mid * mid) < num) {
-                low = (int) mid + 1;
-            } else { // if((mid*mid) > num)
-                high = (int) mid - 1;
-            }
-        }
-
-        return false;
-    }
-
-    private int calculateNextPerfectSquare(int currentSquare) {
-        int nextPerfectSquare = currentSquare + (mySqrt(currentSquare) * 2) + 1;
-        return nextPerfectSquare;
-    }
-
-    private int mySqrt(int num) {
-        if (num == 0 || num == 1) {
-            return num;
-        }
-
-        int low = 1, high = num - 1, squareRoot = -1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (mid == (num / mid)) {
-                squareRoot = mid;
-                break;
-            } else if (mid < (num / mid)) {
-                squareRoot = mid;
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-
-        return squareRoot;
-    }
-}
-
-
-//Optimal Approach
-
-class Solution {
-    public boolean judgeSquareSum(int c) {
-        /*
-         * minimum possible value of a is a=0
-         * minimum possible value of b is b=0
-         * maximum possible value of a is a=Math.sqrt(c);
-         * maximum possible value of b is b=Math.sqrt(c);
-         */
-
+        // We initialize `a` with its **minimum possible value (0)**  and `b` with its **maximum possible value (sqrt(c))**
         int a = 0, b = (int) Math.sqrt(c);
 
         while (a <= b) {
-            // Calculate sum of squares
-            long sumOfSqr = (long) (b * b) + (long) (a * a);
+            long sumOfSqr = (long) (a * a) + (long) (b * b);
 
             if (sumOfSqr == c) {
-                return true;
+                return true; // Found a valid pair (a, b) such that a^2 + b^2 = c
             }
 
             if (sumOfSqr > c) {
-                b--; // Decrease b to reduce the sum
-            } else { // (sumOfSqr < c)
-                a++; // Increase a to increase the sum
+                b--; // Reduce the larger square to lower the total
+            } else {
+                a++; // Increase the smaller square to increase the total
             }
         }
 
-        return false;
+        return false; // No such pair exists
     }
 }
