@@ -5,45 +5,85 @@ class Solution {
         int index = 0;
         int aux[] = new int[n];
 
+        // Step 1: Collect all negative numbers
         for (int num : arr) {
             if (num < 0) {
                 aux[index++] = num;
             }
         }
 
+        // Step 2: Collect all non-negative numbers (positive or zero)
         for (int num : arr) {
             if (num >= 0) {
                 aux[index++] = num;
             }
         }
 
+        // Copy the rearranged elements back to the original array
         System.arraycopy(aux, 0, arr, 0, n);
     }
 }
 
 
+
 // Method 2 (Order of Appearence is Maintained) // TC: O(n ^ 2), SC: O(1)
 
 class Solution {
+    /**
+     * Rearranges the array in-place so that all negative numbers appear before all positive numbers,
+     * while maintaining the relative order of appearance of both negative and positive elements.
+     *
+     *
+     * Dry Run Example:
+     * -------------------
+     * Input: [3, -1, 2, -2, -5, 4]
+     * 
+     * ➤ Step-by-step Execution:
+     * Initial Array: [3, -1, 2, -2, -5, 4]
+     *
+     * i = 0 → 3 > 0 → skip
+     * i = 1 → -1 < 0 → shift(0,1)
+     *        - Move 3 → index 1
+     *        - Insert -1 → index 0 → [-1, 3, 2, -2, -5, 4] → next = 1
+     *
+     * i = 2 → 2 > 0 → skip
+     * i = 3 → -2 < 0 → shift(1,3)
+     *        - Move 3, 2 → index 2,3
+     *        - Insert -2 → index 1 → [-1, -2, 3, 2, -5, 4] → next = 2
+     *
+     * i = 4 → -5 < 0 → shift(2,4)
+     *        - Move 3, 2 → index 3,4
+     *        - Insert -5 → index 2 → [-1, -2, -5, 3, 2, 4] → next = 3
+     *
+     * i = 5 → 4 > 0 → skip
+     *
+     * ➤ Final Array: [-1, -2, -5, 3, 2, 4]
+     */
     public void rearrange(int arr[], int n) {
-        // 'positiveTracker' is tracking the +ve Elemnent
-        int positiveTracker = 0;
+        int nextNegativeElementIndex = 0;
 
         for (int i = 0; i < n; i++) {
             if (arr[i] < 0) {
-                // This leftShiftBy1() method maintains the order of appearence
-                leftShiftBy1(arr, positiveTracker, i);
-                positiveTracker++;
+                rightShiftBy1(arr, nextNegativeElementIndex, i);
+                nextNegativeElementIndex++;
             }
         }
+        // At the end, all negatives are placed at the front in original relative order.
     }
 
-    private void leftShiftBy1(int[] arr, int start, int end) {
+    /**
+     * Shifts elements between indices `start` and `end` (inclusive) one position to the right,
+     * and inserts `arr[end]` at index `start`.
+     *
+     * Example: 
+     * Before: [a, b, c, d, e] and calling rightShiftBy1(arr, 1, 3)
+     * After:  [a, d, b, c, e]
+     */
+    private void rightShiftBy1(int[] arr, int start, int end) {
         int temp = arr[end];
         for (int i = end; i > start; i--) {
             arr[i] = arr[i - 1];
         }
-
         arr[start] = temp;
     }
 }
@@ -57,7 +97,7 @@ we need to merge in such a way that negative part of left and right sub-array is
 
 class Solution {
     public void rearrange(int arr[], int n) {
-        mergeSort(arr, 0, n - 1);
+        mergeSort(arr, 0, arr.length - 1);
     }
 
     private void mergeSort(int[] arr, int lb, int ub) {
@@ -82,100 +122,26 @@ class Solution {
             right[i] = arr[mid + 1 + i];
         }
 
-        int positiveIndex = 0, negativeIndex = 0, i = lb;
+        int i = 0, j = 0, k = lb;
 
         // copy negative elements of left sublist
-        while (positiveIndex < leftSize && left[positiveIndex] < 0) {
-            arr[i++] = left[positiveIndex++];
+        while (i < leftSize && left[i] < 0) {
+            arr[k++] = left[i++];
         }
 
         // copy negative elements of right sublist
-        while (negativeIndex < rightSize && right[negativeIndex] < 0) {
-            arr[i++] = right[negativeIndex++];
+        while (j < rightSize && right[j] < 0) {
+            arr[k++] = right[j++];
         }
 
         // copy positive elements of left sublist
-        while (positiveIndex < leftSize) {
-            arr[i++] = left[positiveIndex++];
+        while (i < leftSize) {
+            arr[k++] = left[i++];
         }
 
         // copy positive elements of right sublist
-        while (negativeIndex < rightSize) {
-            arr[i++] = right[negativeIndex++];
+        while (j < rightSize) {
+            arr[k++] = right[j++];
         }
-    }
-}
-
-
-
-// Method 4 (Order of Appearence is Maintained) // TC: O(n log n), SC: O(1)
-/*
-The time complexity of above solution is O(n log n).
-The problem with this approach is we are using auxiliary array for merging but we’re not allowed to use any data structure to solve this problem. 
-We can do merging in-place without using any data-structure.
-
-Let Ln and Lp denotes the negative part and positive part of left sub-array respectively. 
-Similarly, Rn and Rp denote the negative and positive part of right sub-array respectively. 
-
-Below are the steps to convert [Ln Lp Rn Rp] to [Ln Rn Lp Rp] without using extra space. 
-
-1. Reverse Lp and Rn. We get [Lp] -> [Lp'] and [Rn] -> [Rn'] 
-    [Ln Lp Rn Rp] -> [Ln Lp’ Rn’ Rp]
-
-2. Reverse [Lp’ Rn’]. We get [Rn Lp].
-    [Ln Lp’ Rn’ Rp] -> [Ln Rn Lp Rp]
-*/
-
-class Solution {
-    public void rearrange(int arr[], int n) {
-        mergeSort(arr, 0, n - 1);
-    }
-
-    private void mergeSort(int[] arr, int lb, int ub) {
-        if (lb < ub) {
-            int mid = lb + (ub - lb) / 2;
-            mergeSort(arr, lb, mid);
-            mergeSort(arr, (mid + 1), ub);
-            modifiedMerge(arr, lb, mid, ub);
-        }
-    }
-
-    private void modifiedMerge(int[] arr, int lb, int mid, int ub) {
-        int i = lb; // Initial index of Left Sublist
-        int j = mid + 1; // Initial index of Right Sublist
-
-        while (i <= mid && arr[i] < 0) { // Left Sublist : arr[lb...mid]
-            i++;
-        }
-        // Now arr[i..mid] is positive and arr[lb..i-1] is negative
-
-        // reverse positive part of left Sub-List (i.e arr[i..mid])
-        reverse(arr, i, mid);
-
-        while (j <= ub && arr[j] < 0) { // Right Sublist : arr[mid+1...ub]
-            j++;
-        }
-        // Now arr[j..ub] is positive and arr[mid+1..j-1] is negative
-
-        // reverse Negative part right Sub-List (i.e arr[mid+1..j-1])
-        reverse(arr, mid + 1, j - 1);
-
-        // reverse arr[i..j-1]
-        reverse(arr, i, j - 1);
-    }
-
-    private void reverse(int arr[], int i, int j) {
-        if (i >= j) {
-            return;
-        }
-
-        swap(arr, i, j);
-        reverse(arr, i + 1, j - 1);
-    }
-
-    private void swap(int arr[], int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
     }
 }
