@@ -2,15 +2,17 @@
 
 class Solution {
     void segregate0and1(int[] arr) {
-        int count0 = 0, k = arr.length - 1;
-        int[] aux = new int[arr.length];
+        int k = arr.length - 1;
+        int[] aux = new int[arr.length]; // Initialized with 0s by default
 
+        // Place all 1s at the end of aux array
         for (int num : arr) {
             if (num == 1) {
                 aux[k--] = 1;
             }
         }
 
+        // Copy back to the original array
         System.arraycopy(aux, 0, arr, 0, arr.length);
     }
 }
@@ -21,13 +23,18 @@ class Solution {
 class Solution {
     void segregate0and1(int[] arr) {
         int count0 = 0;
+
+        // Count the number of 0s in the array
         for (int num : arr) {
             if (num == 0) {
                 count0++;
             }
         }
 
+        // Fill the first count0 elements with 0
         Arrays.fill(arr, 0, count0, 0);
+
+        // Fill the rest with 1
         Arrays.fill(arr, count0, arr.length, 1);
     }
 }
@@ -36,18 +43,57 @@ class Solution {
 //Better Approach
 
 class Solution {
-    void segregate0and1(int[] arr) {
-        int start = 0, end = (arr.length - 1);
 
+    /**
+     * Segregates all 0s to the left and all 1s to the right in a binary array.
+     *
+     * 🔹 Key Points:
+     * --------------
+     * - Uses two-pointer approach:
+     *   ➤ `start`: begins from the left and moves right until it finds a 1.
+     *   ➤ `end`: begins from the right and moves left until it finds a 0.
+     * - When both pointers stop (at misplaced 1 on the left and 0 on the right),
+     *   we swap them to move 0 to the left and 1 to the right.
+     * - Continue this until both pointers meet or cross.
+     * 
+     * This method does NOT preserve the original order of 0s and 1s.
+     *
+     * Dry Run Example:
+     * -------------------
+     * Input: [1, 0, 1, 1, 0, 0]
+     *
+     * Initial: start = 0, end = 5
+     *
+     * Iteration 1:
+     * - arr[start] = 1 → stop
+     * - arr[end] = 0 → stop
+     * - Swap(0, 5) → [0, 0, 1, 1, 0, 1]
+     * - start = 1, end = 4
+     *
+     * Iteration 2:
+     * - arr[start] = 0 → start++
+     * - arr[end] = 0 → stop
+     * - arr[start] = 1, arr[end] = 0 → Swap(2, 4) → [0, 0, 0, 1, 1, 1]
+     * - start = 3, end = 3 → stop
+     *
+     * Final Output: [0, 0, 0, 1, 1, 1]
+     */
+    void segregate0and1(int[] arr) {
+        int start = 0, end = arr.length - 1;
+
+        // Continue until the pointers cross
         while (start < end) {
+            // Move start forward until a 1 is found
             while (start < arr.length && arr[start] == 0) {
                 start++;
             }
 
+            // Move end backward until a 0 is found
             while (end >= 0 && arr[end] == 1) {
                 end--;
             }
 
+            // Swap misplaced 1 (left) and 0 (right)
             if (start < end) {
                 swap(arr, start, end);
                 start++;
@@ -56,10 +102,11 @@ class Solution {
         }
     }
 
-    private void swap(int[] arr, int start, int end) {
-        int temp = arr[start];
-        arr[start] = arr[end];
-        arr[end] = temp;
+    // Utility method to swap two elements in the array
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
     }
 }
 
@@ -67,17 +114,43 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    void segregate0and1(int[] arr) {
-        int oneTracker = 0;
+    /**
+     * Rearranges the array such that all 0s appear before all 1s.
+     *
+     * 🔹 This approach does NOT preserve the original order of elements.
+     *
+     * 🔹 We use a pointer `next0PlacementIndex` to track the index
+     *    where the next 0 should be placed.
+     *
+     * 🔁 Dry Run Example:
+     * -------------------
+     * Input: [1, 0, 1, 0, 1, 0]
+     * 
+     * i = 0 → 1 → skip
+     * i = 1 → 0 → swap(1, 0) → [0, 1, 1, 0, 1, 0], next0PlacementIndex = 1
+     * i = 2 → 1 → skip
+     * i = 3 → 0 → swap(3, 1) → [0, 0, 1, 1, 1, 0], next0PlacementIndex = 2
+     * i = 4 → 1 → skip
+     * i = 5 → 0 → swap(5, 2) → [0, 0, 0, 1, 1, 1], next0PlacementIndex = 3
+     * 
+     * Final Output: [0, 0, 0, 1, 1, 1]
+     */
+    public void segregate0and1(int[] arr) {
+        int next0PlacementIndex = 0;
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] == 0) {
-                swap(arr, i, oneTracker);
-                oneTracker++;
+                swap(arr, i, next0PlacementIndex);
+                next0PlacementIndex++;
             }
         }
+
+        // At the end of the loop, 'next0PlacementIndex' points to the index of the first 1 (if any exist).
     }
 
+    /**
+     * Utility method to swap elements at index i and j.
+     */
     private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
