@@ -11,12 +11,11 @@
  * This pairing ensures the weights of the digits (10s and 1s place) are minimized for both numbers.
  */
 
-
 class Solution {
     public int minimumSum(int num) {
         int[] arr = new int[4];
         int idx = 0;
-        
+
         while (num != 0) {
             arr[idx++] = num % 10;
             num = num / 10;
