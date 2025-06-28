@@ -4,22 +4,29 @@ class Solution {
     public int[] sortedSquares(int[] arr) {
         int[] squares = new int[arr.length];
 
+        // Step 1: Square every element in the input array
         for (int i = 0; i < arr.length; i++) {
             squares[i] = arr[i] * arr[i];
         }
 
+        // Step 2: Sort the squared values to get the result in non-decreasing order
         Arrays.sort(squares);
 
         return squares;
     }
 }
 
+
 // Optimal Approach
 
 class Solution {
     public int[] sortedSquares(int[] arr) {
-        int index = arr.length - 1, left = 0, right = arr.length - 1;
-        int[] squares = new int[arr.length];
+        int n = arr.length;
+        int[] squares = new int[n];
+
+        // Two pointers: left at start, right at end
+        int left = 0, right = n - 1;
+        int index = n - 1; // Position to fill in the result array (from end to start)
 
         while (left <= right) {
             int leftSqr = arr[left] * arr[left];
