@@ -33,124 +33,40 @@
 //Bruteforce Approach
 
 class Solution {
+    // Stores all unique permutations in lexicographical order
+    private List<List<Integer>> uniquePermutations;
+
     public void nextPermutation(int[] arr) {
-        List<List<Integer>> uniquePermutations = generateUniquePermutations(arr);
-        List<Integer> target = convertArrayToList(arr);
+        // Generate all unique permutations of arr in lexicographically sorted order
+        generateUniquePermutations(arr);
+        // Convert current array to list format for comparison
+        List<Integer> target = Arrays.stream(arr).boxed().collect(Collectors.toList());
 
         for (int i = 0; i < uniquePermutations.size(); i++) {
             if (uniquePermutations.get(i).equals(target)) {
                 List<Integer> nextPermutation;
+                // If the target permutation is the last permutation, then the next permutation is the first one in the lexicographical order
                 if (i == uniquePermutations.size() - 1) {
                     nextPermutation = uniquePermutations.get(0);
                 } else {
+                    // If the target permutation is the first permutation, then the next permutation is the last one in the lexicographical order
                     nextPermutation = uniquePermutations.get(i + 1);
                 }
-
+                // Copy the next permutation back into the input array
                 copyListToArray(nextPermutation, arr);
                 return;
             }
         }
     }
 
-    private List<List<Integer>> generateUniquePermutations(int[] arr) {
-        List<List<Integer>> uniquePermutations = new ArrayList<>();
-        findUniquePermutations(arr, 0, uniquePermutations);
-
-        Collections.sort(uniquePermutations, new Comparator<List<Integer>>() {
-            @Override
-            public int compare(List<Integer> list1, List<Integer> list2) {
-                for (int i = 0; i < list1.size(); i++) {
-                    if (list1.get(i) < list2.get(i)) {
-                        return -1;
-                    } else if (list1.get(i) > list2.get(i)) {
-                        return 1;
-                    }
-                }
-                return 0;
-            }
-        });
-        return uniquePermutations;
-    }
-
-    private void findUniquePermutations(int[] arr, int index, List<List<Integer>> uniquePermutations) {
-        if (index == arr.length) {
-            List<Integer> permutation = new ArrayList<>();
-            for (int num : arr) {
-                permutation.add(num);
-            }
-            uniquePermutations.add(permutation);
-            return;
-        }
-        
-        // To keep track of elements used at the current level of recursion
-        Set<Integer> used = new HashSet<>();
-
-        for (int i = index; i < arr.length; i++) {
-            if (used.contains(arr[i])) {
-                continue; // Skip duplicates
-            }
-
-            used.add(arr[i]);
-            swap(arr, index, i);
-            findUniquePermutations(arr, index + 1, uniquePermutations);
-            swap(arr, index, i);
-        }
-    }
-
-    private void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-
-    private List<Integer> convertArrayToList(int[] arr) {
-        List<Integer> list = new ArrayList<>();
-        for (int num : arr) {
-            list.add(num);
-        }
-        return list;
-    }
-
-    private void copyListToArray(List<Integer> list, int[] arr) {
-        for (int i = 0; i < list.size(); i++) {
-            arr[i] = list.get(i);
-        }
-    }
-}
-
-
-
-//Improved Approach
-
-class Solution {
-    public void nextPermutation(int[] arr) {
-        List<List<Integer>> uniquePermutations = generateUniquePermutations(arr);
-        List<Integer> target = convertArrayToList(arr);
-
-        for (int i = 0; i < uniquePermutations.size(); i++) {
-            if (uniquePermutations.get(i).equals(target)) {
-                List<Integer> nextPermutation;
-                if (i == uniquePermutations.size() - 1) {
-                    nextPermutation = uniquePermutations.get(0);
-                } else {
-                    nextPermutation = uniquePermutations.get(i + 1);
-                }
-
-                copyListToArray(nextPermutation, arr);
-                return;
-            }
-        }
-    }
-
-    private List<List<Integer>> generateUniquePermutations(int[] arr) {
+    private void generateUniquePermutations(int[] arr) {
         int[] sortedArr = arr.clone();
         Arrays.sort(sortedArr);
-        List<List<Integer>> uniquePermutations = new ArrayList<>();
-        findUniquePermutations(sortedArr, new ArrayList<>(), uniquePermutations, new boolean[sortedArr.length]);
-        return uniquePermutations;
+        uniquePermutations = new ArrayList<>();
+        findUniquePermutations(sortedArr, new ArrayList<>(), new boolean[sortedArr.length]);
     }
 
-    private void findUniquePermutations(int[] arr, List<Integer> permutation, List<List<Integer>> uniquePermutations, boolean[] visited) {
+    private void findUniquePermutations(int[] arr, List<Integer> permutation, boolean[] visited) {
         if (permutation.size() == arr.length) {
             uniquePermutations.add(new ArrayList<>(permutation));
             return;
@@ -173,22 +89,15 @@ class Solution {
             if (i > 0 && arr[i - 1] == arr[i] && !visited[i - 1]) {
                 continue;
             }
+
             if (!visited[i]) {
                 visited[i] = true;
                 permutation.add(arr[i]);
-                findUniquePermutations(arr, permutation, uniquePermutations, visited);
+                findUniquePermutations(arr, permutation, visited);
                 permutation.remove(permutation.size() - 1);
                 visited[i] = false;
             }
         }
-    }
-
-    private List<Integer> convertArrayToList(int[] arr) {
-        List<Integer> list = new ArrayList<>();
-        for (int num : arr) {
-            list.add(num);
-        }
-        return list;
     }
 
     private void copyListToArray(List<Integer> list, int[] arr) {
@@ -265,6 +174,9 @@ The following are all the permutations of arr in sorted order:
 so the next permutation of {1,2,3,4} is {1,2,4,3}
 
 Note 2:
+If we  initially sort the array in ascending order and then generate all its permutations they will naturally appear in **sorted lexicographical order**.
+
+Note 3:
 
 If all the permutations of an array are sorted in ascending order,On careful observation we find that every permutation has the following structure :
 
@@ -280,7 +192,7 @@ Ex:
 
 (Immediate previous permutation of [4,1,3,2] is [4,1,2,3])
 
-Note 3:
+Note 4:
 
 Approach to solve the problem :
 
