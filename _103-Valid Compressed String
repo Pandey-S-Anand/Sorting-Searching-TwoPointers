@@ -1,57 +1,31 @@
 class Solution {
-    static int checkCompressed(String normal, String comp) {
-        int m = normal.length(), n = comp.length(), i = 0, j = 0;
+    static int checkCompressed(String normal, String compressed) {
+        int i = 0, j = 0;
 
-        while (i < m && j < n) {
-            if (Character.isLetter(comp.charAt(j))) {
-                if (normal.charAt(i) != comp.charAt(j)) {
-                    return 0;
+        while (i < normal.length() && j < compressed.length()) {
+
+            // If current character in compressed is a letter
+            if (Character.isLetter(compressed.charAt(j))) {
+                // It must match the corresponding character in normal
+                if (compressed.charAt(j) != normal.charAt(i)) {
+                    return 0; // Mismatch
                 }
-
-                i++;
+                i++; // move both pointers
                 j++;
             } else {
-                // If it's a digit, read the entire number
-                int num = 0;
-                while (j < n && Character.isDigit(comp.charAt(j))) {
-                    num = num * 10 + (comp.charAt(j) - '0');
-                    j++;
+                // Character in compressed is a digit: start building the skip count
+                int deletedCount = 0;
+
+                while (j < compressed.length() && Character.isDigit(compressed.charAt(j))) {
+                    deletedCount = deletedCount * 10 + (compressed.charAt(j) - '0');
+                    j++; // move to next character
                 }
-                i += num; // Skip 'num' characters in 'normal'
+
+                i += deletedCount; // skip 'deletedCount' characters in normal
             }
         }
 
-        // Both i and j should reach the end
-        return (i == m && j == n) ? 1 : 0;
-    }
-}
-
-//Aliter
-
-class Solution {
-    static int checkCompressed(String normal, String comp) {
-        int m = normal.length(), n = comp.length(), i = 0, j = 0;
-
-        while (i < m && j < n) {
-            if (Character.isLetter(comp.charAt(j))) {
-                if (normal.charAt(i) != comp.charAt(j)) {
-                    return 0;
-                }
-
-                i++;
-                j++;
-            } else {
-                // If it's a digit, read the entire number
-                int digitStartIndex = j;
-                while (j < n && Character.isDigit(comp.charAt(j))) {
-                    j++;
-                }
-
-                i += Integer.parseInt(comp.substring(digitStartIndex, j)); // Skip these many characters in 'normal'
-            }
-        }
-
-        // Both i and j should reach the end
-        return (i == m && j == n) ? 1 : 0;
+        // Both strings must be fully traversed
+        return (i == normal.length() && j == compressed.length()) ? 1 : 0;
     }
 }
