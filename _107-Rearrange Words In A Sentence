@@ -1,45 +1,26 @@
-// Bruteforce Approach
-
-class Solution {
-    public String arrangeWords(String text) {
-        Map<Integer, List<String>> lengthToWordsMap = new TreeMap<>();
-        StringBuilder arrangedWords = new StringBuilder();
-
-        String[] words = text.split(" ");
-
-        for (String word : words) {
-            lengthToWordsMap.computeIfAbsent(word.length(), k -> new ArrayList<>()).add(word);
-        }
-
-        for (int wordLength : lengthToWordsMap.keySet()) {
-            for (String word : lengthToWordsMap.get(wordLength)) {
-                arrangedWords.append(word.toLowerCase()).append(" ");
-            }
-        }
-
-        arrangedWords.deleteCharAt(arrangedWords.length() - 1); // Remove last space
-        arrangedWords.setCharAt(0, Character.toUpperCase(arrangedWords.charAt(0))); // Capitalize first letter
-
-        return arrangedWords.toString();
-    }
-}
-
-// Optimal Approach
-
 class Solution {
     public String arrangeWords(String text) {
         StringBuilder arrangedWords = new StringBuilder();
+
+        // Step 1: Split the text into words using space as a delimiter
         String[] words = text.split(" ");
 
+        // Step 2: Sort words based on their length (shortest to longest)
         Arrays.sort(words, (str1, str2) -> str1.length() - str2.length());
 
+        // Step 3: Reconstruct the sentence in lowercase form
         for (String word : words) {
             arrangedWords.append(word.toLowerCase()).append(" ");
         }
 
-        arrangedWords.deleteCharAt(arrangedWords.length() - 1); // Remove last space
-        arrangedWords.setCharAt(0, Character.toUpperCase(arrangedWords.charAt(0))); // Capitalize first letter
+        // Step 4: Remove the trailing space
+        arrangedWords.deleteCharAt(arrangedWords.length() - 1);
 
+        // Step 5: Capitalize the first character of the sentence
+        arrangedWords.setCharAt(0, Character.toUpperCase(arrangedWords.charAt(0)));
+
+        // Step 6: Return the final sentence
         return arrangedWords.toString();
     }
 }
+
