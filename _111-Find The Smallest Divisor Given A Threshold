@@ -6,14 +6,13 @@ class Solution {
         * Why start from 1 and stop at max(arr)?
         *
         * - We start with divisor = 1 because it's the smallest possible divisor,
-        *   which leads to the largest possible sum (i.e., the sum of all elements).
+        *   which results in the largest possible sum (i.e., sum(arr)).
         *
         * - As the divisor increases, each element's contribution (ceil(arr[i] / divisor)) decreases,
         *   causing the overall sum to decrease.
         *
         * - The smallest possible value of the sum is arr.length — this happens when the divisor is
-        *   greater than or equal to the maximum element in the array, since
-        *   ceil(arr[i] / divisor) becomes 1 for all elements.
+        *   greater than or equal to max(arr), because ceil(arr[i] / divisor) becomes 1 for all elements.
         *
         * So the sum varies in the range:
         *     arr.length ≤ sum ≤ sum(arr)
@@ -24,7 +23,8 @@ class Solution {
         * - But if threshold ≥ arr.length → At least one valid divisor is guaranteed to exist
         *   (e.g., divisor = max(arr)), since it gives the minimum possible sum of arr.length.
         *
-        * - Therefore, we only need to search for the smallest valid divisor in the range [1, max(arr)].
+        * - Going beyond max(arr) is unnecessary, because the sum does not reduce further — it remains arr.length.
+        *   So searching in [1, max(arr)] is both sufficient and optimal.
         */
 
         // Find the maximum element in the array
