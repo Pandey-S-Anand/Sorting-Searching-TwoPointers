@@ -3,37 +3,28 @@
 class Solution {
     public int shipWithinDays(int[] weights, int days) {
         /*
-           Why does the ship's weight capacity range from the heaviest package to the total cargo weight?
-           
-           - The **minimum possible capacity** must be at least the **heaviest single package**, 
-             because if the ship has a smaller capacity, it won't be able to carry that package.
-           
+           Why is the ship's weight capacity searched between [max(package), sum(packages)]?
+        
+           - The **minimum valid capacity** must be at least the **heaviest package**, 
+             because the ship must be able to carry every individual package. 
+             If the capacity is less than the heaviest one, that package can never be shipped — regardless of the number of days.
+        
            - The **maximum possible capacity** is the **sum of all package weights**, 
-             because if the ship has this capacity, it can transport everything in **one day**.
-             
-           - Any capacity beyond the total cargo weight is redundant, as it does not reduce the number of days required.
-        */
+             since this would allow shipping all packages in just **one day**.
+        
+           - Any capacity beyond this total is unnecessary, as it would not improve the result
+             (the shipment can’t take less than one day anyway).
+        
+           => So the optimal capacity lies within the range [max(packages), sum(packages)].
+         */
 
         int[] maxAndTotalWeight = findMaxAndTotalWeight(weights);
         int maxWeight = maxAndTotalWeight[0]; // Maximum package weight (minimum capacity required)
         int totalWeight = maxAndTotalWeight[1]; // Sum of all package weights (maximum capacity possible)
 
         for (int capacity = maxWeight; capacity <= totalWeight; capacity++) {
-            int index = 0; // Pointer to track the current package
-
-            // Simulate the shipping process over 'days' days
-            for (int remainingDays = days; remainingDays > 0; remainingDays--) {
-                int remainingCapacity = capacity; // Reset the ship's capacity for the new day
-
-                // Load packages onto the ship until it reaches its weight limit
-                while (index < weights.length && (remainingCapacity - weights[index]) >= 0) {
-                    remainingCapacity -= weights[index++];
-                }
-
-                // If all packages are shipped within 'days' days, return this capacity
-                if (index == weights.length) {
-                    return capacity;
-                }
+            if (canShip(weights, days, capacity)) {
+                return capacity;
             }
         }
 
@@ -58,6 +49,28 @@ class Solution {
 
         return new int[] { maxWeight, totalWeight };
     }
+
+    private boolean canShip(int[] weights, int days, int capacity) {
+        // Pointer to track the current package
+        int index = 0;
+        // Simulate the shipping process over 'days' days
+        for (int remainingDays = days; remainingDays > 0; remainingDays--) {
+            int remainingCapacity = capacity; // Reset the ship's capacity for the new day
+
+            // Load packages onto the ship until it reaches its weight limit
+            while (index < weights.length && (remainingCapacity - weights[index]) >= 0) {
+                remainingCapacity -= weights[index++];
+            }
+
+            // If all packages are shipped within 'days' days, return true
+            if (index == weights.length) {
+                return true;
+            }
+        }
+
+        // If all packages can’t be shipped within 'days' days, return false
+        return false;
+    }
 }
 
 
@@ -66,9 +79,8 @@ class Solution {
 class Solution {
     public int shipWithinDays(int[] weights, int days) {
         int[] maxAndTotalWeight = findMaxAndTotalWeight(weights);
-        int minCapacity = -1;
-
         int low = maxAndTotalWeight[0], high = maxAndTotalWeight[1];
+        int minCapacity = -1;
 
         while (low <= high) {
             int capacity = low + (high - low) / 2;
@@ -104,21 +116,18 @@ class Solution {
 
     private boolean canShip(int[] weights, int days, int capacity) {
         int index = 0;
-
         for (int remainingDays = days; remainingDays > 0; remainingDays--) {
             int remainingCapacity = capacity;
-            
-            // Load packages until the ship is full or there are no packages left
+
             while (index < weights.length && (remainingCapacity - weights[index]) >= 0) {
                 remainingCapacity -= weights[index++];
             }
 
-            // If all packages are shipped within 'days' days, return true
             if (index == weights.length) {
                 return true;
             }
         }
 
-        return false; // Not all packages were shipped within the 'days'  days
+        return false;
     }
 }
