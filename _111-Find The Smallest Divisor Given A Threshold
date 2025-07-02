@@ -3,15 +3,30 @@
 class Solution {
     public int smallestDivisor(int[] arr, int threshold) {
         /**
-         * **Why start from 1 and stop at max?**
-         * - **We begin with divisor = 1** since it's the smallest possible divisor for any number.
-         * - **We stop at the maximum element in the array** because:
-         *   - As the divisor increases, the resulting sum decreases.
-         *   - The smallest possible sum is `arr.length` (if all elements are divided by max, each becomes 1).
-         *   - Since `threshold >= arr.length`, we are guaranteed to find an answer within this range.
-         *   - Going beyond `max` will not change the sum (it remains `arr.length`), making further computations redundant.
-         */
-        
+        * Why start from 1 and stop at max(arr)?
+        *
+        * - We start with divisor = 1 because it's the smallest possible divisor,
+        *   which leads to the largest possible sum (i.e., the sum of all elements).
+        *
+        * - As the divisor increases, each element's contribution (ceil(arr[i] / divisor)) decreases,
+        *   causing the overall sum to decrease.
+        *
+        * - The smallest possible value of the sum is arr.length — this happens when the divisor is
+        *   greater than or equal to the maximum element in the array, since
+        *   ceil(arr[i] / divisor) becomes 1 for all elements.
+        *
+        * So the sum varies in the range:
+        *     arr.length ≤ sum ≤ sum(arr)
+        *
+        * - If threshold < arr.length → No divisor can satisfy the condition,
+        *   because the smallest achievable sum is arr.length.
+        *
+        * - But if threshold ≥ arr.length → At least one valid divisor is guaranteed to exist
+        *   (e.g., divisor = max(arr)), since it gives the minimum possible sum of arr.length.
+        *
+        * - Therefore, we only need to search for the smallest valid divisor in the range [1, max(arr)].
+        */
+
         // Find the maximum element in the array
         int maximum = findMaxInArray(arr);
 
@@ -54,7 +69,7 @@ class Solution {
 class Solution {
     public int smallestDivisor(int[] arr, int threshold) {
         int low = 1, high = findMaxInArray(arr);
-        int ans = -1;
+        int minDivisor = -1;
 
         while (low <= high) {
             int divisor = low + (high - low) / 2;
@@ -62,14 +77,14 @@ class Solution {
 
             // If the sum is within threshold, store answer and try a smaller divisor
             if (sumAfterDivision <= threshold) {
-                ans = divisor;
+                minDivisor = divisor;
                 high = divisor - 1; // Try to minimize the divisor
             } else {
                 low = divisor + 1; // Increase divisor to reduce sum
             }
         }
 
-        return ans; // Return the smallest divisor that satisfies the condition
+        return minDivisor; // Return the smallest divisor that satisfies the condition
     }
 
     private int findMaxInArray(int[] arr) {
