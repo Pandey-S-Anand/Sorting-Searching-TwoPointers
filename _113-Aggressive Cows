@@ -1,7 +1,7 @@
 //Brutefoce approach
 
 class Solution {
-    public static int aggressiveCows(int[] stalls, int k) {
+    public int aggressiveCows(int[] stalls, int k) {
         /*
          * The problem guarantees that the number of stalls is always greater than or equal 
          * to the number of cows, ensuring that all cows can always be placed.
@@ -43,7 +43,7 @@ class Solution {
          * possible to place all cows with the given minimum distance.
          */
         for (int distance = maxDistance; distance >= minDistance; distance--) {
-            if (canPlaceCows(stalls, distance, k)) {
+            if (isPossibleToPlaceAllTheCows(stalls, distance, k)) {
                 return distance; // The largest valid minimum distance.
             }
         }
@@ -51,7 +51,7 @@ class Solution {
         return -1; // This will never be reached due to problem constraints.
     }
     
-    private static boolean isPossibleToPlaceAllTheCows(int[] stalls, int distance, int k) {
+    private boolean isPossibleToPlaceAllTheCows(int[] stalls, int distance, int k) {
         /*
          * We greedily place the first cow at the first stall.
          * 'prevStallIndex' keeps track of the last placed cow's stall index.
@@ -85,7 +85,7 @@ class Solution {
 //Improved approach
 
 class Solution {
-    public static int aggressiveCows(int[] stalls, int k) {
+    public int aggressiveCows(int[] stalls, int k) {
         Arrays.sort(stalls);
 
         int minDistance = 1;
@@ -100,7 +100,7 @@ class Solution {
         return -1;
     }
 
-    private static boolean canPlaceCows(int[] stalls, int distance, int k) {
+    private boolean canPlaceCows(int[] stalls, int distance, int k) {
         int prevStallIndex = 0; // Place the first cow at the first stall.
         int cowsPlaced = 1; // The first cow is already placed.
 
@@ -129,7 +129,7 @@ class Solution {
 //Optimal approach (We can optimize this using Binary Search because: The range is sorted → The possible minimum distances between cows, ranging from 1 to (max - min), form a sorted sequence.)
 
 class Solution {
-    public static int aggressiveCows(int[] stalls, int k) {
+    public int aggressiveCows(int[] stalls, int k) {
         Arrays.sort(stalls);
 
         int low = 1, high = stalls[stalls.length - 1] - stalls[0];
@@ -157,7 +157,7 @@ class Solution {
         return maxDistance; // The largest valid minimum distance.
     }
 
-    private static boolean canPlaceCows(int[] stalls, int distance, int k) {
+    private boolean canPlaceCows(int[] stalls, int distance, int k) {
         int prevStallIndex = 0;
         int cowsPlaced = 1;
 
