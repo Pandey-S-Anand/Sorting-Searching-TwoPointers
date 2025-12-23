@@ -1,49 +1,84 @@
 //Bruteforce Approach 
 
 class Solution {
-    public int missingNumberInSortedArray(int[] arr) {
-        int i;
-
-        // Loop through the array
-        for (i = 0; i < arr.length; i++) {
-            // If value doesn't match expected (i + 1), then that number is missing
-            if (arr[i] != (i + 1)) {
-                break;
+    int missingNumber(int[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            // At index i, the expected value is (i + 1).  If it does not match, (i + 1) is the missing number.
+            if (arr[i] != i + 1) {
+                return i + 1;
             }
         }
 
-        // Return the missing number (expected at position i)
-        return i + 1;
+        // If all elements are in their expected positions, then the missing number is (n + 1).
+        return arr.length + 1;
     }
 }
 
 
 // Optimal Approach
 
-public class Solution{
-    private int findMissingNumberInSortedArray(int[] arr) {
-        int low = 0;
-        int high = arr.length - 1;
+class Solution {
+    int missingNumber(int arr[]) {
+        int low = 0, high = arr.length - 1;
 
-        // Binary search loop to find the first index where arr[index] != index + 1
         while (low <= high) {
+
             int mid = low + (high - low) / 2;
 
-            // If value matches its expected value (index + 1), the missing number is on the right
+            /*
+             If arr[mid] == mid + 1, then all numbers up to index mid
+             are in their correct positions, so the missing number
+             must be on the right side.
+            */
             if (arr[mid] == mid + 1) {
                 low = mid + 1;
             } else {
-                // If we're at the first element or the previous element is correct, then current position is where the number is missing.
-                if (mid == 0 || arr[mid - 1] == mid) {
-                    return mid + 1;  // Return the expected number at this position
+
+                /*
+                 Example:
+                 arr = {2, 3, 4, 5, 6, 7, 8}
+                 mid = 0 → expected value = 1
+                 Since the first element itself is incorrect,
+                 the missing number is 1.
+                */
+                if (mid == 0) {
+                    return 1;
                 }
 
-                // Otherwise, the missing number is on the left half
+                /*
+                 Example:
+                 arr = {1, 2, 3, 4, 6, 7, 8}
+                 At mid = 4:
+                   arr[mid]     = 6
+                   arr[mid - 1] = 4
+                 Since arr[mid - 1] == mid,
+                 the missing number is (mid + 1) = 5.
+                */
+                if (arr[mid - 1] == mid) {
+                    return mid + 1;
+                }
+
+                /*
+                 Otherwise, the mismatch started earlier.
+                 This indicates that the missing number lies
+                 in the left half [low, mid - 1].
+
+                 Reason:
+                 Once a number is missing, all elements to the right
+                 are shifted left by one position.
+                */
                 high = mid - 1;
             }
         }
 
-        // If no missing number is found (ideally shouldn't reach here for valid input)
-        return -1;
+        /*
+         If all elements are in correct positions, then the missing
+         number is the last one: (n + 1).
+
+         Example:
+         arr = {1, 2, 3, 4, 5, 6, 7}
+         Missing number = 8
+        */
+        return arr.length + 1;
     }
 }
