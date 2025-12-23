@@ -2,20 +2,23 @@
 
 class Solution {
     public int removeDuplicates(int[] arr) {
-        int idx = 0;
-        int[] auxArray = new int[arr.length];
+        // Initialize with the first element since it is always unique.
+        List<Integer> unique = new ArrayList<>(List.of(arr[0]));
 
-        for (int i = 0; i < (arr.length - 1); i++) {
-            if (arr[i] != arr[i + 1]) {
-                auxArray[idx++] = arr[i];
+        for (int i = 1; i < arr.length; i++) {
+            // If current element is different from the previous one, it means we have found a new unique element.
+            if (arr[i] != arr[i - 1]) {
+                unique.add(arr[i]);
             }
         }
 
-        auxArray[idx++] = arr[arr.length - 1];
+        // Copy the unique elements back into the original array
+        for (int i = 0; i < unique.size(); i++) {
+            arr[i] = unique.get(i);
+        }
 
-        System.arraycopy(auxArray, 0, arr, 0, idx);
-
-        return idx;
+        // Return the count of unique elements
+        return unique.size();
     }
 }
 
@@ -24,17 +27,25 @@ class Solution {
 
 class Solution {
     public int removeDuplicates(int[] arr) {
-        int idx = 0;
+        /*
+         * LinkedHashSet is used to:
+         * 1) Remove duplicates (Set property)
+         * 2) Preserve insertion order (maintains original order)
+         */
         Set<Integer> uniqueElements = new LinkedHashSet<>();
 
+        // Add all elements to the set; duplicates are ignored automatically
         for (int val : arr) {
             uniqueElements.add(val);
         }
 
-        for (int val : uniqueElements) {
-            arr[idx++] = val;
+        // Copy unique elements back into the array
+        int idx = 0;
+        for (int num : uniqueElements) {
+            arr[idx++] = num;
         }
 
+        // Return the count of unique elements
         return idx;
     }
 }
@@ -44,16 +55,18 @@ class Solution {
 
 class Solution {
     public int removeDuplicates(int[] arr) {
-        int idx = 0;
+        // Index to place the next unique element.The first element is always unique in a sorted array.
+        int idx = 1;
 
-        for (int i = 0; i < (arr.length - 1); i++) {
-            if (arr[i] != arr[i + 1]) {
+        // Traverse the array starting from the second element.
+        for (int i = 1; i < arr.length; i++) {
+            // If the current element differs from the previous one,  it means we have found a new unique element.
+            if (arr[i] != arr[i - 1]) {
                 arr[idx++] = arr[i];
             }
         }
 
-        arr[idx++] = arr[arr.length - 1];
-
+        // idx represents the number of unique elements.
         return idx;
     }
 }
