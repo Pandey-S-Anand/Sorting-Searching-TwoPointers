@@ -10,30 +10,36 @@ class Solution {
 // Optimal Approach
 
 class Solution {
-    public void sortHalves(int arr[], int n) {
-        int partitionIndex = partition(arr, n);
-
-        if (partitionIndex == -1) {
-            return;
+    public void sortHalves(int[] arr) {
+        int splitIndex = findSplitIndex(arr);
+        if (splitIndex == -1) {
+            return; // array is already fully sorted
         }
-
-        int[] left = Arrays.copyOfRange(arr, 0, partitionIndex + 1);
-        int[] right = Arrays.copyOfRange(arr, partitionIndex + 1, arr.length);
-
-        mergeSortedHalves(arr, left, right);
+        mergeSortedSubarrays(arr, splitIndex);
     }
 
-    private int partition(int[] arr, int n) {
-        for (int i = 0; i < (n - 1); i++) {
+    //Binary search fails because “two sorted halves” does not create a monotonic condition that tells us which side to move.
+    private int findSplitIndex(int[] arr) {
+        for (int i = 0; i < arr.length - 1; i++) {
             if (arr[i] > arr[i + 1]) {
                 return i;
             }
         }
-
-        return -1; // array is completely sorted
+        return -1;
     }
 
-    private void mergeSortedHalves(int[] arr, int[] left, int[] right) {
+    private void mergeSortedSubarrays(int[] arr, int splitIndex) {
+        int[] left = new int[splitIndex + 1];
+        int[] right = new int[arr.length - splitIndex - 1];
+
+        for (int i = 0; i < left.length; i++) {
+            left[i] = arr[i];
+        }
+
+        for (int i = 0; i < right.length; i++) {
+            right[i] = arr[splitIndex + 1 + i];
+        }
+
         int i = 0, j = 0, k = 0;
 
         while (i < left.length && j < right.length) {
@@ -44,12 +50,12 @@ class Solution {
             }
         }
 
-        if (i < left.length) {
-            System.arraycopy(left, i, arr, k, left.length - i);
+        while (i < left.length) {
+            arr[k++] = left[i++];
         }
 
-        if (j < right.length) {
-            System.arraycopy(right, j, arr, k, right.length - j);
+        while (j < right.length) {
+            arr[k++] = right[j++];
         }
     }
 }
