@@ -39,92 +39,81 @@ class Solution {
 //Optimal Approach
 
 class Solution {
-    /**
-     * Key Insight:
-     * - Before the unique element: all pairs follow the (even, odd) index pattern → 0-1, 2-3, 4-5...
-     * - After the unique element: this pairing breaks — misalignment begins
-     * - So the unique element must lie at an even index
-     * 
-     * Examples:
-     *   [3, 3, 7, 7, 10, 11, 11, 12, 12] → non-duplicate is 10
-     *   [3, 3, 7, 7, 10, 10, 11, 12, 12] → non-duplicate is 11
-     */
     public int singleNonDuplicate(int[] arr) {
+        /**
+         * Key Insight:
+         * - Before the unique element, all pairs follow the (even, odd) index pattern:
+         *   0–1, 2–3, 4–5, ...
+         * - After the unique element, this pairing pattern breaks and index misalignment begins.
+         * - Therefore, the unique element must lie at an even index.
+         *
+         * Examples:
+         *   [3, 3, 7, 7, 10, 11, 11, 12, 12] → non-duplicate is 10
+         *   [3, 3, 7, 7, 10, 10, 11, 12, 12] → non-duplicate is 11
+         *
+         * Note:
+         * Since every element appears exactly twice except one element
+         * that appears only once, the total size of the array is always odd.
+         */
+
         int low = 0, high = arr.length - 1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            /* 
-            If mid points to one of the extreme ends (index 0 or the last index),
-            it means the binary search has exhausted all internal elements without finding the unique one.
-            Since it's guaranteed that exactly one non-duplicate element exists, the element at the boundary must be the non-duplicate element.
-            */
-            if (mid == 0 || mid == arr.length - 1) {
-                return arr[mid];
-            }
-
-            // Check if current mid is the unique element. A unique element will differ from both its neighbors.
-            if (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1]) {
-                return arr[mid];
-            }
-
-            // Now apply the binary search logic based on pair index alignment.
-            // If mid is even:
             if (mid % 2 == 0) {
-                // Case 1: If current and next elements form a valid pair,  then the unique element lies to the right.
+                /*
+                 Edge cases:
+                 *
+                 * Examples:
+                 * nums = [1, 2, 2, 3, 3, 4, 4, 8, 8] → single = 1 (mid = 0)
+                 * nums = [1, 1, 2, 2, 3, 3, 4, 4, 8] → single = 8 (mid = n - 1)
+                 *
+                 * If mid points to one of the extreme ends (index 0 or the last index),
+                 * it means the binary search has exhausted all internal elements
+                 * without finding the unique one.
+                 * Since it is guaranteed that exactly one non-duplicate element exists,
+                 * the element at the boundary must be the unique element.
+                 */
+                if (mid == 0
+                        || mid == arr.length - 1
+                        || (arr[mid] > arr[mid - 1] && arr[mid] < arr[mid + 1])) {
+                    return arr[mid];
+                }
+
+                /*
+                 * If arr[mid] == arr[mid + 1], then the pair starting
+                 * at this even index is valid, so the unique element
+                 * must lie to the RIGHT of this pair.
+                 */
                 if (arr[mid] == arr[mid + 1]) {
                     low = mid + 2;
-                } else {
-                    // Case 2: Pair is broken → unique element lies to the left (could be mid itself Ex: [3,3,7,7,10,11,11,12,12])
-                    high = mid;
                 }
-            } else { // If mid is odd:
-                // Case 1: If current and previous elements form a valid pair,  then unique element lies to the right
+                /*
+                 * Otherwise, the pairing is broken on the left side,
+                 * so the unique element must lie to the LEFT.
+                 */
+                else {
+                    high = mid - 1;
+                }
+
+            } else {
+
+                /*
+                 * For an odd index mid:
+                 * - If arr[mid] == arr[mid - 1], the pair is valid,
+                 *   so the unique element lies to the RIGHT.
+                 * - Otherwise, the unique element lies to the LEFT.
+                 */
                 if (arr[mid] == arr[mid - 1]) {
                     low = mid + 1;
                 } else {
-                    // Case 2: Pair is broken → unique element lies to the left
                     high = mid - 1;
                 }
             }
         }
 
-        // Should never reach here for valid input
+        // This line should never be reached for valid input
         return -1;
     }
 }
-
-/*    
- Index:  0  1  2  3  4  5  6  7  8  9  10  
- arr[]= {1, 1, 3, 3, 5, 5, 7, 8, 8, 9 ,9 }
- Output:  7
-                
-Index:  0  1  2  3  4  5  6  7  8  9  10  
-arr[]= {1, 1, 3, 3, 5, 7, 7, 8, 8 ,9 ,9}
-Output:  5
-                
-Index:  0  1  2  3  4  5  6  7  8  9   10 
-arr[]= {1, 1, 3, 5, 5, 8, 8, 9 ,9 ,10 ,10}
-Output:  3
-
-Index:   0  1  2  3  4  5  6  7  8  9  10  11  12
-arr[] = {1, 1, 3, 3, 5, 5, 7, 7, 8, 9 ,9 ,10 ,10}
-Output:  8
-                 
-Index:   0  1  2  3  4  5  6  7  8  9  10  11  12
-arr[] = {1, 1, 3, 3, 5, 5, 7, 8, 8, 9 ,9 ,10 ,10}
-Output:  7
-                
-Index:   0  1  2  3  4  5  6  7  8  9   10  11  12
-arr[] = {1, 1, 3, 5, 5, 8, 8, 9 ,9 ,10 ,10 ,12, 12}
-Output:  3
-
-Index:   0  1  2  3  4  5  6  7  8  9   10  11  12
-arr[] = {1, 2, 2, 5, 5, 8, 8, 9 ,9 ,10 ,10 ,12, 12}
-Output:  1
-
-Index:   0  1  2  3  4  5  6  7  8  9   10  11  12
-arr[] = {1, 1, 5, 5, 8, 8, 9, 9 ,10 ,10 ,11 ,11, 12}
-Output:  1
-*/
