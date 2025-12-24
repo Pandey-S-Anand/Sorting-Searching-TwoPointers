@@ -6,35 +6,32 @@ class Solution {
         Arrays.sort(arr);
 
         // Step 2: Find the index of the first occurrence of target
-        int firstIndex = findFirstOccurrence(arr, target);
+        int firstIdx = findFirstOccurrence(arr, target);
 
         // Step 3: If target not found, return empty list
-        if (firstIndex == -1) {
+        if (firstIdx == -1) {
             return Collections.emptyList();
         }
 
-        List<Integer> result = new ArrayList<>();
-        int index = firstIndex;
+        List<Integer> indices = new ArrayList<>();
 
         // Step 4: Collect all indices where arr[index] == target
-        while (index < arr.length && arr[index] == target) {
-            result.add(index);
-            index++;
+        for (int idx = firstIdx; idx < arr.length && arr[idx] == target; idx++) {
+            indices.add(idx);
         }
 
-        return result;
+        return indices;
     }
 
     private int findFirstOccurrence(int[] arr, int key) {
-        int low = 0, high = arr.length - 1;
-        int firstMatchIndex = -1;
+        int low = 0, high = arr.length - 1, firstIdx = -1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
             if (arr[mid] == key) {
                 // Potential first occurrence found, keep searching left
-                firstMatchIndex = mid;
+                firstIdx = mid;
                 high = mid - 1;
             } else if (key < arr[mid]) {
                 high = mid - 1;
@@ -43,7 +40,7 @@ class Solution {
             }
         }
 
-        return firstMatchIndex;
+        return firstIdx;
     }
 }
 
@@ -61,8 +58,8 @@ class Solution {
      * - The result will be indices: [countSmaller, countSmaller+1, ..., countSmaller + targetCount - 1]
      */
     public List<Integer> targetIndices(int[] arr, int target) {
-        int countSmaller = 0;  // Number of elements smaller than target
-        int targetCount = 0;   // Number of elements equal to target
+        int countSmaller = 0; // Number of elements smaller than target
+        int targetCount = 0; // Number of elements equal to target
 
         // Count how many elements are smaller than and equal to the target
         for (int num : arr) {
@@ -74,13 +71,13 @@ class Solution {
         }
 
         // The first index where target would appear after sorting
-        int index = countSmaller;
+        int idx = countSmaller;
 
         // Build the list of target indices based on the target count
         List<Integer> targetIndices = new ArrayList<>();
-        while (targetCount > 0) {
-            targetIndices.add(index);
-            index++;
+        while (targetCount != 0) {
+            targetIndices.add(idx);
+            idx++;
             targetCount--;
         }
 
