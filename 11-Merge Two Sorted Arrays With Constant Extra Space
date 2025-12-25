@@ -1,72 +1,70 @@
-//Naive Approach
+//Bruteforce approach
 
 /*
+arr1 = [1, 3, 5, 7]
+arr2 = [0, 2, 6, 8, 9]
+
 Step 1:
-We start by comparing the last elements of arr1 (starting from the end)
-with the first elements of arr2 (starting from the beginning).
-
-The goal is to ensure that all elements in arr1 are smaller than or equal to
-those in arr2 — since arr1 should contain the smaller half and arr2 the larger half
-of the final sorted array.
-
-If arr1[i] > arr2[j], it means the element in arr1 is too large for its position
-and should be swapped with the smaller element in arr2.
-
-We continue this until we find a case where arr1[i] <= arr2[j].
-At that point, we break early because all remaining elements in arr1 (before index i)
-are guaranteed to be less than or equal to elements in arr2 (due to initial sorted order),
-so further swaps aren't needed.
+- arr2[0] < arr1[last] → 0 < 7
+- Insert 0 into arr1 and move 7 to arr2
+arr1 = [0, 3, 5, 7]
+arr2 = [1, 2, 6, 8, 9]
 
 Step 2:
-After the swapping phase, we sort both arr1 and arr2 individually
-to ensure both arrays are completely sorted and represent the final merged order.
+- arr2[0] < arr1[last] → 1 < 7
+- Insert 1 into arr1 and move 7 to arr2
+arr1 = [0, 1, 5, 7]
+arr2 = [2, 3, 6, 8, 9]
 
-Dry Run:
+Step 3:
+- arr2[0] < arr1[last] → 2 < 7
+- Insert 2 into arr1 and move 7 to arr2
+arr1 = [0, 1, 2, 7]
+arr2 = [3, 5, 6, 8, 9]
 
-Given input:
-arr1: [1, 3, 5, 7]
-arr2: [0, 2, 6, 8, 9]
-
-First Pass:
-i = 3, j = 0 → 7 > 0 → swap → arr1: [1, 3, 5, 0], arr2: [7, 2, 6, 8, 9]
-Second Pass:
-i = 2, j = 1 → 5 > 2 → swap → arr1: [1, 3, 2, 0], arr2: [7, 5, 6, 8, 9]
-Third Pass:
-i = 1, j = 2 → 3 < 6 → break
-
-Final Sort:
+Step 4:
+- arr2[0] < arr1[last] → 3 < 7
+- Insert 3 into arr1 and move 7 to arr2
 arr1 = [0, 1, 2, 3]
 arr2 = [5, 6, 7, 8, 9]
+
+Stop condition:
+arr2[0] > arr1[last]
+→ All elements in arr1 are smaller than those in arr2.
 */
 
 class Solution {
-    public static void mergeArrays(int[] arr1, int[] arr2) {
-        int index1 = arr1.length - 1; // Start from end of arr1
-        int index2 = 0; // Start from beginning of arr2
-
-        // Compare elements and swap if needed
-        while (index1 >= 0 && index2 < arr2.length) {
-            if (arr1[index1] > arr2[index2]) {
-                swap(arr1, index1, arr2, index2);
-                index1--;
-                index2++;
-            } else {
-                break; // arr1[index1] <= arr2[index2], so rest is already sorted
+    public void mergeArrays(int arr1[], int arr2[]) {
+        /*
+         Continue swapping as long as the smallest element of arr2
+         is smaller than the largest element of arr1.
+         This indicates that elements are still out of global order.
+        */
+        while (arr2[0] < arr1[arr1.length - 1]) {
+            // Start from the end of arr1 to find the correct insertion position
+            int i = arr1.length - 1;
+            
+            // Find the correct position in arr1 for arr2[0]
+            while (i >= 0 && arr2[0] < arr1[i]) {
+                i--;
             }
+
+            // Move to the insertion position
+            i++;
+
+            // Swap arr2[0] with the element at the correct position in arr1
+            int temp = arr1[i];
+            arr1[i] = arr2[0];
+            arr2[0] = temp;
+
+            // Restore sorted order of arr2 after the swap
+            Arrays.sort(arr2);
         }
-
-        // Sort both arrays individually after swapping to get final sorted arrays
-        Arrays.sort(arr1);
-        Arrays.sort(arr2);
-    }
-
-    private static void swap(int[] arr1, int i, int[] arr2, int j) {
-        int temp = arr1[i];
-        arr1[i] = arr2[j];
-        arr2[j] = temp;
     }
 }
 
+
+//Optimal Approach
 
 /*
 Initial State:
@@ -119,12 +117,30 @@ arr1 = [1, 2, 3, 4, 7]
 arr2 = [8, 9, 10]
 */
 
-//Optimal Approach
 
 class Solution {
     public static void mergeArrays(int[] arr1, int[] arr2) {
         int m = arr1.length, n = arr2.length;
-        int gap = (int) Math.ceil(((m + n) / 2.0);
+        /*
+        IMPORTANT:
+        Gap must be computed using floating-point division.
+        
+        Correct:
+        gap = (int) Math.ceil((m + n) / 2.0);
+        
+        Incorrect:
+        gap = (int) Math.ceil((m + n) / 2);
+        
+        Example:
+        Math.ceil(7 / 2)   → Math.ceil(3)   → 3  ❌
+        Math.ceil(7 / 2.0) → Math.ceil(3.5) → 4  ✅
+        
+        Reason:
+        Integer division removes the fraction before Math.ceil() runs,
+        producing a smaller gap and breaking the gap strategy.
+        */
+
+        int gap = (int) Math.ceil((m + n) / 2.0);
 
         while (gap > 0) {
             int i = 0, j = i + gap;
@@ -162,3 +178,4 @@ class Solution {
         }
     }
 }
+
