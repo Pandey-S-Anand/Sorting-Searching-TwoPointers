@@ -15,27 +15,49 @@ class Solution {
 
 class Solution {
     public void merge(int[] arr1, int m, int[] arr2, int n) {
-        // Loop over each element in arr2
+        /*
+         Iterate through each element of arr2.
+         Each element is placed at the end of the valid portion of arr1,
+         and then inserted into its correct position to maintain sorting.
+        */
         for (int i = 0; i < n; i++) {
-            // Place arr2[i] at the end of valid elements in arr1
+            // Place current element of arr2 at the end of the sorted portion of arr1
             arr1[i + m] = arr2[i];
 
-            // Insert arr2[i] at the correct position in arr1 to maintain sorted order
-            modifiedInsertionSort(arr1, i + m, arr1[i + m]);
+            // Insert the newly added element into its correct position so that arr1[0 .. m+i] remains sorted
+            modifiedInsertionSort(arr1, m + i + 1);
         }
     }
 
-    private void modifiedInsertionSort(int[] arr, int n, int target) {
-        int j = n - 1;
+    /**
+     * Performs a single-step insertion sort.
+     *
+     * Assumption:
+     * - arr[0 .. n-2] is already sorted
+     * - arr[n-1] is the newly added element
+     *
+     * Goal:
+     * - Insert arr[n-1] into the correct position in arr[0 .. n-2]
+     *   so that arr[0 .. n-1] becomes sorted.
+     */
+    private void modifiedInsertionSort(int[] arr, int n) {
+        // The element to be inserted into the sorted portion
+        int temp = arr[n - 1];
 
-        // Shift elements greater than 'target' one step to the right
-        while (j >= 0 && arr[j] > target) {
-            arr[j + 1] = arr[j];
-            j--;
+        // Start comparing from the last element of the sorted portion
+        int i = n - 2;
+
+        /*
+         Shift elements to the right until the correct position
+         for 'temp' is found.
+        */
+        while (i >= 0 && temp < arr[i]) {
+            arr[i + 1] = arr[i];
+            i--;
         }
 
-        // Place 'target' at its correct sorted position
-        arr[j + 1] = target;
+        // Place the element at its correct sorted position
+        arr[i + 1] = temp;
     }
 }
 
@@ -45,35 +67,35 @@ class Solution {
 class Solution {
     public void merge(int[] arr1, int m, int[] arr2, int n) {
         int i = 0, j = 0, k = 0; // Initialize pointers for arr1, arr2, and the merged array
-        int[] mergedArray = new int[m + n]; // Create a new array to hold the merged result
+        int[] merged = new int[m + n]; // Create a new array to hold the merged result
 
         // Merge the two arrays while both have elements left to compare
         while (i < m && j < n) {
             // Add the smaller of the two elements to the merged array
             if (arr1[i] <= arr2[j]) {
-                mergedArray[k++] = arr1[i++];
+                merged[k++] = arr1[i++];
             } else {
-                mergedArray[k++] = arr2[j++];
+                merged[k++] = arr2[j++];
             }
         }
 
         // If there are remaining elements in arr1, add them to the merged array
         while (i < m) {
-            mergedArray[k++] = arr1[i++];
+            merged[k++] = arr1[i++];
         }
 
         // If there are remaining elements in arr2, add them to the merged array
         while (j < n) {
-            mergedArray[k++] = arr2[j++];
+            merged[k++] = arr2[j++];
         }
 
         // Copy the merged result back to arr1
-        copyMergedArrayToArr1(mergedArray, arr1);
+        copy(merged, arr1);
     }
 
-    private void copyMergedArrayToArr1(int[] mergedArray, int[] arr1) {
-        for (int i = 0; i < mergedArray.length; i++) {
-            arr1[i] = mergedArray[i]; // Copy each element back to arr1
+    private void copy(int[] aux, int[] arr) {
+        for (int i = 0; i < aux.length; i++) {
+            arr[i] = aux[i];
         }
     }
 }
