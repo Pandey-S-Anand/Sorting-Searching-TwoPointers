@@ -81,44 +81,46 @@ class Solution {
 }
 
 
+
 // Optimal Approach
 
 class Solution {
     ArrayList<Integer> intersection(int[] arr1, int[] arr2) {
         int i = 0, j = 0;
         ArrayList<Integer> intersection = new ArrayList<>();
-        
-        // Variables to store the indices of last processed elements in arr1 and arr2 to help skip duplicates
-        int prevArr1Index = -1;
-        int prevArr2Index = -1;
 
-        // Traverse both arrays using two pointers
+        // Track last processed indices to skip duplicate values
+        int lastIdx1 = -1;
+        int lastIdx2 = -1;
+
+        // Two-pointer traversal over both sorted arrays
         while (i < arr1.length && j < arr2.length) {
-            // Skip duplicates in arr1
-            while (i < arr1.length && (prevArr1Index != -1 && arr1[prevArr1Index] == arr1[i])) {
+
+            // Skip duplicate values in arr1
+            while (i < arr1.length && lastIdx1 != -1 && arr1[i] == arr1[lastIdx1]) {
                 i++;
             }
 
-            // Skip duplicates in arr2
-            while (j < arr2.length && (prevArr2Index != -1 && arr2[prevArr2Index] == arr2[j])) {
+            // Skip duplicate values in arr2
+            while (j < arr2.length && lastIdx2 != -1 && arr2[j] == arr2[lastIdx2]) {
                 j++;
             }
-            
-            // Ensure we don't access out-of-bound indices after skipping duplicates
-            if (i == arr1.length || j == arr2.length) { 
+
+            // Stop if any pointer goes out of bounds
+            if (i == arr1.length || j == arr2.length) {
                 break;
             }
-            
-            // Store previous values to help skip duplicates in the next loop
+
             if (arr1[i] == arr2[j]) {
+                // Common element found
                 intersection.add(arr1[i]);
-                prevArr1Index = i;
-                prevArr2Index = j;
+                lastIdx1 = i;
+                lastIdx2 = j;
                 i++;
                 j++;
-            } else if (arr1[i] < arr2[j]) {// If arr1[i] is smaller, move i forward because arr1[i] cannot match with any future arr2[j]
+            } else if (arr1[i] < arr2[j]) {
                 i++;
-            } else { // If arr2[j] is smaller, move j forward because arr2[j] cannot match with any future arr1[i]
+            } else {
                 j++;
             }
         }
@@ -126,6 +128,8 @@ class Solution {
         return intersection;
     }
 }
+
+
 
 //Aliter
 
@@ -141,6 +145,16 @@ class Solution {
                  Check for equality AND ensure no duplicate is added to result:
                  - intersection.isEmpty() handles the first insertion case.
                  - intersection.get(intersection.size() - 1) != arr1[i] avoids inserting duplicates.
+                
+                Why checking only the last element is sufficient to avoid duplicates:
+                
+                Both input arrays are sorted.
+                Because of this, equal elements appear consecutively during traversal.
+                
+                So if a value (say 5) has already been added to the intersection list,
+                any further occurrence of 5 will be encountered immediately next.
+                By comparing with only the last inserted element, we can safely
+                prevent duplicate entries.
                 */
                 if (intersection.isEmpty() || intersection.get(intersection.size() - 1) != arr1[i]) {
                     intersection.add(arr1[i]);
