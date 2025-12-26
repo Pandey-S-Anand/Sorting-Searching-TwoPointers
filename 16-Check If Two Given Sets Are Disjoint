@@ -46,7 +46,7 @@ class Solution {
 
         // For each element in arr1, search in arr2 using binary search
         for (int i = 0; i < arr1.length; i++) {
-            if (binarySearch(arr1[i], arr2, arr2.length)) {
+            if (binarySearch(arr2, arr1[i])) {
                 // If any element of arr1 is found in arr2 → not disjoint
                 return false;
             }
@@ -56,18 +56,18 @@ class Solution {
         return true;
     }
 
-    private boolean binarySearch(int key, int[] arr, int n) {
-        int low = 0, high = n - 1;
+    private boolean binarySearch(int[] arr, int key) {
+        int low = 0, high = arr.length - 1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
             if (arr[mid] == key) {
-                return true; 
+                return true;
             } else if (key < arr[mid]) {
-                high = mid - 1; 
+                high = mid - 1;
             } else {
-                low = mid + 1; 
+                low = mid + 1;
             }
         }
 
