@@ -2,8 +2,8 @@
 
 class Solution {
     public int firstMissingPositive(int[] arr) {
-        // Step 1: Store all numbers in a HashSet for fast O(1) lookups
-        Set<Integer> set = Arrays.stream(arr).boxed().collect(Collectors.toSet());
+        // Step 1: Store all positive numbers in a HashSet for fast O(1) lookups
+        Set<Integer> set = Arrays.stream(arr).boxed().filter(num -> num > 0).collect(Collectors.toSet());
 
         // Step 2: Iterate from 1 to n (length of array) and check which is the first number not in the set
         for (int num = 1; num <= arr.length; num++) {
@@ -22,60 +22,47 @@ class Solution {
 
 class Solution {
     public int firstMissingPositive(int[] arr) {
-        /*
-         * Step 1: Segregate the array so that all non-positive numbers (≤ 0)
-         *         are moved to the left side, and all positive numbers are
-         *         on the right. This helps us focus only on positive numbers
-         *         when finding the smallest missing positive.
-         */
-        int firstPositiveIndex = segregate(arr);
+        //Rearrange the array so that all positive numbers are moved to the left side, and all the non - positive numbers remain on the right.
+        int positiveCount = movePositivesToFront(arr);
 
-        /*
-         * Step 2: Sort only the positive portion of the array.
-         * This ensures that positive numbers are in increasing order,
-         * which helps us identify the first missing positive efficiently.
-         */
-        Arrays.sort(arr, firstPositiveIndex, arr.length);
+        //Sort only the positiveCount portion of the array. This allows us to scan positive numbers in increasing order and detect the first missing positive efficiently.
+        Arrays.sort(arr, 0, positiveCount);
 
-        int expected = 1; // Smallest positive number expected next
-        int lastSeenIndex = -1; // Tracks the last non-duplicate index processed
+        int expected = 1; // The smallest positive number we expect
+        int lastSeenIndex = -1; // Tracks index of last unique element processed
 
-        for (int i = firstPositiveIndex; i < arr.length; i++) {
-            // Skip duplicates to avoid redundant processing
+        // Traverse the sorted non-negative part and find the first missing positive number, skipping duplicates.
+        for (int i = 0; i < positiveCount; i++) {
+            // Skip duplicate values
             if (lastSeenIndex != -1 && arr[i] == arr[lastSeenIndex]) {
                 continue;
             }
 
-            // If the current number doesn't match the expected value, we have found the missing positive number
+            // If current value is not what we expect, expected is missing
             if (arr[i] != expected) {
                 return expected;
             }
 
-            // Update lastSeenIndex and increment expected value
             lastSeenIndex = i;
             expected++;
         }
 
-        /*
-         * If all positive numbers from 1 to the end of the array are present
-         * in contiguous order, then the first missing positive is the next
-         * expected number.
-         */
+        //When all consecutive positive values starting from 1 are found,  the next expected value is the missing positive.
         return expected;
     }
 
-    // Moves non-positive numbers to the front and returns index where positives start
-    private int segregate(int[] arr) {
-        int positiveIndex = 0;
+    private int movePositivesToFront(int[] arr) {
+        int i = 0, nonPositiveIndex = 0;
 
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] <= 0) {
-                swap(arr, i, positiveIndex);
-                positiveIndex++;
+        while (i < arr.length) {
+            if (arr[i] > 0) {
+                swap(arr, i++, nonPositiveIndex++);
+            } else {
+                i++;
             }
         }
 
-        return positiveIndex; // First index where a positive number starts
+        return nonPositiveIndex;
     }
 
     private void swap(int[] arr, int i, int j) {
@@ -84,53 +71,58 @@ class Solution {
         arr[j] = temp;
     }
 }
+
 
 
 //Better Approach
 
 class Solution {
     public int firstMissingPositive(int[] arr) {
-        // Step 1: Move all non-positive numbers to the beginning of the array. 'positiveStart' will now point to the first positive number in the array.
-        int positiveStart = segregate(arr);
+        //Rearrange the array so that all positive numbers are moved to the left side, and all the non - positive numbers remain on the right.
+        int positiveCount = movePositivesToFront(arr);
 
-        // Step 2: Find the first missing positive number in the positive segment
-        return firstMissingPositive(arr, positiveStart);
+        /*
+        * Create a boolean array to mark the presence of positive numbers.
+        * Index i in this array indicates whether number i exists in the input.
+        */
+        boolean[] present = new boolean[positiveCount + 1];
+
+        // Mark numbers that are within the range [1, positiveCount] as present.
+        for (int i = 0; i < positiveCount; i++) {
+            if (arr[i] <= positiveCount) {
+                present[arr[i]] = true;
+            }
+        }
+
+        /*
+        * Find the first index starting from 1 that is not marked present.
+        * That index represents the smallest missing positive number.
+        */
+        for (int i = 1; i < present.length; i++) {
+            if (!present[i]) {
+                return i;
+            }
+        }
+
+        /*
+         * If all numbers from 1 to positiveCount are present,
+         * then the smallest missing positive is positiveCount + 1.
+         */
+        return positiveCount + 1;
     }
 
-    private int firstMissingPositive(int[] arr, int start) {
-        int size = arr.length - start; // Size of the subarray with positive numbers
-        boolean[] visited = new boolean[size + 1]; // Boolean marker array to track present values
+    private int movePositivesToFront(int[] arr) {
+        int i = 0, nonPositiveIndex = 0;
 
-        // Mark the visited positive numbers in the range [1, size]
-        for (int i = start; i < arr.length; i++) {
-            if (arr[i] <= size) {
-                visited[arr[i]] = true;
+        while (i < arr.length) {
+            if (arr[i] > 0) {
+                swap(arr, i++, nonPositiveIndex++);
+            } else {
+                i++;
             }
         }
 
-        // Return the first num such that 'num' is missing from the array
-        for (int num = 1; num <= size; num++) {
-            if (!visited[num]) {
-                return num;
-            }
-        }
-
-        // If all numbers from 1 to size are present, then the missing number is size + 1
-        return size + 1;
-    }
-
-    private int segregate(int[] arr) {
-        int positiveIndex = 0; // Tracks the position for the next non-positive number
-
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] <= 0) {
-                swap(arr, i, positiveIndex);
-                positiveIndex++;
-            }
-        }
-
-        // Returns the index from where positive numbers start
-        return positiveIndex;
+        return nonPositiveIndex;
     }
 
     private void swap(int[] arr, int i, int j) {
@@ -141,54 +133,58 @@ class Solution {
 }
 
 
+
 //Optimal Approach
 
 class Solution {
     public int firstMissingPositive(int[] arr) {
-        int positiveStart = segregate(arr);
-        return firstMissingPositive(arr, positiveStart);
-    }
+        //Rearrange the array so that all positive numbers are moved to the left side, and all the non - positive numbers remain on the right.
+        int positiveCount = movePositivesToFront(arr);
 
-    private int firstMissingPositive(int[] arr, int start) {
-        int size = arr.length - start; // Number of positive elements
         /*
-          Important test cases : 
-          arr[]= [1,1] 
-          Output: 2
-        
-          arr[] =[-4,-1,-8,-1,0,2,4,1,9,1]
-          Output: 3
-        */
-        for (int i = start; i < arr.length; i++) {
-            int val = Math.abs(arr[i]); // Use absolute value in case already negated
-            // Mark the index (start + val - 1) as visited by making it negative
-            int targetIndex = start + val - 1;
-            if (val <= size && arr[start + val - 1] > 0) {
-                arr[targetIndex] = -1 * arr[targetIndex]; // Mark as visited
+         * Mark presence of numbers in the range [1, positiveCount].
+         *
+         * For a value x, we mark index (x - 1) as visited by making
+         * the value at that index negative.
+         *
+         * We use Math.abs() because values might already be negated.
+         *
+         * Check arr[value - 1] > 0 is important to handle duplicates.
+         * If the value has already been processed once, the corresponding
+         * index would have been marked negative.
+         *
+         * Without this check, a duplicate value would negate it again,
+         * turning it positive and breaking the marking logic.
+         */
+        for (int i = 0; i < positiveCount; i++) {
+            int val = Math.abs(arr[i]);
+            if (val <= positiveCount && arr[val - 1] > 0) {
+                arr[val - 1] *= -1;
             }
         }
 
-        // Find the first index which is not marked (i.e., still positive) That means the number (index - start + 1) is missing
-        for (int num = start; num < arr.length; num++) {
-            if (arr[num] > 0) {
-                return num - start + 1;
+        // Find the first index which is not marked (i.e., still positive) That means the number (i + 1) is missing
+        for (int i = 0; i < positiveCount; i++) {
+            if (arr[i] > 0) {
+                return i + 1;
             }
         }
 
-        return size + 1;
+        return positiveCount + 1;
     }
 
-    private int segregate(int[] arr) {
-        int positiveIndex = 0;
+    private int movePositivesToFront(int[] arr) {
+        int i = 0, nonPositiveIndex = 0;
 
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] <= 0) {
-                swap(arr, i, positiveIndex);
-                positiveIndex++;
+        while (i < arr.length) {
+            if (arr[i] > 0) {
+                swap(arr, i++, nonPositiveIndex++);
+            } else {
+                i++;
             }
         }
 
-        return positiveIndex;
+        return nonPositiveIndex;
     }
 
     private void swap(int[] arr, int i, int j) {
