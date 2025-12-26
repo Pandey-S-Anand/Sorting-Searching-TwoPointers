@@ -1,18 +1,18 @@
 //Bruteforce Approach
 
 class Solution {
-    public List<Integer> unionOfTwoSortedArraysContainingDuplicates(int[] arr1, int[] arr2) {
-        Set<Integer> set = new TreeSet<>();
+    public ArrayList<Integer> findUnion(int[] arr1, int[] arr2) {
+        Set<Integer> union = new TreeSet<>();
 
         for (int val : arr1) {
-            set.add(val);
+            union.add(val);
         }
 
         for (int val : arr2) {
-            set.add(val);
+            union.add(val);
         }
 
-        return new ArrayList<>(set);
+        return new ArrayList<>(union);
     }
 }
 
@@ -20,28 +20,27 @@ class Solution {
 // Better Approach
 
 class Solution {
-    public ArrayList<Integer> findUnion(int arr1[], int arr2[], int n, int m) {
-        int newLen1 = removeDuplicatesFromSortedArray(arr1, n);
-        int newLen2 = removeDuplicatesFromSortedArray(arr2, m);
-        return unionOfTwoSortedArrays(arr1, newLen1, arr2, newLen2);
+    public static ArrayList<Integer> findUnion(int arr1[], int arr2[]) {
+        int newLength1 = removeDuplicates(arr1);
+        int newLength2 = removeDuplicates(arr2);
+
+        return findUnion(arr1, newLength1, arr2, newLength2);
     }
 
-    private int removeDuplicatesFromSortedArray(int[] arr, int n) {
-        int index = 0;
-        for (int i = 0; i < (n - 1); i++) {
-            if (arr[i] != arr[i + 1]) {
-                arr[index++] = arr[i];
+    private static int removeDuplicates(int[] arr) {
+        int j = 1;
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] != arr[i - 1]) {
+                arr[j++] = arr[i];
             }
         }
 
-        arr[index++] = arr[n - 1];
-
-        return index;
+        return j;
     }
 
-    private ArrayList<Integer> unionOfTwoSortedArrays(int[] arr1, int m, int[] arr2, int n) {
-        int i = 0, j = 0;
+    private static ArrayList<Integer> findUnion(int[] arr1, int m, int[] arr2, int n) {
         ArrayList<Integer> union = new ArrayList<>();
+        int i = 0, j = 0;
 
         while (i < m && j < n) {
             if (arr1[i] == arr2[j]) {
@@ -49,9 +48,11 @@ class Solution {
                 i++;
                 j++;
             } else if (arr1[i] < arr2[j]) {
-                union.add(arr1[i++]);
+                union.add(arr1[i]);
+                i++;
             } else {
-                union.add(arr2[j++]);
+                union.add(arr2[j]);
+                j++;
             }
         }
 
@@ -71,61 +72,76 @@ class Solution {
 // Optimal Approach
 
 class Solution {
-    public ArrayList<Integer> findUnion(int arr1[], int arr2[]) {
-        int i = 0, j = 0;
-
-        // Variables to store the indices of last processed elements in arr1 and arr2 to help skip duplicates
-        int prevArr1Index = -1;
-        int prevArr2Index = -1;
-
+    public static ArrayList<Integer> findUnion(int arr1[], int arr2[]) {
+        // This list will store the final union result
         ArrayList<Integer> union = new ArrayList<>();
 
-        // Traverse both arrays using two pointers
+        // Pointers for traversing both arrays
+        int i = 0, j = 0;
+
+        // These indices track the last added element from each array to skip duplicates
+        int lastArr1Idx = -1, lastArr2Idx = -1;
+
+        // Traverse both arrays while elements remain in both
         while (i < arr1.length && j < arr2.length) {
-            // Skip duplicates in arr1 by comparing with last added value
-            while (i < arr1.length && (prevArr1Index != -1 && arr1[i] == arr1[prevArr1Index])) {
+
+            // Skip duplicate elements in arr1
+            while (i < arr1.length && lastArr1Idx != -1 && arr1[i] == arr1[lastArr1Idx]) {
                 i++;
             }
 
-            // Skip duplicates in arr2 by comparing with last added value
-            while (j < arr2.length && (prevArr2Index != -1 && arr2[j] == arr2[prevArr2Index])) {
+            // Skip duplicate elements in arr2
+            while (j < arr2.length && lastArr2Idx != -1 && arr2[j] == arr2[lastArr2Idx]) {
                 j++;
             }
 
-            // Ensure we are not accessing out-of-bound indices
+            // Ensure pointers are still within bounds
             if (i < arr1.length && j < arr2.length) {
-                if (arr1[i] == arr2[j]) { // Case 1: Equal elements → add once, move both pointers
+                // If both elements are equal, add once and move both pointers
+                if (arr1[i] == arr2[j]) {
                     union.add(arr1[i]);
-                    prevArr1Index = i;
-                    prevArr2Index = j;
-                    i++;
-                    j++;
-                } else if (arr1[i] < arr2[j]) { // Case 2: arr1[i] is smaller → add it, move i
+                    lastArr1Idx = i++;
+                    lastArr2Idx = j++;
+                } else if (arr1[i] < arr2[j]) { // If arr1 element is smaller, add it and move arr1 pointer
                     union.add(arr1[i]);
-                    prevArr1Index = i;
-                    i++;
-                } else { // Case 3: arr2[j] is smaller → add it, move j
+                    lastArr1Idx = i++;
+                } else { // If arr2 element is smaller, add it and move arr2 pointer
                     union.add(arr2[j]);
-                    prevArr2Index = j;
-                    j++;
+                    lastArr2Idx = j++;
                 }
             }
         }
 
-        // Process remaining elements in arr1
+        /*
+          Important Test Cases:
+        
+          int[] arr1 = {4, 6, 6, 9, 10, 11, 11, 11};
+          int[] arr2 = {1, 1, 1, 3, 3};
+          Output: [1, 3, 4, 6, 9, 10, 11]
+        
+          int[] arr1 = {1, 4, 4, 6, 7};
+          int[] arr2 = {4};
+          Output: [1, 4, 6, 7]
+          
+          int[]arr1={1, 2, 3, 4, 4, 4}
+          int[]arr2={1, 2, 3}
+          Output: [1, 2, 3, 4]
+        */
+
+        // Add remaining elements from arr1 (if any), skipping duplicates
         while (i < arr1.length) {
-            if (prevArr1Index == -1 || arr1[i] != arr1[prevArr1Index]) {
+            if (lastArr1Idx == -1 || arr1[i] != arr1[lastArr1Idx]) {
                 union.add(arr1[i]);
-                prevArr1Index = i;
+                lastArr1Idx = i;
             }
             i++;
         }
 
-        // Process remaining elements in arr2
+        // Add remaining elements from arr2 (if any), skipping duplicates
         while (j < arr2.length) {
-            if (prevArr2Index == -1 || arr2[j] != arr2[prevArr2Index]) {
+            if (lastArr2Idx == -1 || arr2[j] != arr2[lastArr2Idx]) {
                 union.add(arr2[j]);
-                prevArr2Index = j;
+                lastArr2Idx = j;
             }
             j++;
         }
