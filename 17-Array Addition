@@ -4,7 +4,7 @@ class Solution {
     public int[] calSum(int arr1[], int arr2[], int m, int n) {
         // Using LinkedList because insertion at front is constant time (O(1))
         LinkedList<Integer> sum = new LinkedList<>();
-        int i = m - 1, j = n - 1, carry = 0, base;
+        int i = m - 1, j = n - 1, carry = 0, base = 0;
 
         // Traverse both arrays from the end (least significant digit)
         while (i >= 0 && j >= 0) {
