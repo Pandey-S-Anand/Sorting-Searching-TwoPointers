@@ -160,8 +160,8 @@ class Solution {
     Due to missing values:
      arr[i] > (i + 1)
     
-    So, the number of missing positive integers before index i is:
-     missing = arr[i] - (i + 1)
+    So, the number of missing positive integers before arr[i] is:
+     missing  = arr[i] - (i + 1)
     
     Binary Search Logic:
     --------------------
@@ -210,8 +210,7 @@ class Solution {
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            int missingBeforeMid = arr[mid] - (mid + 1);
-
+            int missingBeforeMid = arr[mid] - (mid + 1); // It shows how many positive integers in the range [1, arr[mid] - 1] are missing from the array.
             if (missingBeforeMid < k) {
                 // Not enough numbers missing before arr[mid], search right
                 low = mid + 1;
