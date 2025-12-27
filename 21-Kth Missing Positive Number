@@ -157,7 +157,7 @@ class Solution {
     * In an ideal (perfect) array without missing numbers,
     * the expected value at index i is i + 1.
     *
-    * Due to missing values:
+    * Due to missing values, we observe:
     *     arr[i] > (i + 1)
     *
     * So, the number of missing positive integers before arr[i] is:
@@ -181,7 +181,8 @@ class Solution {
     * must lie to the left.
     *
     * After the binary search exhausts, the low pointer represents
-    * how many numbers are already present in the array before the answer.
+    * how many numbers are already present in the array that are
+    * strictly less than the k-th missing number.
     *
     * Therefore, the value of the k-th missing number is:
     *     present + k = low + k
