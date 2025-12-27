@@ -1,7 +1,6 @@
 //Using Extra Space
 
 class Solution {
-
     /**
      * Rearranges the array such that it alternates between smallest, largest,
      * second smallest, second largest, and so on.
@@ -35,52 +34,63 @@ class Solution {
         }
 
         // Step 5: Copy rearranged elements back to original array
-        for (int m = 0; m < arr.length; m++) {
-            arr[m] = aux[m];
+        for (i = 0; i < arr.length; i++) {
+            arr[i] = aux[i];
         }
     }
 }
 
+
 // Without Using Extra Space
 
 class Solution {
-
     /**
-     * Rearranges the array into the pattern: smallest, largest, second smallest, second largest, and so on.
+     * Rearranges the array in the following order:
+     * smallest, largest, second smallest, second largest, and so on.
+     *
+     * Approach:
+     * 1. Sort the array so that elements are in increasing order.
+     * 2. Starting from index 1, repeatedly place the largest remaining
+     *    element at every odd index.
+     * 3. To place the largest element at a given odd index, shift the
+     *    elements to the right by one position to make space.
      *
      * Example:
      * Input:  [1, 9, 2, 8, 3, 7, 4, 6, 5]
-     * Step 1: Sort the array → [1, 2, 3, 4, 5, 6, 7, 8, 9]
      *
-     * Rearrangement Steps:
-     * i = 1 → insert 9 at index 1 → [1, 9, 2, 3, 4, 5, 6, 7, 8]
-     * i = 3 → insert 8 at index 3 → [1, 9, 2, 8, 3, 4, 5, 6, 7]
-     * i = 5 → insert 7 at index 5 → [1, 9, 2, 8, 3, 7, 4, 5, 6]
-     * i = 7 → insert 6 at index 7 → [1, 9, 2, 8, 3, 7, 4, 6, 5]
+     * After sorting:
+     *          [1, 2, 3, 4, 5, 6, 7, 8, 9]
      *
-     * Final Output: [1, 9, 2, 8, 3, 7, 4, 6, 5]
+     * Rearrangement steps:
+     * i = 1 → place 9 at index 1 → [1, 9, 2, 3, 4, 5, 6, 7, 8]
+     * i = 3 → place 8 at index 3 → [1, 9, 2, 8, 3, 4, 5, 6, 7]
+     * i = 5 → place 7 at index 5 → [1, 9, 2, 8, 3, 7, 4, 5, 6]
+     * i = 7 → place 6 at index 7 → [1, 9, 2, 8, 3, 7, 4, 6, 5]
+     *
+     * Final Output:
+     *          [1, 9, 2, 8, 3, 7, 4, 6, 5]
      *
      */
-    public void rearrangeArray(int[] arr) {
-        // Step 1: Sort the array in ascending order
+    public void rearrangeArray(int arr[]) {
+        // Step 1: Sort the array
         Arrays.sort(arr);
 
-        /*
-         * Step 2: For every odd index starting from 1, insert the largest
-         * remaining element (from the end of the array) by shifting the
-         * elements between i and arr.length - 2 to the right.
-         */
+        // Step 2: For every odd index, insert the current largest element
         for (int i = 1; i < arr.length; i += 2) {
-            // Store the largest remaining element (last element)
-            int temp = arr[arr.length - 1];
-
-            // Shift all elements from the second-last to index `i`
-            for (int j = arr.length - 2; j >= i; j--) {
-                arr[j + 1] = arr[j];
-            }
-
-            // Place the largest element at the current odd index
-            arr[i] = temp;
+            rightShiftBy1(arr, i);
         }
+    }
+
+    private void rightShiftBy1(int[] arr, int start) {
+        // Store the current largest element (last element in the array)
+        int temp = arr[arr.length - 1];
+
+        // Shift elements one position to the right to make space at `start`
+        for (int i = arr.length - 1; i > start; i--) {
+            arr[i] = arr[i - 1];
+        }
+
+        // Place the largest element at the target index
+        arr[start] = temp;
     }
 }
