@@ -1,39 +1,55 @@
 //Method 1
 
 class Solution {
-    public void sortIt(Long arr[]) {
-        // Step 1: Move all odd numbers to the beginning while tracking the first even index
-        int firstEvenIndex = segregate(arr);  
+    public void sortIt(int arr[]) {
+        /**
+        * Partition the array so that all odd numbers are at the front.
+        *
+        * At the end:
+        * - All indices [0, firstEvenIndex - 1] contain odd numbers.
+        * - All indices [firstEvenIndex , arr.length - 1] contain even numbers.
+        */
+        int firstEvenIndex = moveOddToFront(arr);
 
-        // Step 2: Sort the odd part in descending order (from index 0 to firstEvenIndex - 1)
-        Arrays.sort(arr, 0, firstEvenIndex, (num1, num2) -> Long.compare(num2, num1));
+        // Step 2: Sort the odd part (index 0 to 'firstEvenIndex - 1') in ascending order and then reverse it to make it descending.
+        Arrays.sort(arr, 0, firstEvenIndex);
+        // Reverses the subarray from index 0 to idx (inclusive) to convert the sorted odd section into descending order.
+        reverse(arr, firstEvenIndex - 1);
 
-        // Step 3: Sort the even part in ascending order (from firstEvenIndex to end)
-        Arrays.sort(arr, firstEvenIndex, arr.length, (num1, num2) -> Long.compare(num1, num2));
+        // Step 3: Sort the even part (from index 'firstEvenIndex' to 'arr.length - 1') in ascending order.
+        Arrays.sort(arr, firstEvenIndex, arr.length);
     }
 
-    private int segregate(Long[] arr) {
-        /*
-        The `oddTracker` pointer tracks the index where the next odd number should be placed.
-        Eventually, `oddTracker` ends up pointing to the index of the first even number.
-        */
-        int oddTracker = 0; 
+    private int moveOddToFront(int[] arr) {
+        int i = 0, oddTracker = 0; // `oddTracker` keeps track of the position where the next odd number should be placed.
 
-        for (int i = 0; i < arr.length; i++) {
+        while (i < arr.length) {
             if (arr[i] % 2 != 0) {
-                // Swap current odd element to the correct position
+                // Swap current odd element to its correct position
                 swap(arr, i, oddTracker);
-                oddTracker++; // Move the pointer forward for the next odd
+                i++;
+                oddTracker++;
+            } else {
+                // Skip even elements
+                i++;
             }
         }
 
-        return oddTracker; // Points to the first even number
+        return oddTracker; // Index where even numbers start
     }
 
-    private void swap(Long[] arr, int i, int j) {
-        long temp = arr[i];
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
+    }
+
+    private void reverse(int[] arr, int idx) {
+        int i = 0, j = idx;
+
+        while (i < j) {
+            swap(arr, i++, j--);
+        }
     }
 }
 
@@ -42,9 +58,9 @@ class Solution {
 // Method 2 : This method will not work when input array contains negative numbers.
 
 class Solution {
-    public void rearrange(int[] arr, int n) {
-        // Step 1: Convert all odd numbers to negative. This ensures that odd numbers appear before even numbers when sorted
-        for (int i = 0; i < n; i++) {
+    public void sortIt(int arr[]) {
+          // Step 1: Convert all odd numbers to negative. This ensures that odd numbers appear before even numbers when sorted
+        for (int i = 0; i < arr.length; i++) {
             if ((arr[i] & 1) == 1) { // Check if the number is odd
                 arr[i] *= -1; // Convert odd numbers to negative
             }
@@ -59,7 +75,7 @@ class Solution {
          - Odd numbers in descending order
          - Even numbers in ascending order
          */
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < arr.length; i++) {
             if (arr[i] < 0) {
                 arr[i] *= -1;
             }
