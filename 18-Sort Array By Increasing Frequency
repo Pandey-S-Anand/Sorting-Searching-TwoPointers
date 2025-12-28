@@ -1,0 +1,151 @@
+//Intuitive Approach
+
+class Solution {
+    public int[] frequencySort(int[] arr) {
+        // Box primitive int[] to Integer[] because Arrays.sort  with a Comparator works only on object arrays
+        Integer[] boxedArray = boxArray(arr);
+
+        // Build frequency map for each number
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        for (int num : boxedArray) {
+            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
+        }
+
+        /*
+         Comparator contract:
+         - return a negative value  -> first argument comes before second argument
+         - return a positive value  -> first argument comes after second argument
+         - return 0                -> both arguments are considered equal in ordering
+        
+         Arrays.sort relies only on the sign of the returned value
+         to decide the relative ordering of the arguments.
+        
+         If the comparator returns a positive value:
+         -> the first argument is placed after the second argument
+            (i.e., second argument followed by first argument)
+        
+         If the comparator returns a negative value:
+         -> the first argument is placed before the second argument
+            (i.e., first argument followed by second argument)
+        
+         If the comparator returns 0:
+         -> for object arrays, Arrays.sort is stable, so the
+            original order of appearance is preserved
+        */
+        Arrays.sort(boxedArray, (num1, num2) -> {
+            int freq1 = frequencyMap.get(num1);
+            int freq2 = frequencyMap.get(num2);
+
+            /*
+             Primary sorting criterion:
+             Sort by frequency in ascending order.
+             The argument with lower frequency appears earlier in the array
+             than the argument with higher frequency.
+            */
+            if (freq1 != freq2) {
+                return Integer.compare(freq1, freq2);
+            }
+
+            /*
+             Secondary sorting criterion:
+             If both arguments have the same frequency,
+             sort the arguments in descending numerical order.
+            */
+            return Integer.compare(num2, num1);
+
+            /*
+             -------- Manual Working of Comparator Logic --------
+            
+             Case 1: freq1 < freq2
+             -> return a negative value
+             -> first argument is placed before the second argument
+            
+             Case 2: freq1 > freq2
+             -> return a positive value
+             -> first argument is placed after the second argument
+            
+             Case 3: freq1 == freq2
+                 Case 3.1: num1 > num2
+                 -> return a negative value
+                 -> num1 is placed before num2 to achieve descending order
+            
+                 Case 3.2: num1 < num2
+                 -> return a positive value
+                 -> num1 is placed after num2 to achieve descending order
+            
+                 Case 3.3: num1 == num2
+                 -> return 0
+                 -> both arguments are considered equal in ordering;
+                    since Arrays.sort for object arrays is stable,
+                    their original relative order is preserved
+            */
+        });
+
+        // Unbox the sorted Integer[] back to primitive int[]
+        return unboxArray(boxedArray, arr);
+    }
+
+    private Integer[] boxArray(int[] arr) {
+        Integer[] boxed = new Integer[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            boxed[i] = arr[i];
+        }
+        return boxed;
+    }
+
+    private int[] unboxArray(Integer[] boxed, int[] arr) {
+        for (int i = 0; i < boxed.length; i++) {
+            arr[i] = boxed[i];
+        }
+        return arr;
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public int[] frequencySort(int[] arr) {
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+
+        // Step 1: Count frequency of each element in the input array
+        for (int num : arr) {
+            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
+        }
+
+        // Step 2: Create a min-heap (priority queue) with custom comparator
+        Queue<Map.Entry<Integer, Integer>> heap = new PriorityQueue<>((entry1, entry2) -> {
+            int freq1 = entry1.getValue();
+            int freq2 = entry2.getValue();
+
+            // If frequencies are different, sort by increasing frequency (lower frequency comes first)
+            if (freq1 != freq2) {
+                return Integer.compare(freq1, freq2);
+            }
+
+            // If frequencies are same, higher/greater number number comes first
+            return Integer.compare(entry2.getKey(), entry1.getKey());
+        });
+
+        // Step 3: Add all entries of frequencyMap into the priority queue
+        heap.addAll(frequencyMap.entrySet());
+
+        // Step 4: Reconstruct the result array using the sorted priority queue
+        int k = 0;
+
+        while (!heap.isEmpty()) {
+            Map.Entry<Integer, Integer> entry = heap.poll(); // Extract element with highest priority
+            int num = entry.getKey(); // The actual number
+            int freq = entry.getValue(); // Frequency of number
+
+            // Place the number 'freq' times in the result array
+            while (freq-- > 0) {
+                arr[k++] = num;
+            }
+        }
+
+        // Step 5: Return the modified array
+        return arr;
+    }
+}
