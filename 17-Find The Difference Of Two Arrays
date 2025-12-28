@@ -1,0 +1,207 @@
+// Bruteforce approach
+
+class Solution {
+    public List<List<Integer>> findDifference(int[] arr1, int[] arr2) {
+        /*
+         Use sets to automatically remove duplicates
+         and allow O(1) average time lookups.
+        */
+        Set<Integer> set1 = new HashSet<>();
+        Set<Integer> set2 = new HashSet<>();
+
+        // Add all elements from both arrays into their respective sets
+        for (int num : arr1) {
+            set1.add(num);
+        }
+
+        for (int num : arr2) {
+            set2.add(num);
+        }
+
+        List<Integer> distinctInArr1 = new ArrayList<>();
+        List<Integer> distinctInArr2 = new ArrayList<>();
+
+        /*
+         Elements present in arr1 but not in arr2
+        */
+        for (int num : set1) {
+            if (!set2.contains(num)) {
+                distinctInArr1.add(num);
+            }
+        }
+
+        /*
+         Elements present in arr2 but not in arr1
+        */
+        for (int num : set2) {
+            if (!set1.contains(num)) {
+                distinctInArr2.add(num);
+            }
+        }
+
+        // Return result as a nested list
+        return List.of(distinctInArr1, distinctInArr2);
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    public List<List<Integer>> findDifference(int[] arr1, int[] arr2) {
+        // Sort both arrays so duplicates can be removed and two-pointer comparison can be applied
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+
+        // Remove duplicates in-place and get new valid lengths
+        int newLen1 = removeDuplicates(arr1);
+        int newLen2 = removeDuplicates(arr2);
+
+        // Compare only the unique portions of both arrays
+        return findDifference(arr1, newLen1, arr2, newLen2);
+    }
+
+    public List<List<Integer>> findDifference(int[] arr1, int m, int[] arr2, int n) {
+
+        int i = 0, j = 0;
+        List<Integer> distinctInArr1 = new ArrayList<>();
+        List<Integer> distinctInArr2 = new ArrayList<>();
+
+        // Traverse both arrays using two pointers
+        while (i < m && j < n) {
+
+            // If elements are equal, skip both
+            if (arr1[i] == arr2[j]) {
+                i++;
+                j++;
+
+            } else if (arr1[i] < arr2[j]) {
+                /*
+                 If arr1[i] < arr2[j], arr1[i] cannot appear later in arr2
+                 since arr2 is sorted. Hence, it is unique to arr1.
+                */
+                distinctInArr1.add(arr1[i++]);
+            } else {
+                /*
+                If arr2[j] < arr1[i], arr2[j] cannot appear later in arr1
+                since arr1 is sorted. Hence, it is unique to arr2.
+                */
+                distinctInArr2.add(arr2[j++]);
+            }
+        }
+
+        // Add remaining elements from arr1 (if any)
+        while (i < m) {
+            distinctInArr1.add(arr1[i++]);
+        }
+
+        // Add remaining elements from arr2 (if any)
+        while (j < n) {
+            distinctInArr2.add(arr2[j++]);
+        }
+
+        return new ArrayList<>(Arrays.asList(distinctInArr1, distinctInArr2));
+    }
+
+    private int removeDuplicates(int[] arr) {
+
+        if (arr.length == 0)
+            return 0;
+
+        int idx = 1;
+
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] != arr[i - 1]) {
+                arr[idx++] = arr[i];
+            }
+        }
+
+        return idx;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public List<List<Integer>> findDifference(int[] arr1, int[] arr2) {
+        // Sort both arrays to apply the two-pointer technique
+        Arrays.sort(arr1);
+        Arrays.sort(arr2);
+
+        int i = 0, j = 0;
+
+        /*
+         Tracks the last processed index to skip duplicates
+         and prevent adding already processed values
+         to the distinct lists.
+        */
+        int lastArr1Idx = -1, lastArr2Idx = -1;
+
+        List<Integer> distinctInArr1 = new ArrayList<>();
+        List<Integer> distinctInArr2 = new ArrayList<>();
+
+        // Traverse both arrays simultaneously
+        while (i < arr1.length && j < arr2.length) {
+
+            // Skip duplicate elements in arr1
+            while (i < arr1.length && lastArr1Idx != -1 && arr1[i] == arr1[lastArr1Idx]) {
+                i++;
+            }
+
+            // Skip duplicate elements in arr2
+            while (j < arr2.length && lastArr2Idx != -1 && arr2[j] == arr2[lastArr2Idx]) {
+                j++;
+            }
+
+            if (i < arr1.length && j < arr2.length) {
+                if (arr1[i] == arr2[j]) {
+                    lastArr1Idx = i++;
+                    lastArr2Idx = j++;
+
+                } else if (arr1[i] < arr2[j]) {
+                    lastArr1Idx = i;
+                    distinctInArr1.add(arr1[i++]);
+
+                } else {
+                    lastArr2Idx = j;
+                    distinctInArr2.add(arr2[j++]);
+                }
+            }
+        }
+
+        /*
+         Process remaining elements of arr1
+
+         Case 1: arr2 is empty
+         arr1 = [1, 2, 4, 5], arr2 = []
+
+         Case 2: Remaining elements in arr1 contain duplicates
+         already processed earlier
+         arr1 = [1, 2, 3, 3, 3, 4], arr2 = [1, 2, 3]
+
+         Case 3: Remaining elements in arr1 contain duplicates
+         not present in arr2
+         arr1 = [1, 2, 3, 8, 8, 8, 8], arr2 = [4, 5, 6]
+        */
+        while (i < arr1.length) {
+            if (lastArr1Idx == -1 || arr1[lastArr1Idx] != arr1[i]) {
+                lastArr1Idx = i;
+                distinctInArr1.add(arr1[i]);
+            }
+            i++;
+        }
+
+        // Process remaining elements of arr2
+        while (j < arr2.length) {
+            if (lastArr2Idx == -1 || arr2[lastArr2Idx] != arr2[j]) {
+                lastArr2Idx = j;
+                distinctInArr2.add(arr2[j]);
+            }
+            j++;
+        }
+
+        return new ArrayList<>(Arrays.asList(distinctInArr1, distinctInArr2));
+    }
+}
