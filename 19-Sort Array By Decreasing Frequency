@@ -1,0 +1,195 @@
+//Intuitive Appraoch
+
+public class Solution {
+    public static int[] sortByFrequency(int[] arr) {
+        // Box primitive int[] to Integer[] because Arrays.sort with a Comparator works only on object arrays
+        Integer[] boxedArray = boxArray(arr);
+
+        // Map to store frequency of each element
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+
+        // Map to store the first occurrence index of each element
+        Map<Integer, Integer> firstIndex = new HashMap<>();
+
+        // Populate frequency and first occurrence maps
+        for (int i = 0; i < boxedArray.length; i++) {
+            frequencyMap.put(
+                    boxedArray[i],
+                    frequencyMap.getOrDefault(boxedArray[i], 0) + 1);
+            firstIndex.putIfAbsent(boxedArray[i], i);
+        }
+
+        /*
+         Comparator logic:
+         1. Sort by frequency in decreasing order.
+         2. If frequencies are equal, sort by the first occurrence index
+            in increasing order.
+        
+         Why firstIndex is required:
+         Arrays.sort is stable for object arrays, meaning elements with
+         equal keys preserve their relative order. However, this problem
+         requires that when two numbers have the same frequency, the number
+         whose FIRST occurrence appears earlier in the array should have
+         its ENTIRE group placed first. Therefore, we explicitly compare
+         first occurrence indices when frequencies are equal.
+        */
+        Arrays.sort(boxedArray, (num1, num2) -> {
+
+            int freq1 = frequencyMap.get(num1);
+            int freq2 = frequencyMap.get(num2);
+
+            // If frequencies are equal, compare by first occurrence index
+            if (freq1 == freq2) {
+                return Integer.compare(firstIndex.get(num1), firstIndex.get(num2));
+            }
+
+            // Otherwise, sort by decreasing frequency
+            return Integer.compare(freq2, freq1);
+        });
+
+        // Unbox the sorted Integer[] back to primitive int[]
+        return unboxArray(boxedArray, arr);
+    }
+
+    private static Integer[] boxArray(int[] arr) {
+        Integer[] boxed = new Integer[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            boxed[i] = arr[i];
+        }
+        return boxed;
+    }
+
+    private static int[] unboxArray(Integer[] boxed, int[] arr) {
+        for (int i = 0; i < boxed.length; i++) {
+            arr[i] = boxed[i];
+        }
+        return arr;
+    }
+}
+
+
+//Aliter 
+
+public class Solution {
+    public static int[] sortByFrequency(int[] arr) {
+        //Use LinkedHashMap to preserve the order of first occurrence of each element in the array
+        Map<Integer, Integer> frequencyMap = new LinkedHashMap<>();
+
+        // Count the frequency of each number in the array
+        for (int num : arr) {
+            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
+        }
+
+        //Convert the frequency map into a list of entries. Each entry represents (number -> frequency)
+        List<Map.Entry<Integer, Integer>> freqList = new ArrayList<>(frequencyMap.entrySet());
+
+        /*
+         Sort the list using a custom comparator
+
+         Sorting rule:
+         - Sort by frequency in decreasing order.
+         - If two numbers have the same frequency, their relative order
+           remains unchanged.
+
+         Why this works:
+         - LinkedHashMap preserves the insertion order of keys.
+         - Collections.sort is stable, so when the comparator returns 0
+           (same frequency), the original insertion order is preserved.
+         */
+        Collections.sort(freqList, (entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()));
+
+        //Reconstruct the result array based on the sorted frequency list
+        int index = 0;
+
+        for (Map.Entry<Integer, Integer> entry : freqList) {
+            int num = entry.getKey();    // The number to insert
+            int freq = entry.getValue(); // Number of times it should appear
+
+            // Insert the number 'freq' times into the array
+            while (freq-- > 0) {
+                arr[index++] = num;
+            }
+        }
+
+        //Return the final sorted array
+        return arr;
+    }
+}
+
+
+
+//Optimal Approach
+
+public class Solution {
+    public static int[] sortByFrequency(int[] arr) {
+        // Map to store the frequency of each element
+        Map<Integer, Integer> frequencyMap = new HashMap<>();
+
+        /*
+         Why firstIndex is required when using a heap:
+
+         - A heap (PriorityQueue) is NOT stable.
+         - It does not preserve insertion order.
+         - Even if a LinkedHashMap is used before inserting elements
+           into the heap, that order is LOST once elements are added
+           to the PriorityQueue.
+         - Therefore, to satisfy the problem's requirement that
+           elements with the same frequency should be ordered by
+           their FIRST occurrence in the original array, we must
+           explicitly store and compare the first occurrence index.
+        */
+        Map<Integer, Integer> firstIndex = new HashMap<>();
+
+        // Populate frequency and first occurrence maps
+        for (int i = 0; i < arr.length; i++) {
+            frequencyMap.put(arr[i],
+                    frequencyMap.getOrDefault(arr[i], 0) + 1);
+
+            firstIndex.putIfAbsent(arr[i], i);
+        }
+
+        /*
+         Max-heap (PriorityQueue) comparator logic:
+
+         1. Higher frequency elements have higher priority.
+         2. If frequencies are equal, the element whose first
+            occurrence index is smaller (appeared earlier in the
+            array) has higher priority.
+
+         This comparator fully encodes the problem constraints.
+        */
+        Queue<Map.Entry<Integer, Integer>> heap = new PriorityQueue<>((entry1, entry2) -> {
+                    int freq1 = entry1.getValue();
+                    int freq2 = entry2.getValue();
+
+                    // Tie-breaker: compare by first occurrence index
+                    if (freq1 == freq2) {
+                        return Integer.compare(firstIndex.get(entry1.getKey()), firstIndex.get(entry2.getKey()));
+                    }
+
+                    // Otherwise, sort by decreasing frequency
+                    return Integer.compare(freq2, freq1);
+                });
+
+        // Insert all frequency entries into the heap
+        heap.addAll(frequencyMap.entrySet());
+
+        // Reconstruct the result array from the heap
+        int index = 0;
+
+        while (!heap.isEmpty()) {
+            Map.Entry<Integer, Integer> entry = heap.poll();
+
+            int num = entry.getKey();
+            int freq = entry.getValue();
+
+            // Insert the number 'freq' times into the array
+            while (freq-- > 0) {
+                arr[index++] = num;
+            }
+        }
+
+        // Return the final sorted array
+        return arr;
+    }
+}
