@@ -13,9 +13,7 @@ public class Solution {
 
         // Populate frequency and first occurrence maps
         for (int i = 0; i < boxedArray.length; i++) {
-            frequencyMap.put(
-                    boxedArray[i],
-                    frequencyMap.getOrDefault(boxedArray[i], 0) + 1);
+            frequencyMap.put(boxedArray[i], frequencyMap.getOrDefault(boxedArray[i], 0) + 1); 
             firstIndex.putIfAbsent(boxedArray[i], i);
         }
 
@@ -34,7 +32,6 @@ public class Solution {
          first occurrence indices when frequencies are equal.
         */
         Arrays.sort(boxedArray, (num1, num2) -> {
-
             int freq1 = frequencyMap.get(num1);
             int freq2 = frequencyMap.get(num2);
 
