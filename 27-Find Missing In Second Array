@@ -1,0 +1,122 @@
+/*
+ Example:
+
+ Input:
+ arr1 = [1, 1, 1, 6, 7, 6, 7]
+ arr2 = [3, 2, 8, 9, 3, 9]
+
+ Output:
+ [1, 1, 1, 6, 7, 6, 7]
+
+ Explanation:
+ None of the elements of arr1 are present in arr2, so all elements
+ of arr1 are returned. The output preserves the original order
+ of appearance of elements in arr1.
+
+ Why sorting + two pointers cannot be used:
+
+ - The problem explicitly requires that the output elements must
+   appear in the SAME order as they appear in arr1.
+ - Sorting arr1 would destroy this original order, and once the
+   order is lost, it cannot be reliably reconstructed.
+ - Two pointers technique requires both arrays to be sorted,
+   which makes it incompatible with order-preserving requirements.
+
+ Correct approaches:
+
+ 1. Use a HashSet (or HashMap) for arr2:
+    - Allows O(1) average-time membership checking.
+    - Iterate arr1 linearly and keep elements not present in arr2.
+    - Preserves the order of arr1 naturally.
+
+ 2. Alternatively, sort arr2 and for each element in arr1,
+    perform a binary search in arr2:
+    - This preserves the order of arr1.
+    - Time complexity is higher: O((n + m) log m).
+    - Still valid, but less optimal than HashSet.
+
+ Conclusion:
+ Since order preservation is mandatory, sorting + two pointers
+ is NOT a valid approach for this problem.
+*/
+
+
+//Bruteforce Approach
+
+class Solution {
+    public ArrayList<Integer> findMissing(int[] arr1, int[] arr2) {
+        // This list will store the missing elements
+        ArrayList<Integer> missing = new ArrayList<>();
+
+        // Store all elements of arr2 in a HashSet for fast lookup (O(1) average time)
+        Set<Integer> set = Arrays.stream(arr2).boxed().collect(Collectors.toSet());
+
+        // Check every element in arr1 — if not found in arr2 (set), it's missing
+        for (int val : arr1) {
+            if (!set.contains(val)) {
+                missing.add(val);
+            }
+        }
+
+        return missing;
+    }
+}
+
+
+
+// Optimal Approach
+
+class Solution {
+    public ArrayList<Integer> findMissing(int[] arr1, int[] arr2) {
+        // List to store elements present in arr1 but missing from arr2
+        ArrayList<Integer> missing = new ArrayList<>();
+
+        /*
+         Sort arr2 to enable binary search.
+
+         Note:
+         We do NOT sort arr1 because the problem requires that the
+         output elements must appear in the same order as they
+         appear in arr1.
+        */
+        Arrays.sort(arr2);
+
+        /*
+         For each element in arr1, check whether it is present in arr2.
+         If the element is not found in arr2, add it to the result list.
+         Iterating arr1 linearly ensures that the original order
+         of elements is preserved.
+        */
+        for (int val : arr1) {
+            if (isMissing(arr2, val)) {
+                missing.add(val);
+            }
+        }
+
+        // Return the list of missing elements
+        return missing;
+    }
+
+    private boolean isMissing(int[] arr, int target) {
+
+        int low = 0;
+        int high = arr.length - 1;
+
+        while (low <= high) {
+
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                // Target found in arr2
+                return false;
+            } else if (arr[mid] < target) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        // Target not found in arr2
+        return true;
+    }
+}
