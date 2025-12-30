@@ -41,19 +41,44 @@ class Solution {
 
         // Traverse both arrays using two pointers
         while (i < arr.length && j < subset.length) {
+
             if (arr[i] == subset[j]) {
-                // If current elements match, move both pointers
+                // Current elements match, so move both pointers forward
                 i++;
                 j++;
+
             } else if (arr[i] < subset[j]) {
-                // Move ahead in arr to find a possible match for subset[j]
+                /*
+                 Here, arr[i] < subset[j] means that arr[i] is smaller
+                 than subset[j]. Since the subset array is sorted, all
+                 elements after subset[j] will also be greater than arr[i].
+                 Therefore, arr[i] cannot match any element in the subset,
+                 so we safely skip arr[i].
+                */
                 i++;
-            } else { // If subset[j] < arr[i] , then subset[j] cannot be found further in arr (since arr is sorted), hence subset[j] is missing
+            } else {
+                /*
+                 If subset[j] < arr[i], then subset[j] cannot be found
+                 further in 'arr' because 'arr' is sorted. This means
+                 subset[j] is missing from 'arr', so 'subset' is not
+                 a subset of 'arr'.
+                */
                 return false;
             }
         }
 
-        // If we’ve checked all elements in subset, it's a subset of arr
+        /*
+         After the loop, if all elements of 'subset' have been matched
+         (i.e., j has reached the end of the subset array), then 'subset'
+         is a valid subset of 'arr'.
+
+         This check is required because 'arr' might get exhausted
+         before all elements of 'subset' are matched.
+
+         Example:
+         arr    = {1, 2, 3, 4, 5}
+         subset = {2, 3, 4, 5, 6, 7}
+        */
         return j == subset.length;
     }
 }
