@@ -1,0 +1,177 @@
+//Bruteforce Approach
+
+class Solution {
+    public static ArrayList<Integer> countLessEq(int arr1[], int arr2[]) {
+        ArrayList<Integer> counts = new ArrayList<>();
+        /*
+         Since arr1 may contain duplicate elements and arr2 remains fixed,
+         the count of elements in arr2 that are less than or equal to a
+         particular value will always be the same.
+
+         Therefore, once the count for a value is computed, we store it
+         in a map and reuse it for subsequent occurrences of the same
+         value in arr1. This avoids repeating the same computation and
+         improves performance when arr1 contains duplicates.
+        */
+        Map<Integer, Integer> cachedCounts = new HashMap<>();
+
+        for (int num : arr1) {
+            int cached = cachedCounts.getOrDefault(num, -1);
+
+            if (cached == -1) {
+                // Count elements in arr2 that are <= num using a linear scan
+                int count = findCountLessOrEqual(arr2, num);
+                cachedCounts.put(num, count);
+                counts.add(count);
+            } else {
+                // Reuse the previously computed count
+                counts.add(cached);
+            }
+        }
+
+        return counts;
+    }
+
+    private static int findCountLessOrEqual(int[] arr, int target) {
+        int i = 0, j = arr.length - 1;
+        int count = 0;
+
+        while (i <= j) {
+            if (arr[i] <= target) {
+                count++;
+            }
+
+            // Ensure we do not double-count the same index
+            if (i != j && arr[j] <= target) {
+                count++;
+            }
+
+            i++;
+            j--;
+        }
+
+        return count;
+    }
+}
+
+
+//Optimal Approach
+
+//Intuitive implementation
+
+class Solution {
+    public static ArrayList<Integer> countLessEq(int arr1[], int arr2[]) {
+        // Sort arr2 to enable binary search
+        Arrays.sort(arr2);
+
+        ArrayList<Integer> counts = new ArrayList<>();
+
+        /*
+         For each element in arr1, find how many elements in arr2
+         are less than or equal to it using binary search.
+         The order of arr1 is preserved since we iterate it linearly.
+        */
+        for (int num : arr1) {
+            int count = findCountLessOrEqual(arr2, num);
+            counts.add(count);
+        }
+
+        return counts;
+    }
+
+    private static int findCountLessOrEqual(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                /*
+                 If the target is found, we move to the right to search
+                 for the last occurrence of the target. Eventually,
+                 after the loop exits (i.e., when low > high), 'low'
+                 will point to (lastOccurrenceIndex + 1).
+                */
+                low = mid + 1;
+
+            } else if (target < arr[mid]) {
+                high = mid - 1;
+
+            } else { // target > arr[mid]
+                low = mid + 1;
+            }
+        }
+
+        /*
+         When the loop ends (i.e., when low > high):
+
+         - If the target exists in the array, 'low' ends up at
+           (last occurrence index + 1). This position points to the
+           first element that is strictly greater than the target.
+           Therefore, 'low' equals the number of elements in the array
+           that are less than or equal to the target.
+
+         - If the target does not exist in the array, 'low' represents
+           the index where the target should be inserted to keep the
+           array sorted. In this case as well, 'low' points to the first
+           element that is strictly greater than the target.
+
+         In both scenarios, 'low' correctly represents the count of
+         elements in the array that are less than or equal to the target.
+        */
+        return low;
+    }
+}
+
+
+// Optimal Implementation
+
+class Solution {
+    public static ArrayList<Integer> countLessEq(int arr1[], int arr2[]) {
+        Arrays.sort(arr2);
+
+        ArrayList<Integer> counts = new ArrayList<>();
+        /*
+        Since arr1 may contain duplicate elements and arr2 is fixed,
+        the count of elements in arr2 that are less than or equal to
+        a given value will always be the same.
+        
+        Therefore, once the count for a particular value is computed
+        using binary search, we store it in a map and reuse it for
+        subsequent occurrences of the same value in arr1. This avoids
+        redundant binary searches and improves performance.
+        */
+        Map<Integer, Integer> cachedCounts = new HashMap<>();
+
+        for (int num : arr1) {
+            int cached = cachedCounts.getOrDefault(num, -1);
+            if (cached == -1) {
+                int count = findCountLessOrEqual(arr2, num);
+                cachedCounts.put(num, count);
+                counts.add(count);
+            } else {
+                counts.add(cached);
+            }
+
+        }
+
+        return counts;
+    }
+
+    private static int findCountLessOrEqual(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (target >= arr[mid]) {
+                low = mid + 1;
+            } else if (target < arr[mid]) {
+                high = mid - 1;
+            }
+        }
+
+        return low;
+    }
+}
