@@ -1,19 +1,92 @@
+//Bruteforce Approach
+
 class Solution {
     public List<List<Integer>> minimumAbsDifference(int[] arr) {
         /*
-          The minimum absolute difference between any two elements in an array
-          will always occur between two adjacent elements in the sorted array.
+        List to store all pairs [a, b] such that:
+        - a and b are elements from the array
+        - a < b
+        - (b - a) equals the minimum absolute difference
         */
-        Arrays.sort(arr);  // Sort the array in ascending order
+        List<List<Integer>> pairs = new ArrayList<>();
 
-        // Step 1: Find the minimum absolute difference between any two adjacent elements
+        // Find the minimum absolute difference among all possible pairs in the array using a brute-force approach.
         int minAbsDiff = findMinAbsDiff(arr);
 
-        // Step 2: Collect all pairs having the minimum absolute difference
+        /*
+        Iterate over all possible pairs (i, j) such that:
+        - i != j
+        - arr[i] < arr[j] (to satisfy the condition a < b)
+        
+        For each valid pair, check whether the difference equals
+        the minimum absolute difference found in Step 1.
+        If so, add the pair to the result list.
+        */
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr.length; j++) {
+                if (i != j && arr[i] < arr[j]) {
+                    int currAbsDiff = arr[j] - arr[i];
+
+                    // If the current absolute difference matches the minimum, add this pair to the result list
+                    if (currAbsDiff == minAbsDiff) {
+                        pairs.add(List.of(arr[i], arr[j]));
+                    }
+                }
+            }
+        }
+
+        /*
+         Sort the list of pairs in ascending order as required by the problem statement.
+         Sorting is done based on the first element of each pair.
+        */
+        Collections.sort(pairs, (list1, list2) -> Integer.compare(list1.get(0), list2.get(0)));
+
+        return pairs;
+    }
+
+    private int findMinAbsDiff(int[] arr) {
+        int minAbsDiff = Integer.MAX_VALUE;
+
+        for (int i = 0; i < arr.length; i++) {
+            /*
+             We start the inner loop from j = i + 1 instead of j = 0 to
+             avoid redundant comparisons.
+            
+             Although we could start from j = 0, doing so would compare
+             the same pair twice. Since we are taking the absolute
+             difference, |arr[i] - arr[j]| is equal to |arr[j] - arr[i]|.
+             Therefore, comparing both (i, j) and (j, i) is unnecessary.
+            
+             Starting from j = i + 1 ensures that each unique pair is
+             considered exactly once, while still producing the correct
+             result.
+            */
+            for (int j = i + 1; j < arr.length; j++) {
+                int absDiff = Math.abs(arr[i] - arr[j]);
+                // Update the minimum absolute difference if needed
+                minAbsDiff = Math.min(minAbsDiff, absDiff);
+            }
+        }
+
+        return minAbsDiff;
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public List<List<Integer>> minimumAbsDifference(int[] arr) {
         List<List<Integer>> pairs = new ArrayList<>();
+        Arrays.sort(arr);
+
+        int minAbsDiff = findMinAbsDiff(arr);
+
         for (int i = 1; i < arr.length; i++) {
-            // If the current pair has the minimum absolute difference, add it to the result
-            if ((arr[i] - arr[i - 1]) == minAbsDiff) {
+            int currAbsDiff = arr[i] - arr[i - 1];
+            // If the current absolute difference matches the minimum, add this pair to the result list
+            if (currAbsDiff == minAbsDiff) {
                 pairs.add(List.of(arr[i - 1], arr[i]));
             }
         }
@@ -23,10 +96,19 @@ class Solution {
 
     private int findMinAbsDiff(int[] arr) {
         int minAbsDiff = Integer.MAX_VALUE;
+        /*
+        The minimum absolute difference between any two elements in an array
+        will always occur between two adjacent elements in the sorted array.
+        
+        For each index i, we only compare arr[i] with arr[i - 1] because:
+        - The comparison with the next element (arr[i + 1]) will be handled
+        naturally in the next iteration of the loop.
+        */
 
         for (int i = 1; i < arr.length; i++) {
-            int diff = arr[i] - arr[i - 1];
-            minAbsDiff = Math.min(minAbsDiff, diff);
+            int absDiff = arr[i] - arr[i - 1];
+            // Update the minimum absolute difference if needed
+            minAbsDiff = Math.min(minAbsDiff, absDiff);
         }
 
         return minAbsDiff;
