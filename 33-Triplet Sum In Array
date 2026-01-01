@@ -1,0 +1,67 @@
+//Bruteforce Approach
+
+class Solution {
+    public boolean hasTripletSum(int arr[], int target) {
+        // Try all combinations of triplets
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = i + 1; j < arr.length; j++) {
+                for (int k = j + 1; k < arr.length; k++) {
+                    // Check if the sum of current triplet equals target
+                    if (arr[i] + arr[j] + arr[k] == target) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false; // No such triplet found
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public boolean hasTripletSum(int arr[], int target) {
+        // Sort the array to enable the two-pointer technique
+        Arrays.sort(arr);
+
+        /*
+         Fix one element at a time and check whether there exists
+         a pair in the remaining part of the array such that:
+             arr[i] + pairSum == target
+
+         This reduces the 3-sum problem to a 2-sum problem.
+        */
+        for (int i = 0; i < arr.length - 2; i++) {
+            // Check if there exists a pair with sum (target - arr[i])
+            if (hasPairSum(arr, i, target - arr[i])) {
+                return true;
+            }
+        }
+
+        // No such triplet found
+        return false;
+    }
+
+    private boolean hasPairSum(int[] arr, int index, int target) {
+        int left = index + 1, right = arr.length - 1;
+
+        while (left < right) {
+            int sum = arr[left] + arr[right];
+
+            if (sum == target) {
+                return true; // A valid pair is found
+            }
+
+            if (sum < target) {
+                   left++; // Increase sum by moving the left pointer forward
+            } else {
+                right--;// Decrease sum by moving the right pointer backward
+            }
+        }
+
+        // No valid pair found for the given fixed element
+        return false;
+    }
+}
