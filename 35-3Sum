@@ -6,14 +6,15 @@ class Solution {
         return threeSum(arr, 0);
     }
 
-    private List<List<Integer>> threeSum(int[] arr, int target) {
-        Set<List<Integer>> triplets = new HashSet<>();
+    private List<List<Integer>> threeSum(int[] arr, int targetSum) {
+        Set<List<Integer>> uniqueTriplets = new HashSet<>();
 
         for (int i = 0; i < arr.length - 2; i++) {
             for (int j = i + 1; j < arr.length - 1; j++) {
                 for (int k = j + 1; k < arr.length; k++) {
                     int sum = arr[i] + arr[j] + arr[k];
-                    if (sum == target) {
+
+                    if (sum == targetSum) {
                         List<Integer> triplet = Arrays.asList(arr[i], arr[j], arr[k]);
                         /*
                          If we don't sort the triplet before adding to the set,
@@ -24,16 +25,15 @@ class Solution {
                          */
                         Collections.sort(triplet);
 
-                        triplets.add(triplet);
+                        uniqueTriplets.add(triplet);
                     }
                 }
             }
         }
 
-        return new ArrayList<>(triplets);
+        return new ArrayList<>(uniqueTriplets);
     }
 }
-
 
 
 //Improved Approach
@@ -52,7 +52,7 @@ class Solution {
          */
         Arrays.sort(arr);
 
-        Set<List<Integer>> triplets = new HashSet<>();
+        Set<List<Integer>> uniqueTriplets = new HashSet<>();
 
         // Iterate with three nested loops to find all triplets
         for (int i = 0; i < arr.length - 2; i++) {
@@ -67,14 +67,14 @@ class Solution {
                         ensuring that duplicates like [0, -1, 1] and [-1, 0, 1]
                         do not occur as separate entries in the set.
                         */
-                        triplets.add(List.of(arr[i], arr[j], arr[k]));
+                        uniqueTriplets.add(List.of(arr[i], arr[j], arr[k]));
                     }
                 }
             }
         }
 
         // Return the list of unique triplets
-        return new ArrayList<>(triplets);
+        return new ArrayList<>(uniqueTriplets);
     }
 }
 
@@ -83,139 +83,181 @@ class Solution {
 
 class Solution {
     public List<List<Integer>> threeSum(int[] arr) {
-        //Find all unique triplets with given target sum as 0
+        /*
+        Sort the array to:
+        - Enable the two-pointer technique
+        - Ensure triplets are generated in non-decreasing order, which helps avoid duplicates using Set
+        */
+        Arrays.sort(arr);
+
+        // Find all unique triplets whose sum is equal to 0
         return threeSum(arr, 0);
     }
 
-    private List<List<Integer>> threeSum(int[] arr, int target) {
-        Set<List<Integer>> triplets = new HashSet<>(); // To avoid duplicate triplets
-        Arrays.sort(arr); // Sorting is necessary for two-pointer technique and duplicate handling
+    private List<List<Integer>> threeSum(int[] arr, int targetSum) {
+        /*
+        How Set filters duplicate Lists:
+        
+        A Set uses equals() and hashCode() to determine uniqueness.
+        In Java, List overrides these methods such that two lists are
+        considered equal if and only if:
+        
+        1. They have the same size
+        2. Each element at the same index is equal
+        
+        Since the array is sorted and each triplet is added in
+        increasing order [a, b, c], duplicate triplets will have
+        identical list contents and ordering. As a result, the Set
+        automatically filters out duplicate triplets.
+        */
+        // Set is used to automatically eliminate duplicate triplets
+        Set<List<Integer>> uniqueTriplets = new HashSet<>();
 
-        // Fix the first number of the triplet
+        /*
+         Fix one element at index i and try to find a pair
+         (j, k) such that: arr[i] + arr[j] + arr[k] == targetSum
+        */
         for (int i = 0; i < arr.length - 2; i++) {
-
-            // Early termination: if arr[i] > target , no point in continuing
-            if (arr[i] > 0 && target == 0) {
-                break; // No valid triplet can be formed beyond this point
+            /*
+             Optimization 1:
+             Since the array is sorted, if arr[i] itself is greater than the
+             target sum, no valid triplet can be formed. All elements after
+             index i will be greater than or equal to arr[i], which means the
+             sum can only increase and will never reach the target value.
+            */
+            if (arr[i] > targetSum) {
+                break;
             }
 
-            // Early pruning: if even the largest possible sum is less than target
-            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < target) {
+            /*
+             Optimization 2:
+             If even the largest possible sum using arr[i]
+             (i.e., arr[i] + two largest elements) is still less
+             than the target sum, then arr[i] is too small.
+             Move to the next index.
+            */
+            if (arr[i] + arr[arr.length - 2] + arr[arr.length - 1] < targetSum) {
                 continue;
             }
 
-            int j = i + 1; // Second pointer
-            int k = arr.length - 1; // Third pointer
-            int remainingTarget = target - arr[i]; // The sum that arr[j] + arr[k] should match
+            // Initialize two pointers for the remaining part of the array
+            int j = i + 1, k = arr.length - 1;
 
-            // Two-pointer approach to find two numbers that sum to remainingTarget
+            /*
+             Use two-pointer technique to find pairs (j, k)
+             such that arr[j] + arr[k] == (targetSum - arr[i])
+            */
             while (j < k) {
-                int sum = arr[j] + arr[k];
+                int currentSum = arr[i] + arr[j] + arr[k];
 
-                if (sum == remainingTarget) {
-                    // If a valid triplet is found, add it to the set
-                    triplets.add(List.of(arr[i], arr[j], arr[k]));
+                if (currentSum == targetSum) {
+                    // Valid triplet found; add it to the set
+                    uniqueTriplets.add(List.of(arr[i], arr[j], arr[k]));
                     j++;
                     k--;
-                } else if (sum < remainingTarget) {
-                    j++; // Increase the sum by moving j to the right
+                } else if (currentSum < targetSum) {
+                    // Increase sum by moving the left pointer forward
+                    j++;
                 } else {
-                    k--; // Decrease the sum by moving k to the left
+                    // Decrease sum by moving the right pointer backward
+                    k--;
                 }
             }
         }
 
         // Convert the set to a list before returning
-        return new ArrayList<>(triplets);
+        return new ArrayList<>(uniqueTriplets);
     }
 }
-
 
 
 //Optimal Approach
 
 class Solution {
     public List<List<Integer>> threeSum(int[] arr) {
-        // Find all unique triplets in the array that sum to the target (0 by default)
+        /*
+        Sort the array to:
+        - Enable the two-pointer technique
+        - Ensure triplets are generated in non-decreasing order, which helps avoid duplicates
+        - Make duplicate skipping possible
+        */
+        Arrays.sort(arr);
         return threeSum(arr, 0);
     }
 
-    private List<List<Integer>> threeSum(int[] arr, int target) {
-        List<List<Integer>> triplets = new ArrayList<>();
+    private List<List<Integer>> threeSum(int[] arr, int targetSum) {
+        List<List<Integer>> uniqueTriplets = new ArrayList<>();
 
-        // Sort the array to enable two-pointer approach and duplicate skipping
-        Arrays.sort(arr);
-
-        // Loop over array fixing one element at a time : We only go till arr.length - 2 since we need at least two more elements for triplet
         for (int i = 0; i < arr.length - 2; i++) {
+            /*
+             Skip duplicate values for the first element of the triplet
+             to avoid generating duplicate triplets.
+            */
+            if (i > 0 && arr[i] == arr[i - 1]) {
+                continue;
+            }
 
-            // Early break: if current element is greater than target (and target is 0), no need to continue as sum cannot be smaller
-            if (arr[i] > target) {
+            if (arr[i] > targetSum) {
                 break;
             }
 
-            // Early continue: if sum of current element and two largest elements is less than target, no valid triplet can be formed starting with arr[i]
-            if (arr[i] + arr[arr.length - 1] + arr[arr.length - 2] < target) {
+            if (arr[i] + arr[arr.length - 2] + arr[arr.length - 1] < targetSum) {
                 continue;
             }
 
-            // Skip duplicates for the fixed element 'arr[i]'
-            if (i > 0 && i < arr.length && arr[i] == arr[i - 1]) {
-                continue;
-            }
+            int j = i + 1, k = arr.length - 1;
+            /*
+             lastJ and lastK are used to track previously used values
+             for j and k so that duplicate pairs can be skipped
+             explicitly without using a Set.
+            */
+            int lastJ = -1, lastK = -1;
 
-            // Two pointers: j (start from i+1) and k (start from end)
-            int j = i + 1;
-            int k = arr.length - 1;
-
-            // remainingTarget is what we want to find with arr[j] + arr[k]
-            int remainingTarget = target - arr[i];
-
-            // lastJIndex and lastKIndex track the last processed indices at j and k to avoid duplicate pairs
-            int lastJIndex = -1, lastKIndex = -1;
-
-            // While pointers don't cross
             while (j < k) {
-                // Skip duplicates at j pointer
-                while (j < arr.length && (lastJIndex != -1 && arr[lastJIndex] == arr[j])) {
+                //Skip duplicate values for the left pointer (j).
+                while (lastJ != -1 && (j < k && arr[lastJ] == arr[j])) {
                     j++;
                 }
 
-                // Skip duplicates at k pointer
-                while (k >= 0 && (lastKIndex != -1 && arr[lastKIndex] == arr[k])) {
+                //Skip duplicate values for the right pointer (k).
+                while (lastK != -1 && (k > j && arr[lastK] == arr[k])) {
                     k--;
                 }
 
                 // If pointers crossed, stop searching
-                if (j >= k) {
-                    break;
-                }
+                if (j < k) {
+                    int currentSum = arr[i] + arr[j] + arr[k];
 
-                int sum = arr[j] + arr[k];
-
-                if (sum == remainingTarget) {
-                    // Found a valid triplet summing to target
-                    triplets.add(List.of(arr[i], arr[j], arr[k]));
-
-                    // Update previous indices to avoid duplicates
-                    lastJIndex = j;
-                    lastKIndex = k;
-
-                    // Move both pointers inward to look for new pairs
-                    j++;
-                    k--;
-
-                } else if (sum < remainingTarget) {
-                    // Sum too small, move j forward to increase sum
-                    j++;
-
-                } else {
-                    // Sum too large, move k backward to decrease sum
-                    k--;
+                    if (currentSum == targetSum) {
+                        // Valid triplet found; add it to the result list
+                        uniqueTriplets.add(List.of(arr[i], arr[j], arr[k]));
+                        /*
+                         Store the current indices of j and k so that if the same values
+                         appear again at the new j or k indices, they can be skipped in
+                         subsequent iterations, preventing duplicate triplets.
+                        */
+                        lastJ = j++;
+                        lastK = k--;
+                    } else if (currentSum < targetSum) {
+                        /*
+                        Sum is too small, so move the left pointer (j) forward to increase
+                        the sum. Store the current j index in lastJ so that the same value
+                        at the new j index can be skipped, preventing duplicate triplets.
+                        */
+                        lastJ = j++;
+                    } else {
+                        /*
+                        Sum is too large, so move the right pointer (k) backward to decrease
+                        the sum. Store the current k index in lastK so that the same value
+                        at the new k index can be skipped, preventing duplicate triplets.
+                        */
+                        lastK = k--;
+                    }
                 }
             }
         }
 
-        return triplets;
+        // Return the list of unique triplets
+        return uniqueTriplets;
     }
 }
