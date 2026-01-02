@@ -1,33 +1,59 @@
 /*
  * Problem Explanation:
  * ---------------------
- * This problem counts the minimum number of **adjacent swaps** required to sort an array.
- * It is directly related to counting the number of **inversions** in the array.
- * 
- * An inversion is defined as a pair (i, j) such that:
+ * This problem asks for the minimum number of ADJACENT swaps required
+ * to sort an array. This is exactly equal to the number of inversions
+ * present in the array.
+ *
+ * What is an inversion?
+ * ---------------------
+ * An inversion is a pair (i, j) such that:
  *      - i < j
  *      - arr[i] > arr[j]
- * 
- * Why does inversion count = minimum number of swaps?
- * Because to fix each such pair (i, j), we must "bubble" the larger element ahead using swaps.
- * Each inversion contributes to exactly one swap in the worst case.
+ * This means the two elements are in the wrong relative order.
  *
- * Example:
- * --------
- * Input:  arr = {2, 20, 15, 6, 10}
+ * Why inversion count = minimum adjacent swaps?
+ * ---------------------------------------------
+ * An adjacent swap can fix at most one inversion.
+ * To sort the array, all inversions must be removed.
+ * Therefore, the minimum number of adjacent swaps required
+ * is exactly equal to the inversion count.
  *
- * Reverse Pairs (Inversions):
- *     (20,15)
- *     (20,6)
- *     (20,10)
- *     (15,6)
- *     (15,10)
- * => 5 inversions = 5 minimum adjacent swaps required to sort the array.
+ * Intuition (Bubble Sort view):
+ * -----------------------------
+ * Larger elements "bubble" to the right.
+ * Each time a larger element crosses a smaller one,
+ * exactly one adjacent swap occurs, removing one inversion.
+ *
+ * Dry Run Example:
+ * ----------------
+ * Input: arr = {2, 20, 15, 6, 10}
+ *
+ * Inversions:
+ *     (20,15), (20,6), (20,10),
+ *     (15,6), (15,10)
+ * Total = 5 inversions
+ *
+ * Adjacent swaps:
+ *     {2, 20, 15, 6, 10}
+ * →   {2, 15, 20, 6, 10}   // fixes (20,15)
+ * →   {2, 15, 6, 20, 10}   // fixes (20,6)
+ * →   {2, 15, 6, 10, 20}   // fixes (20,10)
+ * →   {2, 6, 15, 10, 20}   // fixes (15,6)
+ * →   {2, 6, 10, 15, 20}   // fixes (15,10)
+ *
+ * Array is sorted using exactly 5 adjacent swaps.
  *
  * Note:
  * -----
  * - A sorted array (ascending) has 0 inversions.
  * - A descending sorted array has the maximum number of inversions.
+ *
+ * Key Takeaway:
+ * -------------
+ * Each inversion represents one mandatory adjacent swap.
+ * Hence, inversion count equals the minimum number of
+ * adjacent swaps required to sort the array.
  */
  
 class Solution {
@@ -81,7 +107,7 @@ class Solution {
             if (left[i] <= right[j]) {
                 arr[k++] = left[i++];
             } else {
-                // All remaining elements in left[i...] are greater than right[j]
+                // All remaining elements in left[i...left.size()-1] are greater than right[j]
                 inversionCount += (leftSize - i);
                 arr[k++] = right[j++];
             }
