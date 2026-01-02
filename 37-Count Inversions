@@ -32,6 +32,7 @@ class Solution {
 //Optimal Approach
 
 class Solution {
+    class Solution {
     /*
      * Inversion Count Concept:
      * ------------------------
@@ -39,13 +40,31 @@ class Solution {
      * - i < j
      * - arr[i] > arr[j]
      *
-     * In merge sort, we divide the array into two sorted halves.
-     * During the merge step, we count cross-inversions, i.e., 
-     * inversions where one element is from the left half and the other from the right half.
+     * How i < j is guaranteed in merge sort:
+     * --------------------------------------
+     * During merge sort, the array is recursively divided into two halves:
+     * - The left subarray contains elements that originally appeared
+     *   earlier in the array.
+     * - The right subarray contains elements that originally appeared
+     *   later in the array.
+     *
+     * Therefore, when we compare elements from the left array and the
+     * right array during the merge step, we are inherently comparing
+     * elements where the original index of the left element is less
+     * than the original index of the right element (i < j).
+     *
+     * This means every inversion counted during the merge step
+     * automatically satisfies the condition i < j.
+     *
+     * Cross-Inversion Logic:
+     * ----------------------
+     * In merge sort, we count cross-inversions, i.e., inversions where:
+     * - One element comes from the left half
+     * - The other comes from the right half
      *
      * Example:
-     * Left  = [1, 5, 6, 9]   → indices 0 to 3
-     * Right = [2, 3, 7, 10]  → indices 4 to 7
+     * Left  = [1, 5, 6, 9]   → original indices before right half
+     * Right = [2, 3, 7, 10]  → original indices after left half
      *
      * Manual Cross-Inversion Pairs:
      * - (5,2), (6,2), (9,2)
@@ -56,15 +75,16 @@ class Solution {
      * Optimization:
      * -------------
      * During the merge, when left[i] > right[j], since left[] is sorted,
-     * all elements from index 'i' to the end of left[] will also be greater than right[j].
-     * So instead of checking each one, we add:
+     * all elements from index i to the end of left[] will also be greater
+     * than right[j].
+     *
+     * Instead of checking each pair individually, we directly add:
      *
      *     inversionCount += (leftSize - i);
      *
-     * This adds all inversions involving right[j] at once,
-     * improving the time complexity from O(n^2) to O(n log n).
+     * This counts all valid inversions involving right[j] at once,
+     * reducing the time complexity from O(n^2) to O(n log n).
      */
-
     int inversionCount(int arr[]) {
         return inversionCount(arr, 0, arr.length - 1);
     }
