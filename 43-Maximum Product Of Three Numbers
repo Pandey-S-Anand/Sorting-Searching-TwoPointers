@@ -1,0 +1,204 @@
+/*
+ Problem:
+ --------
+ Find the maximum product of any three numbers from the given array.
+
+ Key Observations:
+ -----------------
+ The sign and magnitude of the product depend heavily on the presence
+ of negative numbers and zeros. Hence, we analyze the problem based on
+ the nature of the array elements.
+
+ ============================================================
+ Case 1: Array contains all non-negative numbers (0 and positives)
+ ============================================================
+
+ If all elements are >= 0, then:
+ - The maximum product will come from the three largest numbers.
+ - Since the array is sorted in ascending order, these are the
+   last three elements.
+
+ Example:
+ arr = {6, 5, 1, 6, 2, 0}
+
+ After sorting:
+ arr = {0, 1, 2, 5, 6, 6}
+
+ Max Product = 6 * 6 * 5 = 180
+
+
+ ============================================================
+ Case 2: Array contains all negative numbers
+ ============================================================
+
+ If all elements are negative:
+ - Any product of three numbers will be negative.
+ - To maximize the product (i.e., make it as large as possible on the
+   negative number line), we must minimize the magnitude.
+ - This is achieved by choosing the three negative numbers closest to zero,
+   which are the last three elements in the sorted array.
+
+ Example:
+ arr = {-6, -8, -7, -100, -7}
+
+ After sorting:
+ arr = {-100, -8, -7, -7, -6}
+
+ Max Product = (-7) * (-7) * (-6) = -294
+
+
+ ============================================================
+ Case 3: Array contains a mix of negative and non-negative numbers
+ ============================================================
+
+ In a mixed array, the maximum product can come from one of two possibilities:
+
+ 1) Product of the three largest elements
+    → arr[n-1] * arr[n-2] * arr[n-3]
+
+ 2) Product of the two smallest (most negative) elements and the largest element
+    → arr[0] * arr[1] * arr[n-1]
+
+ Reason:
+ - The product of two negative numbers is positive.
+ - Multiplying that positive value with the largest positive number
+   may yield a larger result than using the top three positives alone.
+
+ Examples:
+
+ Example 1:
+ arr = {3, 1, 4, -9, 2}
+ sorted = {-9, 1, 2, 3, 4}
+ max = max(4*3*2, -9*1*4) = 24
+
+ Example 2:
+ arr = {-9, -6, 1, -7}
+ sorted = {-9, -7, -6, 1}
+ max = max(1*-9*-7, 1*-6*-7) = 63
+
+ Example 3:
+ arr = {-9, 1, 0, -7}
+ sorted = {-9, -7, 0, 1}
+ max = max(1*0*-7, 1*-9*-7) = 63
+
+ Example 4:
+ arr = {-9, -7, -7, 1, 2, 1}
+ sorted = {-9, -7, -7, 1, 1, 2}
+ max = max(2*1*1, 2*-9*-7) = 126
+*/
+
+
+// Naive Implementation
+
+class Solution {
+    public int maximumProduct(int[] arr) {
+        // Sort the array to easily access smallest and largest elements
+        Arrays.sort(arr);
+
+        /*
+         If the array is homogeneous (all non-negative OR all negative),
+         then the maximum product always comes from the last three elements.
+        */
+        if (isArrayHomogenous(arr)) {
+            return arr[arr.length - 1] * arr[arr.length - 2] * arr[arr.length - 3];
+        }
+
+        /*
+         For a mixed array:
+         Compare the two valid candidates and return the maximum:
+         1) Product of three largest numbers
+         2) Product of two smallest (most negative) and the largest number
+        */
+        return Math.max(arr[arr.length - 1] * arr[0] * arr[1], arr[arr.length - 1] * arr[arr.length - 2] * arr[arr.length - 3]);
+    }
+
+    /*
+     Checks whether the array contains elements of only one sign:
+     - All non-negative (>= 0), or
+     - All negative (< 0)
+
+     If both negative and non-negative elements are present,
+     the array is considered mixed.
+    */
+    private boolean isArrayHomogenous(int[] arr) {
+        boolean negFound = false;
+        boolean posFound = false;
+
+        for (int num : arr) {
+            if (num >= 0) {
+                posFound = true;
+            } else {
+                negFound = true;
+            }
+
+            // If both signs are found, array is mixed
+            if (negFound && posFound) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+
+// Better Implementation
+class Solution {
+    public int maximumProduct(int[] arr) {
+        // Sort array in ascending order
+        Arrays.sort(arr);
+
+        // Directly return the max of:  product of first two and last element OR product of last three elements
+        return Math.max(arr[0] * arr[1] * arr[arr.length - 1], arr[arr.length - 1] * arr[arr.length - 2] * arr[arr.length - 3]);
+    }
+}
+
+
+
+// Optimal Implementation
+
+class Solution {
+    public int maximumProduct(int[] arr) {
+        /*
+         We need:
+         - The three largest numbers (for max * secondMax * thirdMax)
+         - The two smallest numbers (most negative) (for min * secondMin * max)
+        
+         We compute all of these in a single pass.
+        */
+        // Track three largest values
+        int max = Integer.MIN_VALUE, secMax = Integer.MIN_VALUE, thirdMax = Integer.MIN_VALUE;
+
+        // Track two smallest values
+        int min = Integer.MAX_VALUE, secMin = Integer.MAX_VALUE;
+
+        for (int i = 0; i < arr.length; i++) {
+            // Update the top three maximum values
+            if (arr[i] > max) {
+                thirdMax = secMax;
+                secMax = max;
+                max = arr[i];
+            } else if (arr[i] > secMax) {
+                thirdMax = secMax;
+                secMax = arr[i];
+            } else if (arr[i] > thirdMax) {
+                thirdMax = arr[i];
+            }
+
+            // Update the two minimum values
+            if (arr[i] < min) {
+                secMin = min;
+                min = arr[i];
+            } else if (arr[i] < secMin) {
+                secMin = arr[i];
+            }
+        }
+
+        /*
+        The maximum product of three numbers can be either:
+        1. Product of two smallest (could be negative) and the largest number
+        2. Product of three largest numbers
+        */
+        return Math.max(max * secMax * thirdMax, min * secMin * max);
+    }
+}
