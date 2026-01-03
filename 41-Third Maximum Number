@@ -1,0 +1,120 @@
+//Bruteforce Approach
+
+class Solution {
+    public int thirdMax(int[] arr) {
+        // Sort the array in ascending order
+        Arrays.sort(arr);
+        // Removes duplicates from the sorted array in-place and get the new size of distinct elements
+        int newSize = removeDuplicates(arr);
+
+        // If less than 3 distinct elements, return the largest element
+        if (newSize < 3) {
+            return arr[newSize - 1]; // last element is max
+        }
+
+        // Otherwise, return the 3rd maximum element
+        return arr[newSize - 3];
+    }
+
+    private int removeDuplicates(int[] arr) {
+        int idx = 1;
+
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] != arr[i - 1]) {
+                arr[idx++] = arr[i];
+            }
+        }
+
+        return idx;
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    public int thirdMax(int[] arr) {
+        // TreeSet with descending order to keep elements sorted in reverse (largest to smallest)
+        TreeSet<Integer> set = new TreeSet<>((num1, num2) -> Integer.compare(num2, num1));
+
+        // Step 1: Add all elements to TreeSet — automatically removes duplicates and keeps them sorted descending
+        for (int num : arr) {
+            set.add(num);
+        }
+
+        /*
+         * Step 2:
+         * If the set contains at least 3 distinct numbers, we remove the largest two.
+         * The third element (next largest) will now be at the front.
+         */
+        if (set.size() >= 3) {
+            set.pollFirst(); // Remove 1st largest
+            set.pollFirst(); // Remove 2nd largest
+        }
+
+        /*
+         * Step 3:
+         * Either return the 3rd distinct maximum (if ≥ 3 unique numbers),
+         * or return the overall maximum (if < 3 unique numbers).(arr[] contains at least one element as per problem constraints)
+         */
+        return set.pollFirst();
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public int thirdMax(int[] arr) {
+        /*
+         We use 'long' instead of 'int' to safely handle edge cases
+         where the array may contain Integer.MIN_VALUE (-2147483648).
+         Using long avoids ambiguity between an actual value and a
+         sentinel initialization.
+        */
+        long max = Long.MIN_VALUE, secMax = Long.MIN_VALUE, thirdMax = Long.MIN_VALUE;
+
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] > max) {
+                /*
+                Case 1:
+                Current element is greater than the current maximum.
+                Shift max → secondMax, secondMax → thirdMax.
+                */
+                thirdMax = secMax;
+                secMax = max;
+                max = arr[i];
+            } else if (arr[i] != max && arr[i] > secMax) {
+                /*
+                Case 2:
+                Current element is less than max but greater than secondMax.
+                Ensure it is distinct from max.
+                */
+                thirdMax = secMax;
+                secMax = arr[i];
+            } else if (arr[i] != max && arr[i] != secMax && arr[i] > thirdMax) {
+                /*
+                Case 3:
+                Current element is less than max and secondMax but
+                greater than thirdMax.
+                Ensure it is distinct from both max and secondMax.
+                */
+                thirdMax = arr[i];
+            }
+        }
+
+        /*
+         If thirdMax was never updated, it means there are
+         fewer than 3 distinct values in the array.
+         In that case, return the maximum value.
+         
+         Important edge case:
+         arr = [1, 2, -2147483648]
+         thirdMax is valid and equals -2147483648, so using long
+         ensures correct detection.
+        */
+        return thirdMax == Long.MIN_VALUE ? (int) max : (int) thirdMax;
+    }
+}
