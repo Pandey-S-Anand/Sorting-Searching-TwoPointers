@@ -26,71 +26,105 @@ class Solution {
 
 class Solution {
     /**
-     * Problem: For each element in the array, count the number of elements to its right
-     * that are smaller than the current element.
+     * Problem:
+     * --------
+     * For each element in the array, count how many elements to its right
+     * are strictly smaller than the current element.
      *
      * Approach: Binary Search + Sorted List
-     *
-     * Steps:
-     * 1. Create a sorted version of the input array.
+     * ------------------------------------
+     * 1. Create a sorted list of all elements from the array.
      * 2. Traverse the original array from left to right.
-     *    - For each element, find the index of its first occurrence in the sorted list.
-     *    - That index directly tells how many elements to the right are smaller.
-     *    - After processing, remove the element from the sorted list.
+     *    - For the current element, find its FIRST occurrence index
+     *      in the sorted list using binary search.
+     *    - That index represents the count of elements smaller than it.
+     *    - Remove this element from the sorted list so that the list
+     *      always represents only the elements to the right.
      *
      * Why this works:
-     * - One might worry that sorting brings left-side elements into the picture.
-     * - But we remove elements as we process them, so the sorted list always contains
-     *   only the elements to the right of the current element.
-     * - This guarantees correctness since we never count already-processed elements.
+     * ---------------
+     * Although the sorted list initially contains elements from both
+     * left and right of the current index, we remove elements as we
+     * process them from left to right. Hence, at iteration i, the
+     * sorted list contains exactly the elements to the right of arr[i].
      *
-     * Time Complexity: O(n²) — because remove(index) is O(n) for a list.
+     * Time Complexity:
+     * ----------------
+     * - Binary search: O(log n)
+     * - Removal from list: O(n)
+     * - Overall: O(n²)
      *
-     * Dry Run Example:
+     * Space Complexity:
+     * -----------------
+     * O(n)
+     *
+     * ===================== FULL DRY RUN =====================
      *
      * Input Array:
-     * Index   =>  0  1  2  3  4  5  6  7  8  9 10
-     * arr[]   => [5, 2, 4, 6, 1, 2, 9, 1, 6, 5, 8]
+     * Index  :  0  1  2  3  4  5  6  7  8  9 10
+     * arr[]  : [5, 2, 4, 6, 1, 2, 9, 1, 6, 5, 8]
      *
-     * Sorted => [1, 1, 2, 2, 4, 5, 5, 6, 6, 8, 9]
+     * Initial Sorted List:
+     * [1, 1, 2, 2, 4, 5, 5, 6, 6, 8, 9]
      *
-     * Iteration-wise breakdown:
+     * i = 0, arr[i] = 5
+     * firstIndex = 5  → count = 5
+     * Sorted after removal:
+     * [1, 1, 2, 2, 4, 5, 6, 6, 8, 9]
      *
-     * i = 0, arr[i] = 5 ⇒ firstIndex = 5 ⇒ count = 5, remove 5
-     * Updated Sorted = [1, 1, 2, 2, 4, 5, 6, 6, 8, 9]
+     * i = 1, arr[i] = 2
+     * firstIndex = 2  → count = 2
+     * Sorted after removal:
+     * [1, 1, 2, 4, 5, 6, 6, 8, 9]
      *
-     * i = 1, arr[i] = 2 ⇒ firstIndex = 2 ⇒ count = 2, remove 2
-     * Updated Sorted = [1, 1, 2, 4, 5, 6, 6, 8, 9]
+     * i = 2, arr[i] = 4
+     * firstIndex = 3  → count = 3
+     * Sorted after removal:
+     * [1, 1, 2, 5, 6, 6, 8, 9]
      *
-     * i = 2, arr[i] = 4 ⇒ firstIndex = 3 ⇒ count = 3, remove 4
-     * Updated Sorted = [1, 1, 2, 5, 6, 6, 8, 9]
+     * i = 3, arr[i] = 6
+     * firstIndex = 4  → count = 4
+     * Sorted after removal:
+     * [1, 1, 2, 5, 6, 8, 9]
      *
-     * i = 3, arr[i] = 6 ⇒ firstIndex = 4 ⇒ count = 4, remove 6
-     * Updated Sorted = [1, 1, 2, 5, 6, 8, 9]
+     * i = 4, arr[i] = 1
+     * firstIndex = 0  → count = 0
+     * Sorted after removal:
+     * [1, 2, 5, 6, 8, 9]
      *
-     * i = 4, arr[i] = 1 ⇒ firstIndex = 0 ⇒ count = 0, remove 1
-     * Updated Sorted = [1, 2, 5, 6, 8, 9]
+     * i = 5, arr[i] = 2
+     * firstIndex = 1  → count = 1
+     * Sorted after removal:
+     * [1, 5, 6, 8, 9]
      *
-     * i = 5, arr[i] = 2 ⇒ firstIndex = 1 ⇒ count = 1, remove 2
-     * Updated Sorted = [1, 5, 6, 8, 9]
+     * i = 6, arr[i] = 9
+     * firstIndex = 4  → count = 4
+     * Sorted after removal:
+     * [1, 5, 6, 8]
      *
-     * i = 6, arr[i] = 9 ⇒ firstIndex = 4 ⇒ count = 4, remove 9
-     * Updated Sorted = [1, 5, 6, 8]
+     * i = 7, arr[i] = 1
+     * firstIndex = 0  → count = 0
+     * Sorted after removal:
+     * [5, 6, 8]
      *
-     * i = 7, arr[i] = 1 ⇒ firstIndex = 0 ⇒ count = 0, remove 1
-     * Updated Sorted = [5, 6, 8]
+     * i = 8, arr[i] = 6
+     * firstIndex = 1  → count = 1
+     * Sorted after removal:
+     * [5, 8]
      *
-     * i = 8, arr[i] = 6 ⇒ firstIndex = 1 ⇒ count = 1, remove 6
-     * Updated Sorted = [5, 8]
+     * i = 9, arr[i] = 5
+     * firstIndex = 0  → count = 0
+     * Sorted after removal:
+     * [8]
      *
-     * i = 9, arr[i] = 5 ⇒ firstIndex = 0 ⇒ count = 0, remove 5
-     * Updated Sorted = [8]
-     *
-     * i = 10, arr[i] = 8 ⇒ firstIndex = 0 ⇒ count = 0, remove 8
-     * Updated Sorted = []
+     * i = 10, arr[i] = 8
+     * firstIndex = 0 → count = 0
+     * Sorted after removal:
+     * []
      *
      * Final Result:
      * count[] = [5, 2, 3, 4, 0, 1, 4, 0, 1, 0, 0]
+     * =========================================================
      */
     public List<Integer> countSmaller(int[] arr) {
         List<Integer> counts = new ArrayList<>();
@@ -98,26 +132,34 @@ class Solution {
         // Step 1: Create a sorted list of all elements
         List<Integer> sorted = Arrays.stream(arr).boxed().sorted().collect(Collectors.toList());
 
-        // Step 2: For each number in original array, use binary search to count
+        // Step 2: Process elements from left to right
         for (int num : arr) {
-            int firstIndex = findFirstIndex(sorted, num); // Index = count of smaller elements
+
+            // Index of first occurrence = count of smaller elements
+            int firstIndex = findFirstOccurrenceIndex(sorted, num);
             counts.add(firstIndex);
-            sorted.remove(firstIndex); // Remove current element to maintain right-side only view
+
+            /*
+             Remove the current element from the sorted list.
+             The element is guaranteed to exist because sorted was built from arr
+            */
+            sorted.remove(firstIndex);
         }
 
         return counts;
     }
 
-    private int findFirstIndex(List<Integer> arr, int target) {
-        int low = 0, high = arr.size() - 1, firstIndex = -1;
+    private int findFirstOccurrenceIndex(List<Integer> list, int target) {
+        int low = 0, high = list.size() - 1;
+        int firstIndex = -1;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            if (arr.get(mid) == target) {
+            if (list.get(mid) == target) {
                 firstIndex = mid;
-                high = mid - 1; // Continue searching to the left
-            } else if (arr.get(mid) < target) {
+                high = mid - 1;
+            } else if (list.get(mid) < target) {
                 low = mid + 1;
             } else {
                 high = mid - 1;
@@ -127,6 +169,7 @@ class Solution {
         return firstIndex;
     }
 }
+
 
 
 //Optimal Approach
@@ -155,7 +198,7 @@ class Solution {
  *
  * * Why do we sort in descending order during merge?
  *
- * If left[i] > right[j], then all elements from right[j] onward are also < left[i]
+ * If left[i] > right[j], then all elements from right[j] till right[rightSize - 1] are also are less than left[i]
  * (since both halves are sorted in descending order).
  *
  * CRUX of the Counting Logic:
@@ -190,13 +233,13 @@ class Solution {
 
 class Solution {
     // Array to store counts of smaller elements to the right for each original element
-    private int[] smallerCounts;
+    private int[] counts;
 
     public List<Integer> countSmaller(int[] arr) {
-        smallerCounts = new int[arr.length];
+        counts = new int[arr.length];
         int[] originalIndices = new int[arr.length]; // To keep track of each element's original index in the input array.
 
-        // Initialize originalIndices with positions 0 to n-1
+        // Initialize originalIndices with indices 0 to n-1
         for (int i = 0; i < arr.length; i++) {
             originalIndices[i] = i;
         }
@@ -204,7 +247,7 @@ class Solution {
         // Recursive merge sort based counting function
         countSmaller(arr, 0, arr.length - 1, originalIndices);
 
-        return Arrays.stream(smallerCounts).boxed().collect(Collectors.toList());
+        return Arrays.stream(counts).boxed().collect(Collectors.toList());
     }
 
     private void countSmaller(int[] arr, int low, int high, int[] originalIndices) {
@@ -254,36 +297,28 @@ class Solution {
                  * So, number of smaller elements on right side for left[i] is (rightSize - j)
                  * Update smallerCounts at the original index of left[i] accordingly
                  */
-                smallerCounts[leftOriginalIndices[i]] += (rightSize - j);
+                counts[leftOriginalIndices[i]] += (rightSize - j);
 
                 // Place left[i] in sorted position
                 arr[k] = left[i];
-                originalIndices[k] = leftOriginalIndices[i];
-                i++;
-                k++;
+                originalIndices[k++] = leftOriginalIndices[i++];
             } else {
                 // left[i] <= right[j], place right[j] in sorted position
                 arr[k] = right[j];
-                originalIndices[k] = rightOriginalIndices[j];
-                j++;
-                k++;
+                originalIndices[k++] = rightOriginalIndices[j++];
             }
         }
 
         // Copy remaining elements of left half, if any
         while (i < leftSize) {
             arr[k] = left[i];
-            originalIndices[k] = leftOriginalIndices[i];
-            i++;
-            k++;
+            originalIndices[k++] = leftOriginalIndices[i++];
         }
 
         // Copy remaining elements of right half, if any
         while (j < rightSize) {
             arr[k] = right[j];
-            originalIndices[k] = rightOriginalIndices[j];
-            j++;
-            k++;
+            originalIndices[k++] = rightOriginalIndices[j++];
         }
     }
 }
@@ -292,20 +327,20 @@ class Solution {
 //Aliter
 
 class Solution {
-    private List<Integer> smallerCounts;
+    private List<Integer> counts;
 
     public List<Integer> countSmaller(int[] arr) {
-        smallerCounts = new ArrayList<>();
+        counts = new ArrayList<>();
         int[] originalIndices = new int[arr.length];
 
         for (int i = 0; i < arr.length; i++) {
             originalIndices[i] = i;
-            smallerCounts.add(0); // Initially, all counts are 0
+            counts.add(0); // Initially, all counts are 0
         }
 
         countSmaller(arr, 0, arr.length - 1, originalIndices);
 
-        return smallerCounts;
+        return counts;
     }
 
     private void countSmaller(int[] arr, int low, int high, int[] originalIndices) {
@@ -341,8 +376,8 @@ class Solution {
         while (i < leftSize && j < rightSize) {
             if (left[i] > right[j]) {
                 // Update count at the original index of left[i]
-                int existingCount = smallerCounts.get(leftOriginalIndices[i]);
-                smallerCounts.set(leftOriginalIndices[i], existingCount + (rightSize - j));
+                int existingCount = counts.get(leftOriginalIndices[i]);
+                counts.set(leftOriginalIndices[i], existingCount + (rightSize - j));
 
                 arr[k] = left[i];
                 originalIndices[k] = leftOriginalIndices[i];
@@ -371,7 +406,6 @@ class Solution {
         }
     }
 }
-
 
 
 /*
