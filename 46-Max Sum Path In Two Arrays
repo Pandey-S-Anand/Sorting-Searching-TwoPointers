@@ -109,8 +109,7 @@ class Solution {
         int maxSumPathSoFar = 0;
         int i = 0, j = 0;
 
-        // Segment sums for ranges between common elements
-        // (including start → first common and last common → end segments)
+        // Segment sums for ranges between common elements (including start → first common and last common → end segments)
         int segmentSum1 = 0;
         int segmentSum2 = 0;
 
