@@ -1,0 +1,148 @@
+/*
+ Example:
+
+ Consider the arrays:
+     A = [1, 5, 10, 15, 20, 25]
+     B = [2, 5, 7, 15, 18, 30]
+
+ Common elements: [5, 15]
+
+ All possible valid paths (switching allowed only at common elements):
+
+ --- A-origin Paths ---
+ 1. Path A1: Stay entirely in A
+    → 1 → 5 → 10 → 15 → 20 → 25
+    → Sum: 76
+
+ 2. Path A2: Start in A, switch to B at 5, then switch back to A at 15
+    → 1 → 5 (B) → 7 → 15 (A) → 20 → 25
+    → Sum: 73
+
+ 3. Path A3: Start in A, switch to B at 5, stay in B till the end
+    → 1 → 5 (B) → 7 → 15 → 18 → 30
+    → Sum: 76
+
+ 4. Path A4: Start in A, switch to B only at 15
+    → 1 → 5 → 10 → 15 (B) → 18 → 30
+    → Sum: 79
+
+ --- B-origin Paths ---
+ 5. Path B1: Stay entirely in B
+    → 2 → 5 → 7 → 15 → 18 → 30
+    → Sum: 77
+
+ 6. Path B2: Start in B, switch to A at 5, then switch back to B at 15
+    → 2 → 5 (A) → 10 → 15 (B) → 18 → 30
+    → Sum: 80
+
+ 7. Path B3: Start in B, switch to A at 5, stay in A till the end
+    → 2 → 5 (A) → 10 → 15 → 20 → 25
+    → Sum: 77
+
+ 8. Path B4: Start in B, stay in B till 15, then switch to A
+    → 2 → 5 → 7 → 15 (A) → 20 → 25
+    → Sum: 74
+
+ Maximum sum path:
+ → 1 → 5 → 10 → 15 (B) → 18 → 30
+ Sum = 79
+ (Start in A, switch to B only at 15)
+
+ ======================================================
+
+ CRUX OF THE PROBLEM:
+ -------------------
+ We are given two sorted arrays that represent two separate paths.
+ We can start from either array and move forward.
+ Switching from one array to the other is allowed ONLY at common elements.
+
+ KEY CONSTRAINTS:
+ ----------------
+ 1. From the start until the first common element, from the last common
+    element till the end of either array, and between any two common
+    elements, you must stay on exactly ONE path,
+    i.e., either entirely in arr1 or entirely in arr2.
+    Mixing elements from both arrays in these ranges is NOT allowed.
+ 2. A common element acts as a SWITCH POINT:
+    - You may switch paths here.
+    - The common element is counted ONLY once.
+ 3. Therefore, the entire path (starting from either array and ending in
+    either array) is divided into independent segments separated by
+    common elements. For each segment, exactly one array must be chosen
+    (either arr1 or arr2).
+
+ CORE IDEA:
+ ----------
+ Between two common elements (or before the first one, or after the last one),
+ the only decision is:
+     → Which array gives the larger sum in this segment?
+
+ HOW THE ALGORITHM WORKS:
+ -----------------------
+ - Maintain two running sums:
+     sum1 → sum of the current segment in arr1
+     sum2 → sum of the current segment in arr2
+ - When a common element is encountered:
+       result += max(sum1, sum2) + commonElement
+       reset sum1 and sum2 to 0
+
+ WHY ONLY ONE POINTER MOVES WHEN ELEMENTS DIFFER:
+ -----------------------------------------------
+ If arr1[i] < arr2[j]:
+   - arr1[i] cannot appear later in arr2 (arrays are sorted),
+   - so it must belong to the current segment in arr1 and is added to sum1.
+
+ Similarly, if arr2[j] < arr1[i]:
+   - arr2[j] must belong to the current segment in arr2 and is added to sum2.
+
+ FINAL INSIGHT:
+ --------------
+ The maximum-sum path looks like:
+   [best segment] → common → [best segment] → common → ...
+
+ Each local greedy choice leads to the global maximum.
+*/
+
+
+class Solution {
+    public int maxPathSum(List<Integer> arr1, List<Integer> arr2) {
+        int maxSumPathSoFar = 0;
+        int i = 0, j = 0;
+
+        // Segment sums for ranges between common elements
+        // (including start → first common and last common → end segments)
+        int segmentSum1 = 0;
+        int segmentSum2 = 0;
+
+        while (i < arr1.size() && j < arr2.size()) {
+            if (arr1.get(i) < arr2.get(j)) {
+                // Current value belongs to the ongoing segment in arr1
+                segmentSum1 += arr1.get(i++);
+            } else if (arr2.get(j) < arr1.get(i)) {
+                // Current value belongs to the ongoing segment in arr2
+                segmentSum2 += arr2.get(j++);
+            } else {
+                // Common element found: choose the better segment and add common value once
+                maxSumPathSoFar += Math.max(segmentSum1, segmentSum2) + arr1.get(i);
+                i++;
+                j++;
+                segmentSum1 = 0;
+                segmentSum2 = 0;
+            }
+        }
+
+        // Add remaining elements after the last common element
+        while (i < arr1.size()) {
+            segmentSum1 += arr1.get(i++);
+        }
+
+        while (j < arr2.size()) {
+            segmentSum2 += arr2.get(j++);
+        }
+
+        // Add the better trailing segment
+        maxSumPathSoFar += Math.max(segmentSum1, segmentSum2);
+
+        return maxSumPathSoFar;
+    }
+}
