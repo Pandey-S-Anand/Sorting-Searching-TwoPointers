@@ -30,12 +30,12 @@ class Solution {
 
 class Solution {
     public int maxArea(int[] height) {
-        int i = 0, j = height.length - 1;
+        int left = 0, right = height.length - 1;
         int maxArea = Integer.MIN_VALUE;
 
-        while (i < j) {
-            int width = j - i;
-            int minHeight = Math.min(height[i], height[j]);
+        while (left < right) {
+            int width = right - left;
+            int minHeight = Math.min(height[left], height[right]);
             int area = width * minHeight;
             maxArea = Math.max(maxArea, area);
 
@@ -52,7 +52,7 @@ class Solution {
              * pointing to the smaller height — in the hope of finding a taller line that 
              * could result in a larger area.
              * 
-             * Why do we move both pointers if height[i] == height[j]?
+             * Why do we move both pointers if height[left] == height[right]?
              * - Area depends on both width and the minimum of the two heights.
              * - Since width will decrease regardless, the only way to potentially increase
              *   area is by increasing height.
@@ -65,14 +65,14 @@ class Solution {
              * - Therefore, when heights are equal, moving both pointers is the optimal choice
              *   as width is shrinking anyway and we want to explore taller lines on both ends.
              */
-            
-            if (height[i] == height[j]) {
-                i++;
-                j--;
-            } else if (height[i] < height[j]) {
-                i++;
-            } else {
-                j--;
+
+            if (height[left] == height[right]) {
+                left++;
+                right--;
+            } else if (height[left] < height[right]) {
+                left++;
+            } else { // height[right] < height[left]
+                right--;
             }
         }
 
