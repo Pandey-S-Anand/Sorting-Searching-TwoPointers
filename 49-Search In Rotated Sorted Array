@@ -26,10 +26,21 @@ class Solution {
         */
         int pivotIndex = findPivotIndex(arr);
 
-        // Binary search in the left sorted part
-        int index = binarySearch(arr, 0, pivotIndex, target);
-        if (index != -1) {
-            return index;
+        /*
+         If pivotIndex == -1:
+         - The array is sorted but NOT rotated (or has only one element)
+         - Perform normal binary search on the entire array
+        */
+        if (pivotIndex == -1) {
+            return binarySearch(arr, 0, arr.length - 1, target);
+        }
+
+        /*
+        * Step 2: If target lies within the range of the left sorted subarray [0...pivot],
+        * perform binary search on that segment.
+        */
+        if (target >= arr[0] && target <= arr[pivotIndex]) {
+            return binarySearch(arr, 0, pivotIndex, target);
         }
 
         // If not found, binary search in the right sorted part
@@ -38,26 +49,39 @@ class Solution {
 
     private int findPivotIndex(int[] arr) {
         /*
-         In a rotated sorted array, the pivot is where
-         arr[i] < arr[i - 1]. Then (i - 1) is the pivot.
+        If array is already sorted (not rotated) or has only one element,
+        then there is no pivot.
+        Example: {0, 1, 2, 3, 5}
         */
-        for (int i = 1; i < arr.length; i++) {
-            if (arr[i] < arr[i - 1]) {
-                return i - 1;
-            }
+        if (arr.length == 1 || arr[0] < arr[arr.length - 1]) {
+            return -1;
         }
 
         /*
-         If no such point is found, it means:
-         - The array is already sorted
-         - The array is NOT rotated
-        
-         Example:
-         arr = [1, 2, 3, 4, 5]
-        
-         In this case, the pivot is effectively the last index of the array.
+         Important note:
+         - In a rotated array, the pivot can NEVER be at index (n - 1),
+           because rotation guarantees a "drop" somewhere inside the array.
+         - pivot == n - 1 happens ONLY when the array is fully sorted,
+           which is already handled by the check above.
         */
-        return arr.length - 1;
+        for (int i = 0; i < arr.length - 1; i++) {
+            /*
+             Pivot condition:
+             If arr[i] > arr[i + 1], the sorted order breaks here,
+             so i is the pivot index.
+             
+             Example:
+             arr = {0, 1, 2, 3, 4, 5, 0, 0}
+                                   ↑
+                                  pivot
+            */
+            if (arr[i] > arr[i + 1]) {
+                return i;
+            }
+        }
+
+        // Unreachable for valid rotated sorted input
+        return -1;
     }
 
     private int binarySearch(int[] arr, int low, int high, int target) {
