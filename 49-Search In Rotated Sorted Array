@@ -153,6 +153,14 @@ class Solution {
             /*
              Pivot condition:
              If arr[mid] > arr[mid + 1], mid is the largest element.
+
+            Note:
+            - In a VALID rotated array, mid will NEVER be arr.length - 1,
+              because the rotation guarantees a drop somewhere inside the array.
+            - mid == arr.length - 1 can occur ONLY when the array is fully sorted
+              and NOT rotated.
+            - That case is already handled by the earlier check:
+              if (arr[0] < arr[arr.length - 1]) return -1;
             */
             if (arr[mid] > arr[mid + 1]) {
                 return mid;
