@@ -71,9 +71,9 @@ class Solution {
              so i is the pivot index.
              
              Example:
-             arr = {0, 1, 2, 3, 4, 5, 0, 0}
-                                   ↑
-                                  pivot
+             arr = {1, 2, 3, 4, 5, 0}
+                                ↑
+                              pivot
             */
             if (arr[i] > arr[i + 1]) {
                 return i;
