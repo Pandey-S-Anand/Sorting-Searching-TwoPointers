@@ -1,0 +1,103 @@
+//Bruteforce Approach
+
+class Solution {
+    int findMaximum(int[] arr) {
+        /*
+         * The array is guaranteed to be bitonic and has length ≥ 3.
+         * Hence, the maximum element (bitonic peak) cannot be at
+         * index 0 or index n - 1.
+         *
+         * Therefore, it is safe to compare arr[i] with arr[i - 1]
+         * and arr[i + 1].
+         */
+        for (int i = 1; i < arr.length - 1; i++) {
+
+            /*
+             * If the current element is greater than both neighbors,
+             * it is the bitonic peak (maximum element).
+             */
+            if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) {
+                return arr[i];
+            }
+        }
+
+        // Unreachable due to the guaranteed existence of a bitonic peak
+        return -1;
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public int findMaximum(int[] arr) {
+        return findBitonicPoint(arr);
+    }
+
+    private int findBitonicPoint(int[] arr) {
+        int low = 0, high = arr.length - 1;
+
+        /*
+         * According to the problem constraints:
+         * 🔹 The array contains exactly one bitonic point.
+         * 🔹 The array length is guaranteed to be ≥ 3.
+         *
+         * Therefore, the peak (maximum element) will NEVER be at index 0
+         * or at index n - 1.
+         *
+         * If the peak were at index 0, the array would be strictly decreasing.
+         * If the peak were at index n - 1, the array would be strictly increasing.
+         * Both cases violate the bitonic array constraint.
+         *
+         * Hence, it is safe to access arr[mid - 1] and arr[mid + 1]
+         * without any out-of-bounds checks.
+         */
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            /*
+             * Bitonic peak found:
+             * If the current element is greater than both of its neighbors,
+             * then it is the maximum element in the bitonic array.
+             *
+             * Example:
+             * arr[] = {1, 2, 4, 5, 7, 8, 3, 2, 1, 0}
+             * Peak = 8
+             */
+            if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
+                return arr[mid];
+            }
+
+            
+            if (arr[mid] < arr[mid + 1]) {
+            /*
+             * We are on the **increasing slope** of the bitonic array.
+             * This means the peak lies to the right.
+             *
+             * Reason:
+             * Since the values are still increasing and a single bitonic
+             * point is guaranteed, the maximum element must exist
+             * in the right half.
+             */
+                low = mid + 1;
+            } else if (arr[mid] < arr[mid - 1]) {
+                /*
+                * We are on the **decreasing slope** of the bitonic array.
+                * This means the peak lies to the left.
+                *
+                * Reason:
+                * Since the values are decreasing, the peak must have already
+                * occurred earlier in the array.
+                */
+                high = mid - 1;
+            }
+        }
+
+        /*
+         * This line is ideally unreachable because the problem guarantees
+         * the existence of exactly one bitonic peak.
+         */
+        return -1;
+    }
+}
