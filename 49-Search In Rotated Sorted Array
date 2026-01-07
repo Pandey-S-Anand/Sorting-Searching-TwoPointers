@@ -150,20 +150,6 @@ class Solution {
      ---------------------------------------------
      - At any point, ONE half of the array is always sorted.
      - The pivot (largest element) always lies in the UNSORTED half.
-    
-     Covered corner cases:
-     
-     case1:
-       arr = {2,3,4,5,6,7,8,9,10,1}
-    
-     case2:
-       arr = {10,1,2,3,4,5,6,7,8,9}
-    
-     case3:
-       arr = {11,12,13,14,15,16,0,1,2,3,4,5,6,7,8,9,10}
-    
-     case4:
-       arr = {5,6,7,8,9,10,11,12,13,14,15,16,0,1,2,3,4}
     */
     private int findPivotIndex(int[] arr) {
         /*
@@ -182,32 +168,44 @@ class Solution {
 
             /*
              Pivot condition:
-             If arr[mid] > arr[mid + 1], mid is the largest element.
+             If arr[mid] > arr[mid + 1], then mid is the largest element (pivot).
             
-            Note:
-            - In a VALID rotated array, mid will NEVER be arr.length - 1,
-              because the rotation guarantees a drop somewhere inside the array.
-            - mid == arr.length - 1 can occur ONLY when the array is fully sorted
-              and NOT rotated.
-            - That case is already handled by the earlier check:
-              if (arr[0] < arr[arr.length - 1]) return -1;
+             Note:
+             - In a VALID rotated array, mid will NEVER be arr.length - 1,
+               because rotation guarantees a drop somewhere inside the array.
+             - mid == arr.length - 1 can occur ONLY when the array is fully sorted
+               and NOT rotated.
+             - That case is already handled by the earlier check:
+               if (arr[0] < arr[arr.length - 1]) return -1;
             */
             if (arr[mid] > arr[mid + 1]) {
                 return mid;
             }
 
             /*
-             Decide search direction:
+             Decide the search direction:
              - Since elements are DISTINCT:
-               * If arr[low] < arr[mid], the segment [low..mid] is strictly sorted.
-               * A sorted segment cannot contain the pivot.
-               * Hence, pivot must lie in the other (unsorted) segment.
-             - low == mid means the segment has only ONE element,
-               which is always sorted.
+               * If arr[low] < arr[mid], the left segment [low..mid] is strictly sorted.
+               * A sorted segment CANNOT contain the pivot.
+               * Hence, the pivot must lie in the other (unsorted) segment, i.e., the right half.
+               * low == mid means the left segment has only ONE element, which is always sorted.
+            
+               Example:
+               arr = {2,3,4,5,6,7,8,9,10,1}
+            
+             Similarly,
+             - Since elements are DISTINCT:
+               * If arr[mid + 1] < arr[high], the right segment [mid+1..high] is strictly sorted.
+               * A sorted segment CANNOT contain the pivot.
+               * Hence, the pivot must lie in the other (unsorted) segment, i.e., the left half.
+               * mid + 1 == high means the right segment has only ONE element, which is always sorted.
+            
+               Example:
+               arr = {10,1,2,3,4,5,6,7,8,9}
             */
             if (low == mid || arr[low] < arr[mid]) {
                 low = mid + 1;
-            } else {
+            } else if (mid + 1 == high || arr[mid] < arr[high]) {
                 high = mid - 1;
             }
         }
