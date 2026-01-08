@@ -20,25 +20,61 @@ public class Solution {
 
 public class Solution {
     public static int lowerBound(int[] arr, int n, int x) {
-       //The lower bound of a number `x` is the **index of the first element** in the array that is **greater than or equal to** `x`.
-        int low = 0, high = arr.length - 1;
+        /*
+         Objective:
+         ----------
+         Find the smallest index 'idx' such that:
+             arr[idx] >= x
+        
+         If no such index exists (i.e., all elements are smaller than x),
+         return 'n' (the size of the array).
+        
+         Example:
+         --------
+         arr = [1, 2, 2, 3, 3, 5]
+         x   = 2
+        
+         The first index where arr[idx] >= 2 is:
+         idx = 1  (arr[1] = 2)
+        
+         So, lowerBound(arr, n, 2) returns 1.
+        */
 
-        // Default to arr.length in case no element >= x is found
-        int lowerBound = arr.length;
+        int low = 0, high = n - 1;
+
+        /*
+         Initialize lower bound as 'n'.
+         This acts as the default answer when
+         x is greater than all elements in the array.
+        */
+        int lb = n;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
+            /*
+             If arr[mid] is greater than or equal to x,
+             mid is a valid lower bound candidate.
+             Store it and search the left half to find
+             a smaller valid index.
+            */
             if (arr[mid] >= x) {
-                // Potential candidate for lower bound found, but we continue searching on the left side for smaller valid index
-                lowerBound = mid;
+                lb = mid;
                 high = mid - 1;
-            } else {
-                // Current mid is too small, search in the right half
+            } else if (arr[mid] < x) {
+                /*
+                If arr[mid] is smaller than x,
+                the lower bound must lie in the right half.
+                */
                 low = mid + 1;
             }
         }
 
-        return lowerBound;
+        /*
+         lb contains:
+         - Index of the first element >= x, OR
+         - n if no such element exists.
+        */
+        return lb;
     }
 }
