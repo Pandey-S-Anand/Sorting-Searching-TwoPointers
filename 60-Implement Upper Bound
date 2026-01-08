@@ -20,28 +20,63 @@ public class Solution {
 //Optimal Approach
 
 public class Solution {
-
-    /**
-     * The **upper bound** of `x` is the **first index** where the element is **strictly greater than** `x`.
-     *
-     * If all elements are less than or equal to `x`, then return `n`(i.e., position to insert `x` such that the array remains sorted).
-     */
     public static int upperBound(int[] arr, int x, int n) {
+        /*
+         Objective:
+         ----------
+         Find the smallest index 'idx' such that:
+             arr[idx] > x
+        
+         If no such index exists (i.e., all elements are
+         less than or equal to x), return 'n'
+         (the size of the array).
+        
+         Example:
+         --------
+         arr = [1, 2, 2, 3, 3, 5]
+         x   = 2
+        
+         The first index where arr[idx] > 2 is:
+         idx = 3  (arr[3] = 3)
+        
+         So, upperBound(arr, n, 2) returns 3.
+        */
+
         int low = 0, high = n - 1;
-        int upperBound = n; // Default to n in case all elements <= x
+
+        /*
+         Initialize upper bound as 'n'.
+         This acts as the default answer when
+         no element is strictly greater than x.
+        */
+        int ub = n;
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            // If arr[mid] is strictly greater than x, this might be our upper bound
+            /*
+             If arr[mid] is strictly greater than x,
+             mid is a valid upper bound candidate.
+             Store it and continue searching in the left half
+             to find the smallest such index.
+            */
             if (arr[mid] > x) {
-                upperBound = mid;
-                high = mid - 1; // Try to find a smaller index with arr[mid] > x
+                ub = mid;
+                high = mid - 1;
             } else {
-                low = mid + 1; // Skip elements <= x
+                /*
+                If arr[mid] is less than or equal to x,
+                the upper bound must lie in the right half.
+                */
+                low = mid + 1;
             }
         }
 
-        return upperBound;
+        /*
+         ub contains:
+         - The index of the first element > x, OR
+         - n if no such element exists.
+        */
+        return ub;
     }
 }
