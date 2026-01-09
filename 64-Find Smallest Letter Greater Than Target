@@ -23,29 +23,42 @@ public class Solution {
 
 //Optimal Approach
 
-public class Solution {
+class Solution {
     public char nextGreatestLetter(char[] letters, char target) {
         int low = 0, high = letters.length - 1;
 
-        // Initialize result with the first letter (smallest letter) This will be returned if no letter greater than target is found in the binary search
-        char result = letters[0];
+        /*
+         Initialize the answer as the first character.
+         This automatically handles the wrap-around case.
+        */
+        char ch = letters[0];
 
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            // If mid letter is greater than target, it is a potential answer
             if (letters[mid] > target) {
-                // Update result to this candidate
-                result = letters[mid];
-                // Move left to find if there's an even smaller letter greater than target
+                /*
+                If letters[mid] is greater than the target,
+                it is a valid candidate for the answer.
+                Store it and move left to find a smaller
+                character that is still greater than target.
+                */
+                ch = letters[mid];
                 high = mid - 1;
             } else {
-                // If letters[mid] is less than or equal to target, discard mid and all elements to its left, and continue searching to the right for a greater character
+                /* 
+                If letters[mid] is less than or equal to target, discard mid and all elements to its left, 
+                and continue searching to the right for a greater character
+                */
                 low = mid + 1;
             }
         }
 
-        // Return the smallest letter greater than target,  or the first letter if none found
-        return result;
+        /*
+         ch contains:
+         - The smallest character strictly greater than target, OR
+         - letters[0] if no such character exists.
+        */
+        return ch;
     }
 }
