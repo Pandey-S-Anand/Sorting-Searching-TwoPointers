@@ -1,0 +1,142 @@
+//Bruteforce Approach
+
+class Solution {
+    public int minOperations(int[] arr, int k) {
+        Arrays.sort(arr);
+
+        /*
+         If the target value 'k' exists in the array,
+         then the index of its FIRST occurrence represents
+         the number of elements that are strictly smaller than 'k'.
+        
+         These elements must be deleted so that all remaining
+         elements in the array are >= k.
+        
+         IMPORTANT:
+         ----------
+         Since ONE operation allows us to remove exactly ONE element,
+         the minimum number of operations required is equal to
+         the number of elements that need to be deleted.
+        
+         Hence, the first occurrence index itself gives the
+         minimum number of operations.
+        */
+        int firstIdx = findFirstOccurenceIndex(arr, k);
+
+        if (firstIdx != -1) {
+            return firstIdx;
+        }
+
+        /*
+         If the target value 'k' does NOT exist in the array,
+         we find the index of the largest element that is
+         strictly smaller than 'k'.
+        
+         Adding 1 to this index gives the total count of elements
+         that are smaller than 'k'.
+        
+         These elements must be deleted so that all remaining
+         elements in the array are >= k.
+        
+         IMPORTANT:
+         ----------
+         Since ONE operation removes exactly ONE element,
+         the minimum number of operations required is equal to
+         the number of such elements.
+        
+         Therefore, we return (lowerBoundIndex + 1) as the
+         minimum number of operations.
+        */
+        return findLowerBoundIndex(arr, k) + 1;
+    }
+
+    private int findFirstOccurenceIndex(int[] arr, int target) {
+        /*
+         Example:
+         --------
+         arr = [2, 11, 10, 1, 3], k = 3
+        
+         After sorting:
+         sorted = {1, 2, 3, 10, 11}
+        
+         First occurrence index of 3 = 2
+         Hence, output = 2
+        */
+        int low = 0, high = arr.length - 1, firstIdx = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                firstIdx = mid;
+                high = mid - 1;
+            } else if (target < arr[mid]) {
+                high = mid - 1;
+            } else if (target > arr[mid]) {
+                low = mid + 1;
+            }
+        }
+
+        return firstIdx;
+    }
+
+    private int findLowerBoundIndex(int[] arr, int x) {
+        /*
+         Examples:
+         ---------
+         arr = [2, 11, 10, 1, 3]
+        
+         After sorting:
+         sorted = {1, 2, 3, 10, 11}
+        
+         k = 9  → output = 3
+         k = 0  → output = 0
+         k = 12 → output = 5
+        */
+        int low = 0, high = arr.length - 1, lb = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] < x) {
+                lb = mid;
+                low = mid + 1;
+            } else if (arr[mid] > x) {
+                high = mid - 1;
+            }
+        }
+
+        return lb;
+    }
+}
+
+
+//Better Approach
+
+
+
+
+/*
+Optimal Approach:
+
+Count the numbers in the array that are less than 'k'. This count represents the number of elements smaller than 'k'. 
+Since each operation allows the removal of only one smaller element, the minimum number of operations required to 
+make all elements in the array greater than or equal to 'k' is equal to the count of numbers in the array that are less than 'k'.
+*/
+
+
+class Solution {
+    public int minOperations(int[] arr, int k) {
+        int operationCount = 0;
+
+        // Traverse the array and count how many elements are less than k
+        for (int val : arr) {
+            if (val < k) {
+                operationCount++;
+            }
+        }
+
+        // Return the count as the result
+        return operationCount;
+    }
+}
