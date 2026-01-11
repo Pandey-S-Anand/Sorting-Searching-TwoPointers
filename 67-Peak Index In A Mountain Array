@@ -1,0 +1,71 @@
+/*
+Since the given array is a mountain array, it will always have a single peak element.
+A mountain array first strictly increases to a peak and then strictly decreases.
+The peak element in a mountain array will always be greater than both its neighbors.
+Note: The first and last elements of the array cannot be the peak.
+*/
+
+//Bruteforce Approach
+
+class Solution {
+    public int peakIndexInMountainArray(int[] arr) {
+        for (int i = 1; i < arr.length - 1; i++) {
+            if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) {
+                return i;
+            }
+        }
+        // This return statement will never be reached as the array is guaranteed to be a mountain array.
+        return -1;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public int peakIndexInMountainArray(int[] arr) {
+        /*
+         The array is guaranteed to be a valid mountain array.
+        
+         A mountain array has:
+         - strictly increasing elements up to the peak
+         - strictly decreasing elements after the peak
+        
+         Therefore : The peak element can NEVER be the first or the last element.
+        */
+
+        // Search space excludes first and last indices
+        int low = 1, high = arr.length - 2;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            /*
+             If the middle element is greater than both neighbors,
+             we have found the peak.
+            */
+            if (arr[mid] > arr[mid - 1] && arr[mid] > arr[mid + 1]) {
+                return mid;
+            }
+
+            /*
+             If arr[mid] < arr[mid - 1],
+             we are on the DESCENDING slope of the mountain.
+             The peak must lie on the LEFT side.
+            */
+            if (arr[mid] < arr[mid - 1]) {
+                high = mid - 1;
+            } else if (arr[mid] < arr[mid + 1]) {
+                /*
+                If arr[mid] < arr[mid + 1],
+                we are on the ASCENDING slope of the mountain.
+                The peak must lie on the RIGHT side.
+                */
+                low = mid + 1;
+            }
+        }
+
+        // This line should never be reached for a valid mountain array
+        return -1;
+    }
+}
