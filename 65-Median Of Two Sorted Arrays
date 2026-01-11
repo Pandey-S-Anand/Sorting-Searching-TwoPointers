@@ -2,23 +2,46 @@
 
 class Solution {
     public double findMedianSortedArrays(int[] arr1, int[] arr2) {
-        // Merge the two sorted arrays into one sorted array
+        /*
+         Merge the two sorted arrays into a single sorted array.
+         This simplifies median calculation.
+        */
         int[] arr = mergeTwoSortedArrays(arr1, arr2);
 
-        // Check if the merged array length is even
-        if ((arr.length % 2) == 0) {
-            // For even length, median is average of two middle elements
-            return (double) (arr[(arr.length - 1) / 2] + arr[arr.length / 2]) / 2D;
+        /*
+         If the total number of elements is EVEN,
+         the median is the average of the two middle elements.
+        
+         Example:
+         arr = {1, 2, 3, 4, 5, 6, 7, 8}
+         Middle elements = 4 and 5
+         Median = (4 + 5) / 2 = 4.5
+        */
+        if (arr.length % 2 == 0) {
+            return (double) (arr[(arr.length - 1) / 2] + arr[arr.length / 2]) / 2.0;
         }
-        // For odd length, median is the middle element
+
+        /*
+         If the total number of elements is ODD,
+         the median is simply the middle element.
+        
+         Example:
+         arr = {1, 2, 3, 4, 5, 6, 7}
+         Median = 4
+        */
         return (double) arr[arr.length / 2];
     }
 
     private int[] mergeTwoSortedArrays(int[] arr1, int[] arr2) {
-        int[] arr = new int[arr1.length + arr2.length]; // Result array
-        int i = 0, j = 0, k = 0; // Pointers for arr1, arr2, and arr respectively
+        // Result array to store merged elements
+        int[] arr = new int[arr1.length + arr2.length];
 
-        // Traverse both arrays and copy the smaller element to the merged array
+        int i = 0, j = 0, k = 0;
+
+        /*
+         Compare elements from both arrays and
+         copy the smaller one into the merged array.
+        */
         while (i < arr1.length && j < arr2.length) {
             if (arr1[i] <= arr2[j]) {
                 arr[k++] = arr1[i++];
@@ -27,17 +50,100 @@ class Solution {
             }
         }
 
-        // If any elements left in arr1, copy them
+        /*
+         Copy any remaining elements from arr1
+         (if arr2 is exhausted).
+        */
         while (i < arr1.length) {
             arr[k++] = arr1[i++];
         }
 
-        // If any elements left in arr2, copy them
+        /*
+         Copy any remaining elements from arr2
+         (if arr1 is exhausted).
+        */
         while (j < arr2.length) {
             arr[k++] = arr2[j++];
         }
 
-        return arr; // Return the merged sorted array
+        // Return the merged sorted array
+        return arr;
+    }
+}
+
+
+//Improved Approach
+
+class Solution {
+    public double findMedianSortedArrays(int[] arr1, int[] arr2) {
+        /*
+         We do NOT merge the entire arrays.
+         Instead, we only merge elements until we reach the median position.
+        */
+        int[] arr = mergeTwoSortedArrays(arr1, arr2);
+
+        /*
+         Median logic:
+         -------------
+         Let totalLength = arr1.length + arr2.length
+        
+         Case 1: If totalLength is EVEN
+         --------------------------------
+         Median = (merged[totalLength / 2] +
+                   merged[(totalLength - 1) / 2]) / 2
+        
+         Case 2: If totalLength is ODD
+         ------------------------------
+         Median = merged[totalLength / 2]
+        
+         Since both cases only require elements up to index totalLength / 2,
+         we do NOT need to store elements beyond that index.
+        */
+        if ((arr1.length + arr2.length) % 2 == 0) {
+            return (arr[arr.length - 1] + arr[arr.length - 2]) / 2.0;
+        }
+
+        return (double) arr[arr.length - 1];
+    }
+
+    private int[] mergeTwoSortedArrays(int[] arr1, int[] arr2) {
+        /*
+         Why only merge till index (totalLength / 2)?
+         -------------------------------------------
+         totalLength = arr1.length + arr2.length
+        
+         To compute median:
+         - For ODD length → need element at index totalLength / 2
+         - For EVEN length → need elements at indices
+           totalLength / 2 and (totalLength - 1) / 2
+        
+         Therefore, we only need to store elements up to index: totalLength / 2 (inclusive)
+        
+         Hence, merged array size =
+         (totalLength / 2) + 1
+         OR
+         (arr1.length + arr2.length + 1) / 2
+        */
+        int totalSize = ((arr1.length + arr2.length) / 2) + 1;
+        int[] arr = new int[totalSize];
+
+        int i = 0, j = 0;
+
+        for (int k = 0; k < arr.length; k++) {
+            if (i < arr1.length && j < arr2.length) {
+                if (arr1[i] <= arr2[j]) {
+                    arr[k] = arr1[i++];
+                } else {
+                    arr[k] = arr2[j++];
+                }
+            } else if (i < arr1.length) {
+                arr[k] = arr1[i++];
+            } else {
+                arr[k] = arr2[j++];
+            }
+        }
+
+        return arr;
     }
 }
 
@@ -46,46 +152,64 @@ class Solution {
 
 class Solution {
     public double findMedianSortedArrays(int[] arr1, int[] arr2) {
-        // 'current' and 'previous' track the latest and second latest values during merge
+        /*
+        Let totalSize = arr1.length + arr2.length
+        
+        Median rules:
+        - If totalSize is ODD:
+        Median is the element at index totalSize / 2
+        
+        - If totalSize is EVEN:
+        Median is the average of elements at indices:
+        (totalSize / 2) and (totalSize / 2 - 1)
+        
+        Observation:
+        ------------
+        In both cases, the farthest index we ever need is totalSize / 2.
+        Therefore, it is sufficient to simulate merging only up to
+        that index and keep track of:
+        - the current element
+        - the previous element
+        
+        This allows us to compute the median without storing
+        the entire merged array, using only O(1) extra space.
+        */
         int current = 0, previous = 0;
-
-        // Total number of elements in the merged sorted array
         int totalSize = arr1.length + arr2.length;
 
-        // Pointers for arr1 and arr2
         int i = 0, j = 0;
 
-        // mergedIndex counts how many elements we've virtually merged
-        int mergedIndex = 0;
-
-        // We only need to simulate merging up to the median position (totalSize / 2)
-        while (mergedIndex <= totalSize / 2) {
-            previous = current; // Store the last merged value before updating
+        for (int k = 0; k <= totalSize / 2; k++) {
+            // Preserve the previous merged value
+            previous = current;
 
             if (i < arr1.length && j < arr2.length) {
-                // Pick the smaller value between arr1[i] and arr2[j]
+                // Choose the smaller of the two current elements
                 if (arr1[i] <= arr2[j]) {
                     current = arr1[i++];
                 } else {
                     current = arr2[j++];
                 }
-            } else if (i < arr1.length) {
-                // If arr2 is exhausted, continue with arr1
+            } else if (i < arr1.length) { // If arr2 is exhausted, take elements from arr1
                 current = arr1[i++];
-            } else {
-                // If arr1 is exhausted, continue with arr2
+            } else if (j < arr2.length) { // If arr1 is exhausted, take elements from arr2
                 current = arr2[j++];
             }
-
-            mergedIndex++; // Increment number of merged elements
         }
 
-        // If total number of elements is even, median is average of middle two
+        /*
+         Final median computation:
+         -------------------------
+         - If totalSize is EVEN:
+           median = (current + previous) / 2
+        
+         - If totalSize is ODD:
+           median = current
+        */
         if (totalSize % 2 == 0) {
-            return (current + previous) / 2D;
+            return (current + previous) / 2.0;
         }
 
-        // If total number is odd, return the current middle element
         return current;
     }
 }
@@ -123,9 +247,9 @@ Let half ={1, 2, 3, 3, 4, 6} and right half ={7, 10, 12, 15, 18}
 
 Median = max left half = 6
 
-Note : 1 : For any two sorted  arrays(that forms odd length merged array on merging), the left half size will be (n/2 + 1)  and right half size will be (n/2)  (where n = size of the merged array)
-           2: For any two sorted arrays (that form even length merged array on merging), both the left half and right half will have equal size (i.e n/2 , where n = size of merged array)
-           3: For any two sorted arrays ,there exists only 1 valid configuration of merged[] array that satisfies the below mentioned conditions.
+Note :  1: For any two sorted  arrays(that forms odd length merged array on merging), the left half size will be (n/2 + 1)  and right half size will be (n/2)  (where n = size of the merged array)
+        2: For any two sorted arrays (that form even length merged array on merging), both the left half and right half will have equal size (i.e n/2 , where n = size of merged array)
+        3: For any two sorted arrays ,there exists only 1 valid configuration of merged[] array that satisfies the below mentioned conditions.
              >All the elements of the left part of the merged[] array will be less than or equal to the elements in the right half of the merged array.
              >To test if all the elements in the left half are smaller than than or equal to the elements in the right half, compare the last element(max of left half)
                With the first element of the right half (min of right half) since both the left and right half are sorted.
@@ -256,13 +380,14 @@ class Solution {
         int low = 0, high = arr1.length;
 
         while (low <= high) {
-            int elementsChosenFromArr1ForLeftPart = low + (high - low) / 2;
             /* 
                Add 1 to the total length so that in case of an odd-length combined array,
                the left half will have one extra element. This ensures correct median logic
                because we always take the maximum of the left half when total elements are odd.
             */
+
             int elementsRequiredInLeftHalf = (arr1.length + arr2.length + 1) / 2;
+            int elementsChosenFromArr1ForLeftPart = low + (high - low) / 2;
             int elementsChosenFromArr2ForLeftPart = elementsRequiredInLeftHalf - elementsChosenFromArr1ForLeftPart;
 
             /* 
@@ -284,6 +409,26 @@ class Solution {
             */
             int maxInLeftPartFromArr2 = (elementsChosenFromArr2ForLeftPart == 0) ? Integer.MIN_VALUE
                     : arr2[elementsChosenFromArr2ForLeftPart - 1];
+
+            // Find the maximum element in the left half
+            int maxInLeftHalf = Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
+            /*
+            Note:
+            -----
+            Once the number of elements in the left half is fixed:
+            
+            elementsRequiredInRightHalf =
+            (arr1.length + arr2.length) - elementsRequiredInLeftHalf;
+            
+            elementsChosenFromArr1ForRightHalf =
+            arr1.length - elementsChosenFromArr1ForLeftPart;
+            
+            elementsChosenFromArr2ForRightHalf =
+            arr2.length - elementsChosenFromArr2ForLeftPart;
+            
+            These values are derived automatically based on how many
+            elements are selected for the left half from each array.
+            */
 
             /* 
                If x elements are chosen from arr1 for the left half, then the element at index x 
@@ -308,9 +453,6 @@ class Solution {
             int minInRightPartFromArr2 = (elementsChosenFromArr2ForLeftPart == arr2.length) ? Integer.MAX_VALUE
                     : arr2[elementsChosenFromArr2ForLeftPart];
 
-            // Find the maximum element in the left half
-            int maxInLeftHalf = Math.max(maxInLeftPartFromArr1, maxInLeftPartFromArr2);
-
             // Find the minimum element in the right half
             int minInRightHalf = Math.min(minInRightPartFromArr1, minInRightPartFromArr2);
 
@@ -323,14 +465,31 @@ class Solution {
                 // If total number of elements is odd, return the maximum of left half
                 return maxInLeftHalf;
             }
+            /*
+             Since arr1 is already sorted, the maximum element in the left part
+             (maxInLeftPartFromArr1) will always be less than or equal to the
+             minimum element in the right part (minInRightPartFromArr1).
+            
+             Therefore, this condition is implicitly guaranteed by the sorted order
+             of arr1 and does NOT need to be checked explicitly.
+            */
             if (maxInLeftPartFromArr1 > minInRightPartFromArr2) {
-                // We have chosen too many elements from arr1 for the left half,  so we need to reduce the count by moving 'high' to the left.
+                // We have chosen too many elements from arr1 for the left half,  so we need to reduce the count by moving 'high' to the left. Check case 5 in example
                 high = elementsChosenFromArr1ForLeftPart - 1;
             } else if (maxInLeftPartFromArr2 > minInRightPartFromArr1) {
+                /*
+                Since arr2 is already sorted, the maximum element in the left part
+                (maxInLeftPartFromArr2) will always be less than or equal to the
+                minimum element in the right part (minInRightPartFromArr2).
+                
+                Therefore, this condition is implicitly guaranteed by the sorted order
+                of arr2 and does NOT need to be checked explicitly.
+                */
                 /* 
                  Too many elements have been chosen from arr2 for the left half.
                  To fix this, we increase the number of elements chosen from arr1, 
                  which effectively reduces elements chosen from arr2 for the left half.
+                 Check case 3 in example.
                  */
                 low = elementsChosenFromArr1ForLeftPart + 1;
             }
