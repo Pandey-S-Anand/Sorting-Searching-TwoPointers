@@ -1,7 +1,7 @@
 //Bruteforce Approach
 
 class Solution {
-    int countPairs(int arr1[], int arr2[], int target) {
+    static int countPairs(int arr1[], int arr2[], int target) {
         // Always use the smaller array for iteration to reduce time complexity
         if (arr1.length > arr2.length) {
             return countPairs(arr2, arr1, target);
@@ -10,8 +10,8 @@ class Solution {
         int count = 0;
 
         // For each element in arr1, check if (target - element) exists in arr2
-        for (int val : arr1) {
-            if (binarySearch(arr2, target - val)) {
+        for (int num : arr1) {
+            if (binarySearch(arr2, target - num)) {
                 count++;
             }
         }
@@ -22,15 +22,16 @@ class Solution {
     private boolean binarySearch(int[] arr, int key) {
         int low = 0, high = arr.length - 1;
 
-        // Standard binary search loop
         while (low <= high) {
             int mid = low + (high - low) / 2;
 
             if (arr[mid] == key) {
                 return true; // Key found
-            } else if (key < arr[mid]) {
+            }
+
+            if (key < arr[mid]) {
                 high = mid - 1;
-            } else {
+            } else if (key > arr[mid]) {
                 low = mid + 1;
             }
         }
