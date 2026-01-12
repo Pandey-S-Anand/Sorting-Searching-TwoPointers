@@ -12,8 +12,10 @@ class Solution {
             }
         }
 
-        // Copy back to the original array
-        System.arraycopy(aux, 0, arr, 0, arr.length);
+        // Copy the rearranged elements back into the original array.
+        for (int i = 0; i < aux.length; i++) {
+            arr[i] = aux[i];
+        }
     }
 }
 
@@ -43,7 +45,6 @@ class Solution {
 //Better Approach
 
 class Solution {
-
     /**
      * Segregates all 0s to the left and all 1s to the right in a binary array.
      *
@@ -84,20 +85,18 @@ class Solution {
         // Continue until the pointers cross
         while (start < end) {
             // Move start forward until a 1 is found
-            while (start < arr.length && arr[start] == 0) {
+            while (start < end && arr[start] == 0) {
                 start++;
             }
 
             // Move end backward until a 0 is found
-            while (end >= 0 && arr[end] == 1) {
+            while (start < end && arr[end] == 1) {
                 end--;
             }
 
             // Swap misplaced 1 (left) and 0 (right)
             if (start < end) {
-                swap(arr, start, end);
-                start++;
-                end--;
+                swap(arr, start++, end--);
             }
         }
     }
