@@ -65,3 +65,39 @@ class Solution {
         arr[j] = temp;
     }
 }
+
+/*
+ IMPORTANT NOTE ON ORDER PRESERVATION:
+ ------------------------------------
+
+ This swapping-based approach preserves the order of appearance
+ ONLY when all elements being moved forward are treated as
+ IDENTICAL with respect to ordering.
+
+ Examples where order IS preserved:
+ ----------------------------------
+ - Moving all non-zero elements before zeroes
+ - Segregating a binary array (0s and 1s)
+
+ Reason:
+ -------
+ In these problems, we only care whether an element belongs
+ to a particular group (e.g., non-zero or 1).
+
+ All valid elements are effectively "identical" from the
+ algorithm’s perspective, so swapping them forward does NOT
+ change their relative order.
+
+ Examples where order is NOT preserved:
+ -------------------------------------
+ - Segregating even and odd numbers
+ - Any partitioning where values inside a group are distinct
+
+ Reason:
+ -------
+ In these cases, elements within the same group are NOT identical
+ (e.g., 2, 4, 6 are all even but different values).
+
+ Swapping can pull a later element forward ahead of an earlier
+ one from the same group, breaking the original relative order.
+*/
