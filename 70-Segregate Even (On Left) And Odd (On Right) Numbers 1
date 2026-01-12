@@ -1,3 +1,52 @@
+// Bruteforce Approach
+
+class Solution {
+    void segregateEvenOdd(int arr[]) {
+        /*
+         Sort the array so that:
+         - All even numbers appear in ascending order
+         - All odd numbers appear in ascending order
+         
+         This ensures that after segregation,
+         both even and odd parts remain sorted.
+        */
+        Arrays.sort(arr);
+
+        /*
+         Auxiliary array to store the rearranged result:
+         - First all even numbers
+         - Then all odd numbers
+        */
+        int aux[] = new int[arr.length];
+
+        // Index to track the current insertion position in aux[]
+        int index = 0;
+
+        // First pass: copy all even numbers into aux[].
+        for (int num : arr) {
+            if (num % 2 == 0) {
+                aux[index++] = num;
+            }
+        }
+
+        
+        // Second pass: copy all odd numbers into aux[].
+        for (int num : arr) {
+            if (num % 2 == 1) {
+                aux[index++] = num;
+            }
+        }
+
+        // Copy the rearranged elements back into the original array.
+        for (int i = 0; i < aux.length; i++) {
+            arr[i] = aux[i];
+        }
+    }
+}
+
+
+//Optimal Approach
+
 class Solution {
     /**
      * Rearranges the array such that:
