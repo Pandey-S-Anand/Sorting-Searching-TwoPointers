@@ -1,0 +1,134 @@
+//Bruteforce Approach
+
+class Solution {
+    public int mySqrt(int num) {
+        return (int) Math.sqrt(num);
+    }
+}
+
+
+// Better Approach
+
+/*
+ Concept: Square Root using Binary Search
+
+ Example:
+ sqrt(49) = 7 because 7 * 7 = 49
+
+ Important Observation:
+ The square root of any non-negative integer N lies in the range:
+ 0 <= sqrt(N) <= N
+
+ Sample values:
+ N   sqrt(N)
+ 0 → 0
+ 1 → 1
+ 2 → 1.414...
+ 3 → 1.732...
+ 4 → 2
+*/
+
+class Solution {
+    public int mySqrt(int num) {
+        int low = 0, high = num, floorSqrt = -1;
+
+        // Binary search over the possible square root range [0, num]
+        while (low <= high) {
+
+            // Calculate mid safely to avoid overflow
+            int mid = low + (high - low) / 2;
+
+            // Use long to prevent overflow when squaring mid
+            long square = (long) mid * mid;
+
+            /*
+             Case 1: Perfect square found
+             mid * mid == num, so mid is the exact square root
+            */
+            if (square == num) {
+                return mid;
+            }
+
+            if (square < num) {
+                /*
+                Case 2: mid^2 is smaller than num
+                - mid is too small
+                - move right to try a larger value
+                */
+                // We store 'mid' because if num is not a perfect square,we must return the floor value of sqrt(num).
+                floorSqrt = mid;
+                low = mid + 1;
+            } else if (square > num) {
+                /*
+                Case 3: mid^2 is greater than num
+                - mid is too large
+                - move left to search smaller values
+                */
+                high = mid - 1;
+            }
+        }
+
+        /*
+         If num is not a perfect square,
+         floorSqrt holds the floor value of sqrt(num)
+        */
+        return floorSqrt;
+    }
+}
+
+
+//Further Optimised approach
+
+class Solution {
+    public int mySqrt(int num) {
+        /*
+         Edge Case Handling:
+        
+         1) Handle num = 0 separately
+            - 0 is the square root of 0.
+            - No positive number has a square root equal to 0.
+        
+         2) Handle num = 1 separately
+            - 1 is the square root of 1, but it is also the floor square root
+              of many non-perfect squares (e.g., sqrt(2), sqrt(3)).
+            - More importantly, if we set high = num / 2,
+              then for num = 1, high becomes 0 and the binary search range breaks.
+        */
+        if (num == 0 || num == 1) {
+            return num;
+        }
+
+        /*
+         Optimized Search Range: [1, num / 2]
+        
+         For any number greater than 1, its square root cannot be greater than num / 2.
+         Reason:
+         To get a square root, a number must be multiplied by itself.
+         If a number is greater than num / 2, then:
+             (num / 2 + 1) * (num / 2 + 1) > num
+         which exceeds the given number.
+        
+         Therefore, searching beyond num / 2 is unnecessary and inefficient.
+        */
+        int low = 1, high = num / 2;
+        int floorSqrt = -1; // stores floor(sqrt(num)) for non-perfect squares
+
+        // Binary search within the optimized range
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (mid == num / mid) {
+                return mid;
+            }
+
+            if (mid < num / mid) {
+                floorSqrt = mid;
+                low = mid + 1;
+            } else if (mid > num / mid) {
+                high = mid - 1;
+            }
+        }
+
+        return floorSqrt;
+    }
+}
