@@ -7,7 +7,7 @@ class Solution {
 
         int evenIdx = 0, oddIdx = 0;
 
-        // Step 1: Separate even and odd numbers
+        // Separate even and odd numbers
         for (int i = 0; i < n; i++) {
             if ((arr[i] % 2) == 0) {
                 even[evenIdx++] = arr[i];
@@ -20,7 +20,7 @@ class Solution {
         evenIdx = 0;
         oddIdx = 0;
 
-        // Step 2: Rebuild the array with alternating even-odd positions
+        // Rebuild the array with alternating even-odd positions
         for (int i = 0; i < n; i++) {
             arr[i] = (i % 2 == 0) ? even[evenIdx++] : odd[oddIdx++];
         }
