@@ -5,24 +5,24 @@ class Solution {
         int[] even = new int[n / 2]; // To store even elements
         int[] odd = new int[n / 2];  // To store odd elements
 
-        int evenIndex = 0, oddIndex = 0;
+        int evenIdx = 0, oddIdx = 0;
 
         // Step 1: Separate even and odd numbers
         for (int i = 0; i < n; i++) {
             if ((arr[i] % 2) == 0) {
-                even[evenIndex++] = arr[i];
+                even[evenIdx++] = arr[i];
             } else {
-                odd[oddIndex++] = arr[i];
+                odd[oddIdx++] = arr[i];
             }
         }
 
         // Reset indices to reuse them for merging
-        evenIndex = 0;
-        oddIndex = 0;
+        evenIdx = 0;
+        oddIdx = 0;
 
         // Step 2: Rebuild the array with alternating even-odd positions
         for (int i = 0; i < n; i++) {
-            arr[i] = (i % 2 == 0) ? even[evenIndex++] : odd[oddIndex++];
+            arr[i] = (i % 2 == 0) ? even[evenIdx++] : odd[oddIdx++];
         }
     }
 }
@@ -33,23 +33,23 @@ class Solution {
 
 class Solution {
     void reArrange(int[] arr, int n) {
-        int evenIndex = 0; // Start from index 0 for even positions
-        int oddIndex = 1;  // Start from index 1 for odd positions
+        int evenIdx = 0; // Start from index 0 for even positions
+        int oddIdx = 1;  // Start from index 1 for odd positions
 
-        while (evenIndex < n && oddIndex < n) {
-            // Skip evenIndex if it's already holding an even number
-            while (evenIndex < n && (arr[evenIndex] % 2) == 0) {
-                evenIndex += 2;
+        while (evenIdx < n && oddIdx < n) {
+            // Skip evenIdx if it's already holding an even number
+            while (evenIdx < n && (arr[evenIdx] % 2) == 0) {
+                evenIdx += 2;
             }
 
-            // Skip oddIndex if it's already holding an odd number
-            while (oddIndex < n && (arr[oddIndex] % 2) == 1) {
-                oddIndex += 2;
+            // Skip oddIdx if it's already holding an odd number
+            while (oddIdx < n && (arr[oddIdx] % 2) == 1) {
+                oddIdx += 2;
             }
 
             // If both indices are within bounds, swap mismatched values
-            if (evenIndex < n && oddIndex < n) {
-                swap(arr, evenIndex, oddIndex);
+            if (evenIdx < n && oddIdx < n) {
+                swap(arr, evenIdx, oddIdx);
             }
         }
     }
@@ -62,23 +62,26 @@ class Solution {
 }
 
 
+
 // Optimal Approach (Time Optimised) (Order Of Appearence is Maintained)
 
 class Solution {
     static void reArrange(int[] arr, int n) {
         int[] rearrangedArray = new int[n];
-        int evenIndex = 0, oddIndex = 1;
+        int evenIdx = 0, oddIdx = 1;
 
         for (int i = 0; i < n; i++) {
             if (arr[i] % 2 == 0) {
-                rearrangedArray[evenIndex] = arr[i];  // Place even numbers at even indices
-                evenIndex += 2;
+                rearrangedArray[evenIdx] = arr[i]; // Place even numbers at even indices
+                evenIdx += 2;
             } else {
-                rearrangedArray[oddIndex] = arr[i];   // Place odd numbers at odd indices
-                oddIndex += 2;
+                rearrangedArray[oddIdx] = arr[i]; // Place odd numbers at odd indices
+                oddIdx += 2;
             }
         }
 
-        System.arraycopy(rearrangedArray, 0, arr, 0, n);
+        for (int i = 0; i < n; i++) {
+            arr[i] = rearrangedArray[i];
+        }
     }
 }
