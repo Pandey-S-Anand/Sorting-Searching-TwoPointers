@@ -1,0 +1,98 @@
+// Bruteforce Approach
+
+class Solution {
+    public int[] sortedSquares(int[] arr) {
+        int[] squares = new int[arr.length];
+
+        // Step 1: Square every element in the input array
+        for (int i = 0; i < arr.length; i++) {
+            squares[i] = arr[i] * arr[i];
+        }
+
+        // Step 2: Sort the squared values to get the result in non-decreasing order
+        Arrays.sort(squares);
+
+        return squares;
+    }
+}
+
+
+// Optimal Approach
+
+class Solution {
+    /*
+    We use two pointers: one at the start (left = 0) and one at the end (right = arr.length - 1)
+    because in a sorted array, the maximum square value can only come from the extreme ends.
+    
+    Reason:
+    Squaring removes the sign, so elements with the largest absolute value produce the largest squares.
+    
+    Possible cases with examples:
+    
+    1) All positive numbers
+    Example: [1, 2, 3, 5]
+    Squares: [1, 4, 9, 25]
+    Order remains the same after squaring.
+    
+    2) Mixed negative and positive numbers
+    Example: [-10, 2, 5, 8]
+    Squares: [100, 4, 25, 64]
+    The largest square can come from either -10 (left end) or 8 (right end),
+    so we compare both ends and place the larger square at the end of the result array.
+    
+    3) All negative numbers
+    Example: [-7, -5, -3, -1]
+    Squares: [49, 25, 9, 1]
+    The first element has the largest absolute value, so its square (49)
+    should go to the last position in the result array.
+    
+    Conclusion:
+    Since the array is sorted, the largest square always comes from either
+    the leftmost or rightmost element. Therefore, we use two pointers and
+    fill the result array from right to left.
+    */
+    public int[] sortedSquares(int[] arr) {
+        // Result array to store squares in sorted order
+        int[] squares = new int[arr.length];
+
+        // Pointer to the smallest (leftmost) element
+        int left = 0;
+
+        // Pointer to the largest (rightmost) element
+        int right = arr.length - 1;
+
+        // Index to fill the result array from right to left
+        int idx = arr.length - 1;
+
+        // Process elements until result array is completely filled
+        while (idx >= 0) {
+            // Square of elements at both ends
+            int leftSqr = arr[left] * arr[left];
+            int rightSqr = arr[right] * arr[right];
+
+            /*
+             If left square is greater or equal:
+             - It means arr[left] produces the larger square
+             - We place it at the current index
+             - Move left pointer because this element is now processed
+            */
+            if (leftSqr >= rightSqr) {
+                squares[idx] = leftSqr;
+                left++; // left value processed, move forward
+            } else if (rightSqr > leftSqr) {
+                /*
+                - arr[right] produces the larger square
+                - Place it at the current index
+                - Move right pointer because this element is now processed
+                */
+                squares[idx] = rightSqr;
+                right--; // right value processed, move backward
+            }
+
+            // Move to next position in result array
+            idx--;
+        }
+
+        return squares;
+    }
+}
