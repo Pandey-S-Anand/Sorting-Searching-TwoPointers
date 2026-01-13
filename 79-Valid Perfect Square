@@ -1,0 +1,133 @@
+//Bruteforce Approach
+
+class Solution {
+    /**
+     * Checks if a given number is a perfect square.
+     *
+     * Logic:
+     * ----------
+     * - Uses `Math.sqrt()` to compute the square root of the input number.
+     * - If the square root is an integer (i.e., no decimal part),
+     *   then the number is a perfect square.
+     *
+     *
+     * Dry Run Example:
+     * -------------------
+     * Input: 16
+     * sqrt = Math.sqrt(16) = 4.0
+     * (int) sqrt = 4
+     * 4.0 == 4 → true → 16 is a perfect square
+     *
+     * Input: 18
+     * sqrt = Math.sqrt(18) ≈ 4.24
+     * (int) sqrt = 4
+     * 4.24 != 4 → false → 18 is not a perfect square
+     */
+    public boolean isPerfectSquare(int num) {
+        double sqrt = Math.sqrt(num);             // Compute square root
+        return sqrt == (int) (sqrt);              // Compare float vs integer version
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    public boolean isPerfectSquare(int num) {
+        int low = 0, high = num;
+
+        // Binary search over the possible square root range [0, num]
+        while (low <= high) {
+
+            // Calculate mid safely to avoid overflow
+            int mid = low + (high - low) / 2;
+
+            // Use long to prevent overflow when squaring mid
+            long square = (long) mid * mid;
+
+            /*
+             Case 1: Perfect square found
+             mid * mid == num, so mid is the exact square root
+            */
+            if (square == num) {
+                return true;
+            }
+
+            if (square < num) {
+                /*
+                Case 2: mid^2 is smaller than num
+                - mid is too small
+                - move right to try a larger value
+                */
+                low = mid + 1;
+            } else if (square > num) {
+                /*
+                Case 3: mid^2 is greater than num
+                - mid is too large
+                - move left to search smaller values
+                */
+                high = mid - 1;
+            }
+        }
+
+        //num is not a perfect square,
+        return false;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public boolean isPerfectSquare(int num) {
+        /*
+        Edge Case Handling:
+        
+        1) Handle num = 0 separately
+        - 0 is a perfect square (0 * 0 = 0).
+        
+        2) Handle num = 1 separately
+        - 1 is a perfect square (1 * 1 = 1).
+        - This also prevents an invalid binary search range,
+        because setting high = num / 2 would make high = 0 when num = 1.
+        */
+
+        if (num == 0 || num == 1) {
+            return true;
+        }
+        /*
+        Optimized Search Range: [1, num / 2]
+        
+        For any number greater than 1, its square root cannot be greater than num / 2.
+        Reason:
+        To get a square root, a number must be multiplied by itself.
+        If a number is greater than num / 2, then:
+        (num / 2 + 1) * (num / 2 + 1) > num
+        which exceeds the given number.
+        
+        Therefore, searching beyond num / 2 is unnecessary and inefficient.
+        */
+        int low = 1, high = num / 2;
+
+        // Binary search within the optimized range
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            long square = (long) mid * mid;
+
+            if (square == num) {
+                return true;
+            }
+
+            if (square < num) {
+                low = mid + 1;
+            } else if (square > num) {
+                high = mid - 1;
+            }
+        }
+
+        //num is not a perfect square,
+        return false;
+    }
+}
+
