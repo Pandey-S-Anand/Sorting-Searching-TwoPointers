@@ -32,55 +32,89 @@ class Solution {
 
 class Solution {
     /**
-     * Rearranges the array in-place so that all negative numbers appear before all positive numbers,
-     * while maintaining the relative order of appearance of both negative and positive elements.
+     * Rearranges the array so that positive and negative numbers appear in alternating positions,
+     * starting with a positive number. The relative order of appearance is preserved.
      *
+     *  Steps:
+     * 1. Segregate the array in-place so that all non-negative (positive or 0) numbers
+     *    appear first, followed by negatives, maintaining the original relative order.
+     * 2. Alternate positive and negative numbers using two pointers into a new result array.
      *
      * Dry Run Example:
      * -------------------
      * Input: [3, -1, 2, -2, -5, 4]
-     * 
-     * ➤ Step-by-step Execution:
-     * Initial Array: [3, -1, 2, -2, -5, 4]
      *
-     * i = 0 → 3 > 0 → skip
-     * i = 1 → -1 < 0 → shift(0,1)
-     *        - Move 3 → index 1
-     *        - Insert -1 → index 0 → [-1, 3, 2, -2, -5, 4] → next = 1
+     * ➤ Step 1: segregateMaintainingOrder()
+     * Initial: [3, -1, 2, -2, -5, 4]
      *
-     * i = 2 → 2 > 0 → skip
-     * i = 3 → -2 < 0 → shift(1,3)
-     *        - Move 3, 2 → index 2,3
-     *        - Insert -2 → index 1 → [-1, -2, 3, 2, -5, 4] → next = 2
+     * i = 0 → 3 ≥ 0 → shift(0,0) → no change → [3, -1, 2, -2, -5, 4] → nextNonNegativeElementIndex = 1
+     * i = 1 → -1 < 0 → skip
+     * i = 2 → 2 ≥ 0 → shift(1,2)
+     *        - Move -1 to index 2
+     *        - Insert 2 at index 1 → [3, 2, -1, -2, -5, 4] → next = 2
+     * i = 3 → -2 → skip
+     * i = 4 → -5 → skip
+     * i = 5 → 4 ≥ 0 → shift(2,5)
+     *        - Move -1, -2, -5 to index 3,4,5
+     *        - Insert 4 at index 2 → [3, 2, 4, -1, -2, -5] → next = 3
      *
-     * i = 4 → -5 < 0 → shift(2,4)
-     *        - Move 3, 2 → index 3,4
-     *        - Insert -5 → index 2 → [-1, -2, -5, 3, 2, 4] → next = 3
+     * ➤ Final segregated: [3, 2, 4, -1, -2, -5]
+     * ➤ Positive index = 0, Negative index = 3
      *
-     * i = 5 → 4 > 0 → skip
-     *
-     * ➤ Final Array: [-1, -2, -5, 3, 2, 4]
+     * ➤ Alternating fill into result:
+     * [3, -1, 2, -2, 4, -5]
      */
-    public void rearrange(int arr[], int n) {
-        int nextNegativeElementIndex = 0;
+    public int[] rearrangeArray(int[] arr) {
+        int[] rearrangedArray = new int[arr.length];
 
-        for (int i = 0; i < n; i++) {
-            if (arr[i] < 0) {
-                rightShiftBy1(arr, nextNegativeElementIndex, i);
-                nextNegativeElementIndex++;
-            }
+        int firstNegativeIndex = segregateMaintainingOrder(arr);
+        int positiveIndex = 0, negativeIndex = firstNegativeIndex, i = 0;
+
+        while (i < arr.length) {
+            rearrangedArray[i++] = arr[positiveIndex++];
+            rearrangedArray[i++] = arr[negativeIndex++];
         }
-        //At the end of the loop, 'nextNegativePlacementIndex' ends up pointing to the index of the first positive  (if any exist).
+
+        return rearrangedArray;
     }
 
     /**
-     * Shifts elements between indices `start` and `end` (inclusive) one position to the right,
-     * and inserts `arr[end]` at index `start`.
-     *
-     * Example: 
-     * Before: [a, b, c, d, e] and calling rightShiftBy1(arr, 1, 3)
-     * After:  [a, d, b, c, e]
+     * Rearranges the array such that all non-negative numbers appear at the front
+     * while maintaining their relative order.
      */
+    private int segregateMaintainingOrder(int[] arr) {
+        int nextNonNegativeElementIndex = 0;
+
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] >= 0) {
+                /*
+                IMPORTANT NOTE ON ORDER PRESERVATION:
+                ------------------------------------
+                
+                We CANNOT simply swap arr[nextNegativeElementIndex] with arr[i].
+                
+                Swapping would correctly place the current negative element,
+                but it would push the element currently at
+                'nextNegativeElementIndex' — which is a POSITIVE element that
+                appeared earlier — to a later index.
+                
+                This breaks the relative order of positive elements.
+                
+                To preserve the order of BOTH negative and positive elements,
+                we instead right-shift all elements between
+                [nextNegativeElementIndex ... i - 1] by one position and insert
+                the negative element at 'nextNegativeElementIndex'.
+                
+                Hence, right shifting is REQUIRED for stable rearrangement.
+                */
+                rightShiftBy1(arr, nextNonNegativeElementIndex, i);
+                nextNonNegativeElementIndex++;
+            }
+        }
+        //At the end of the loop, 'nextNonNegativeElementIndex' ends up pointing to the index of the first negative (if any exist).
+        return nextNonNegativeElementIndex;
+    }
+
     private void rightShiftBy1(int[] arr, int start, int end) {
         int temp = arr[end];
         for (int i = end; i > start; i--) {
