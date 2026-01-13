@@ -1,7 +1,7 @@
 // Method 1 (Order of Appearence is Maintained) // TC: O(n), SC: O(n)
 
 class Solution {
-    public void rearrange(int arr[], int n) {
+    public void Rearrange(int arr[], int n) {
         int index = 0;
         int aux[] = new int[n];
 
@@ -20,7 +20,9 @@ class Solution {
         }
 
         // Copy the rearranged elements back to the original array
-        System.arraycopy(aux, 0, arr, 0, n);
+        for (index = 0; index < n; index++) {
+            arr[index] = aux[index];
+        }
     }
 }
 
@@ -68,7 +70,7 @@ class Solution {
                 nextNegativeElementIndex++;
             }
         }
-        // At the end, all negatives are placed at the front in original relative order.
+        //At the end of the loop, 'nextNegativePlacementIndex' ends up pointing to the index of the first positive  (if any exist).
     }
 
     /**
