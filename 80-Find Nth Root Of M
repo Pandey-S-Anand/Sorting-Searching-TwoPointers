@@ -1,0 +1,103 @@
+//Bruteforce approach
+
+class Solution {
+    /*
+     To find: m ^ (1/n) = ?
+     
+     Mathematical Insight:
+     ---------------------
+     
+     Let:
+         x = m ^ (1/n)
+    
+     Then:
+         x^n = m
+    
+     The possible values of x lie in the range [0, m] (inclusive), because:
+     - If x > m and n >= 1, then x^n > m
+     - Hence, values beyond m are unnecessary to check
+    
+     Examples:
+     ----------
+     n = 1, m = 5 → x = 5   (5^1 = 5)
+     n = 5, m = 5 → x = 1   (1^5 = 5)
+     n = 5, m = 0 → x = 0   (0^5 = 0)
+    */
+
+    public int nthRoot(int n, int m) {
+        // Try all possible integer values of x from 0 to m
+        for (int x = 0; x <= m; x++) {
+            // Compute x^n
+            int power = (int) Math.pow(x, n);
+
+            /*
+             If x^n exceeds m:
+             - Further values of x will only increase x^n
+             - So we can stop early (optimization)
+             - Ex: m = 28 n = 3 
+            */
+            if (power > m) {
+                break;
+            }
+
+            // If x^n equals m, x is the required nth root
+            if (power == m) {
+                return x;
+            }
+        }
+
+        // No integer nth root exists
+        return -1;
+    }
+}
+
+
+
+//Optimal approach
+
+class Solution {
+    /*
+    From the brute-force approach, we observe that the valid search space
+    for x is [0, m].
+    
+    Lower Bound:
+    - Since m is a non-negative number, x does not need to go below 0.
+    - Although for even values of n a negative value may also satisfy x^n = m
+    (e.g., x = -2 for m = 4 and n = 2),
+    the corresponding positive value (x = 2) already satisfies the condition.
+    -  extending the search space to negative values is unnecessary.
+    
+    Upper Bound:
+    - Any value of x greater than m will always result in x^n > m (for n ≥ 1).
+    - Therefore, values beyond m are not required to be checked.
+    
+    Since this search space [0, m] is known and sorted,
+    we can optimize the solution by applying Binary Search on the answer.
+    */
+    public int nthRoot(int n, int m) {
+        int low = 0, high = m;
+
+        // Binary search on the possible answer range
+        while (low <= high) {
+
+            int mid = low + (high - low) / 2;
+
+            // Compute mid^n
+            int power = (int) Math.pow(mid, n);
+
+            //Exact nth root found
+            if (power == m) {
+                return mid;
+            }
+
+            if (power < m) { // if mid^n is smaller than m, move left to try a larger value
+                low = mid + 1;
+            } else if (power > m) { // if mid^n is greater than m, move left to try a smaller value
+                high = mid - 1;
+            }
+        }
+
+        // No integer nth root exists
+        return -1;
+    }
+}
