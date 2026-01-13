@@ -20,7 +20,9 @@ class Solution {
         }
 
         // Copy modified result back to original array
-        System.arraycopy(aux, 0, arr, 0, arr.length);        
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = aux[i];
+        }
     }
 }
 
@@ -62,27 +64,22 @@ class Solution {
 
         while (start < end) {
             // Move start forward until a non-negative element is found
-            while (start < arr.length && arr[start] < 0) {
+            while (start < end && arr[start] < 0) {
                 start++;
             }
 
             // Move end backward until a non-negative element is found
-            while (end >= 0 && arr[end] >= 0) {
+            while (start < end && arr[end] >= 0) {
                 end--;
             }
 
             // If start and end haven't crossed, swap the elements
             if (start < end) {
-                swap(arr, start, end);
-                start++;
-                end--;
+                swap(arr, start++, end--);
             }
         }
     }
 
-    /**
-     * Utility method to swap two elements in the array.
-     */
     private void swap(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
@@ -126,7 +123,7 @@ class Solution {
                 nextNegativePlacementIndex++;
             }
         }
-        
+
         //At the end of the loop, 'nextNegativePlacementIndex' ends up pointing to the index of the first positive  (if any exist).
     }
 
