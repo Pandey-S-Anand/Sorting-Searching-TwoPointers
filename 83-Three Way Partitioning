@@ -114,7 +114,7 @@ class Solution {
      *   → Elements in [3, 5]: [3, 4, 5]
      *   → Elements > 5: [7, 6]
      *
-     * Why we DO NOT increment i when arr[i] > upperBound:
+     * Why we DO NOT increment i when arr[i] > b:
      *    The element swapped from the back may belong to any region
      *    and must be evaluated again (Dutch National Flag logic).
      */
