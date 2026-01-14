@@ -1,0 +1,91 @@
+/*
+ Problem:
+ --------
+ Given a 4-digit number, split its digits into two 2-digit numbers
+ such that their sum is minimized. All digits must be used and
+ leading zeros are allowed.
+
+ Key Idea :
+ -------------------------------------
+ The tens place contributes 10× more than the ones place.
+ Therefore, to minimize the total sum, we must minimize the digits
+ placed in the tens position of the two numbers.
+
+ Approach:
+ ---------
+ 1) Extract the four digits and sort them in ascending order.
+ 2) Place the two smallest digits in the tens place of the two numbers.
+ 3) Place the remaining two digits in the ones place.
+
+ Why the ones-place order does NOT matter:
+ -----------------------------------------
+ After fixing the tens digits, the two numbers are formed as:
+
+     num1 = (10 * smallest1) + (remainingX OR remainingY)
+     num2 = (10 * smallest2) + (remainingY OR remainingX)
+
+ where remainingX and remainingY are the two remaining digits.
+ The use of OR indicates that either remaining digit can be placed
+ in either number’s ones place.
+
+ Total Sum:
+ ----------
+     num1 + num2
+   = (10 * smallest1 + remainingX) + (10 * smallest2 + remainingY)
+   = 10 * (smallest1 + smallest2) + (remainingX + remainingY)
+
+ Since the ones-place digits are added directly (multiplied by 1),
+ their order does not affect the total sum:
+     (remainingX + remainingY) = (remainingY + remainingX)
+
+ Hence, the remaining two digits can be placed in either number’s
+ ones place without changing the final sum.
+
+ Conclusion:
+ -----------
+ Minimizing the tens-place digits guarantees the minimum possible sum,
+ and no specific ordering is required for the ones-place digits.
+*/
+class Solution {
+    public int minimumSum(int num) {
+        int[] arr = new int[4];
+        int idx = 0;
+
+        //Extract the four digits of the number
+        while (num != 0) {
+            arr[idx++] = num % 10;
+            num /= 10;
+        }
+
+        //Sort the digits in ascending order
+        Arrays.sort(arr);
+
+        /*
+         Construct the two 2-digit numbers
+        
+         Key Idea:
+         - The tens place contributes 10× more than the ones place.
+         - To minimize the sum, place the two smallest digits in the tens place.
+         - The remaining two digits go to the ones place.
+        
+         Optimal pairings (both give the same minimum sum):
+        
+         Option 1:
+           num1 = arr[0] * 10 + arr[3]
+           num2 = arr[1] * 10 + arr[2]
+        
+         Option 2:
+           num1 = arr[0] * 10 + arr[2]
+           num2 = arr[1] * 10 + arr[3]
+        
+         Both are optimal because once the tens-place digits are fixed,
+         the ones-place digits are interchangeable and do not affect the total sum.
+        */
+
+        int num1 = arr[0] * 10 + arr[3];
+        int num2 = arr[1] * 10 + arr[2];
+
+        //Return the minimum possible sum
+        return num1 + num2;
+    }
+}
