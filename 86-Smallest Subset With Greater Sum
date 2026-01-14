@@ -1,0 +1,99 @@
+//Bruteforce Approach
+
+class Solution {
+    /*
+     Problem:
+     --------
+     Select the minimum number of elements such that the sum of the selected
+     elements is strictly greater than the sum of the remaining elements.
+    
+     Approach:
+     ---------
+     1) Sort the array in ascending order.
+        - This allows us to pick the largest elements first,
+          which helps minimize the count.
+    
+     2) Build a prefix sum array.
+        - prefixSum[i] stores the sum of elements from index 0 to i.
+        - This represents the sum of remaining elements when we pick from the right.
+    
+     3) Traverse the array from right to left:
+        - Maintain a running suffix sum (sum of selected elements).
+        - At each step, compare:
+              suffixSum > remainingSum (prefixSum[i - 1])
+        - As soon as the condition is satisfied, return the count.
+    
+     Why this works:
+     ---------------
+     Picking larger elements first increases the suffix sum faster,
+     ensuring we reach the condition using the minimum number of elements.
+    */
+    int minSubset(int[] arr) {
+        // Sort the array so largest elements are at the end
+        Arrays.sort(arr);
+
+        // Build prefix sum array
+        int[] prefixSum = new int[arr.length];
+        prefixSum[0] = arr[0];
+
+        for (int i = 1; i < arr.length; i++) {
+            prefixSum[i] = prefixSum[i - 1] + arr[i];
+        }
+
+        int suffixSum = 0; // sum of selected elements (from right)
+        int selectedCount = 0; // number of selected elements
+
+        // Pick elements from the right (largest first)
+        for (int i = arr.length - 1; i >= 0; i--) {
+            suffixSum += arr[i];
+            selectedCount++;
+
+            // Remaining elements sum = prefixSum[i - 1]
+            if (i > 0 && suffixSum > prefixSum[i - 1]) {
+                return selectedCount;
+            }
+        }
+
+        /*
+        This return is reached only when all elements are required,
+        which means the selected count equals the array size.
+        
+        Example:
+        [10, 10]
+        suffixSum never becomes strictly greater than the remaining sum
+        until both elements are taken.
+        */
+        return selectedCount;
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    int minSubset(int[] arr) {
+        Arrays.sort(arr);
+
+        // prefixSum represents sum of remaining elements
+        int prefixSum = 0;
+        for (int num : arr) {
+            prefixSum += num;
+        }
+
+        int suffixSum = 0;
+        int selectedCount = 0;
+
+        for (int i = arr.length - 1; i >= 0; i--) {
+            suffixSum += arr[i]; // add to selected elements
+            prefixSum -= arr[i]; // remove from remaining elements
+            selectedCount++;
+
+            // Check if selected sum is strictly greater than prefixSum
+            if (suffixSum > prefixSum) {
+                return selectedCount;
+            }
+        }
+
+        return selectedCount;
+    }
+}
