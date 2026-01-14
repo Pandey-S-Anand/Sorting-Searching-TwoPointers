@@ -132,18 +132,3 @@ class Solution {
         return 0;
     }
 }
-
-/*
- * 1 <= arr[i] <= 10^6
- * 
- * we are not required to check for these 2 Conditions :
- * arr[i]+arr[i-1] > arr[i-2] and arr[i] + arr[i-2] > arr[i-1] so
- * 
- * Reason : arr[i-2]<=arr[i-1]<=arr[i] as Array is sorted
- * 
- * if(arr[i]>=arr[i-2]) then obv. arr[i]+arr[i-1]>=arr[i-2]
- * 
- * similarly,
- * 
- * if(arr[i]>=arr[i-1]) then obv. arr[i]+arr[i-2]>=arr[i-1]
- */
