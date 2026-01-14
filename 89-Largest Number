@@ -1,0 +1,69 @@
+class Solution {
+    /**
+     * Forms the largest possible number by rearranging the given integers.
+     *
+     * Why normal sorting does NOT work:
+     * ---------------------------------
+     * Sorting numbers in descending order fails because the comparison
+     * must be based on concatenation, not numeric value.
+     *
+     * Example:
+     *   Input: [9, 91]
+     *   Descending sort → [91, 9] → "919" ❌
+     *   Correct result  → "991"  ✅
+     *   Because: "9" + "91" > "91" + "9"
+     *
+     * Key Insight:
+     * -------------------
+     * For any two numbers a and b, we must decide their order based on:
+     *   which concatenation is larger: ab or ba.
+     *
+     * Why string comparison works:
+     * ----------------------------
+     * - The concatenated strings (ab and ba) always have the same length.
+     * - They contain only digits.
+     * - For numeric strings of equal length, lexicographical comparison
+     *   is equivalent to numerical comparison.
+     *
+     * Hence, we can safely compare (a + b) and (b + a) as strings.
+     *
+     * Edge Case:
+     * ----------
+     * If the largest number starts with '0', then all numbers are zeros,
+     * so return "0" instead of something like "000".
+     */
+
+    public String largestNumber(int[] arr) {
+        // Convert integers to strings
+        String[] nums = new String[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            nums[i] = String.valueOf(arr[i]);
+        }
+
+        // Sort using custom comparator based on concatenation
+        Arrays.sort(nums, (num1, num2) -> {
+            String num1Num2 = num1 + num2;
+            String num2Num1 = num2 + num1;
+            /* Comparator logic: 
+              - If num1Num2 > num2Num1 → num1 should come before num2 → return negative 
+              - If num1Num2 < num2Num1 → num2 should come before num1 → return positive 
+              - If equal → order doesn't matter → return 0 
+            */
+            return num2Num1.compareTo(num1Num2);
+        });
+
+        // Build the result
+        StringBuilder largestNumber = new StringBuilder();
+
+        for (String num : nums) {
+            largestNumber.append(num);
+        }
+
+        // Handle case where all values are zero
+        if (largestNumber.charAt(0) == '0') {
+            return "0";
+        }
+
+        return largestNumber.toString();
+    }
+}
