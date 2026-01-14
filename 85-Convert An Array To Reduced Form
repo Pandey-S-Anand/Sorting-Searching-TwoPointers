@@ -1,0 +1,85 @@
+class Solution {
+    /*
+     Problem:
+     --------
+     Given an array with N distinct elements, convert it to a reduced form
+     such that:
+       - The smallest element becomes 0
+       - The second smallest becomes 1
+       - ...
+       - The largest becomes N-1
+     The relative order of elements in the original array must be preserved.
+    
+     Approach:
+     ---------
+     1) Create a copy of the original array.
+     2) Sort the copied array.
+        - After sorting, the index of each element represents its reduced value.
+     3) Traverse the original array:
+        - For each element, find its index in the sorted array using binary search. 
+          Since all elements are distinct, the index directly represents the reduced value.
+        - Replace the element with that index.
+     */
+
+
+    void convert(int[] arr, int n) {
+        //Create a copy of the original array
+        int[] sorted = arr.clone();
+
+        /*
+          Sort the copied array. 
+          After sorting, indices represent the reduced values
+        */
+        Arrays.sort(sorted);
+
+        //Replace each element with its index in the sorted array
+        for (int i = 0; i < n; i++) {
+            arr[i] = binarySearch(sorted, arr[i]);
+        }
+    }
+
+    private int binarySearch(int[] arr, int target) {
+
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                return mid; // index corresponds to reduced value
+            }
+
+            if (target < arr[mid]) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        // Will never be reached because target always exists in 'sorted' array
+        return -1;
+    }
+}
+
+//Aliter
+
+class Solution {
+    void convert(int[] arr, int n) {
+        // Create a copy of the original array
+        int[] sorted = arr.clone();
+
+        // Sort the copied array
+        Arrays.sort(sorted);
+
+        // Map each value to its rank (index in sorted array)
+        Map<Integer, Integer> rankMap = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            rankMap.put(sorted[i], i);
+        }
+
+        // Replace each element in the original array with its rank
+        for (int i = 0; i < n; i++) {
+            arr[i] = rankMap.get(arr[i]);
+        }
+    }
+}
