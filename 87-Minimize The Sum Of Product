@@ -25,10 +25,6 @@ class Solution {
      Large numbers increase the product magnitude.
      By multiplying large values with small ones (instead of large-large),
      we keep the overall sum as small as possible.
-
-     This strategy is a direct application of the Rearrangement Inequality,
-     which states that the minimum scalar product is achieved when two sequences
-     are sorted in opposite orders.
     */
 
     public long minValue(List<Integer> arr1, List<Integer> arr2) {
