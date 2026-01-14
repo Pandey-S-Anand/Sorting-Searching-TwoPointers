@@ -1,0 +1,143 @@
+//Bruteforce Approach
+
+class Solution{
+    public void threeWayPartition(int arr[], int a, int b){
+        Arrays.sort(arr);
+    }
+}
+
+
+//Better Approach
+
+class Solution {
+    /**
+     * Three-way partitioning using extra space.
+     *
+     * Objective:
+     * Partition the array into three parts based on range [a, b]:
+     *   1. Elements less than 'a'
+     *   2. Elements in the range [a, b]
+     *   3. Elements greater than 'b'
+     *
+     * This method uses a temporary array to store elements in the required order,
+     * and finally copies them back into the original array.
+     */
+    public void threeWayPartition(int arr[], int a, int b) {
+        int[] aux = new int[arr.length]; // Temporary array to hold partitioned result
+        int idx = 0; // Pointer to insert into temp
+
+        // Step 1: Insert elements less than 'a'
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] < a) {
+                aux[idx++] = arr[i];
+            }
+        }
+
+        // Step 2: Insert elements in the range [a, b]
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] >= a && arr[i] <= b) {
+                aux[idx++] = arr[i];
+            }
+        }
+
+        // Step 3: Insert elements greater than 'b'
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] > b) {
+                aux[idx++] = arr[i];
+            }
+        }
+
+        // Copy result from temp back to original array
+        for (int i = 0; i < aux.length; i++) {
+            arr[i] = aux[i];
+        }
+    }
+}
+
+
+
+//Optimal Approach (Dutch National Flag Algorithm)
+
+class Solution {
+    /*
+     * Pointer meanings:
+     *   lessThanA     → boundary for elements < lowerBound
+     *                   (all indices < lessThanA hold elements < lowerBound)
+     *   i             → current element under evaluation
+     *   greaterThanB  → boundary for elements > upperBound
+     *                   (all indices > greaterThanB hold elements > upperBound)
+     *
+     * Problem Goal:
+     * Partition the array into three parts:
+     *   1. Elements less than lowerBound
+     *   2. Elements in the range [lowerBound, upperBound]
+     *   3. Elements greater than upperBound
+     *
+     * Dry run example:
+     *
+     * Input: arr = [1, 4, 3, 2, 5, 6, 7], lowerBound = 3, upperBound = 5
+     * Initial: lessThanA = 0, i = 0, greaterThanB = 6
+     *
+     * Step-by-step:
+     *
+     * 1) i=0, arr[0]=1 < lowerBound → swap arr[lessThanA]=1 with arr[i]=1
+     *    → arr = [1, 4, 3, 2, 5, 6, 7]
+     *    → lessThanA = 1, i = 1
+     *
+     * 2) i=1, arr[1]=4 in range → just i++
+     *    → i = 2
+     *
+     * 3) i=2, arr[2]=3 in range → just i++
+     *    → i = 3
+     *
+     * 4) i=3, arr[3]=2 < lowerBound → swap arr[3]=2 with arr[lessThanA=1]=4
+     *    → arr = [1, 2, 3, 4, 5, 6, 7]
+     *    → lessThanA = 2, i = 4
+     *
+     * 5) i=4, arr[4]=5 in range → i++
+     *    → i = 5
+     *
+     * 6) i=5, arr[5]=6 > upperBound → swap arr[5]=6 with arr[greaterThanB=6]=7
+     *    → arr = [1, 2, 3, 4, 5, 7, 6]
+     *    → greaterThanB = 5
+     *    → DO NOT increment i because new arr[5] must be evaluated
+     *
+     * 7) i=5, arr[5]=7 > upperBound → swap arr[5]=7 with arr[greaterThanB=5]=7
+     *    → arr = [1, 2, 3, 4, 5, 7, 6]
+     *    → greaterThanB = 4
+     *    → DO NOT increment i
+     *
+     * Loop ends when i > greaterThanB
+     *
+     * Final Partitioned Array: [1, 2, 3, 4, 5, 7, 6]
+     *   → Elements < 3: [1, 2]
+     *   → Elements in [3, 5]: [3, 4, 5]
+     *   → Elements > 5: [7, 6]
+     *
+     * Why we DO NOT increment i when arr[i] > upperBound:
+     *    The element swapped from the back may belong to any region
+     *    and must be evaluated again (Dutch National Flag logic).
+     */
+    public void threeWayPartition(int arr[], int lowerBound, int upperBound) {
+        int lessThanA = 0, greaterThanB = arr.length - 1, i = 0;
+
+        while (i <= greaterThanB) {
+            if (arr[i] < lowerBound) {
+                swap(arr, lessThanA, i);
+                lessThanA++;
+                i++;
+            } else if (arr[i] > upperBound) {
+                swap(arr, i, greaterThanB);
+                greaterThanB--;
+            } else {
+                i++;
+            }
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
