@@ -69,18 +69,18 @@ class Solution {
      *
      * Problem Goal:
      * Partition the array into three parts:
-     *   1. Elements less than lowerBound
-     *   2. Elements in the range [lowerBound, upperBound]
-     *   3. Elements greater than upperBound
+     *   1. Elements less than 'a'
+     *   2. Elements in the range [a, b]
+     *   3. Elements greater than 'b'
      *
      * Dry run example:
      *
-     * Input: arr = [1, 4, 3, 2, 5, 6, 7]
+     * Input: arr = [1, 4, 3, 2, 5, 6, 7], a = 3 , b = 5
      * Initial: lessThanA = 0, i = 0, greaterThanB = 6
      *
      * Step-by-step:
      *
-     * 1) i=0, arr[0]=1 < lowerBound → swap arr[lessThanA]=1 with arr[i]=1
+     * 1) i=0, arr[0]=1 < a → swap arr[lessThanA]=1 with arr[i]=1
      *    → arr = [1, 4, 3, 2, 5, 6, 7]
      *    → lessThanA = 1, i = 1
      *
@@ -90,19 +90,19 @@ class Solution {
      * 3) i=2, arr[2]=3 in range → just i++
      *    → i = 3
      *
-     * 4) i=3, arr[3]=2 < lowerBound → swap arr[3]=2 with arr[lessThanA=1]=4
+     * 4) i=3, arr[3]=2 < a → swap arr[3]=2 with arr[lessThanA=1]=4
      *    → arr = [1, 2, 3, 4, 5, 6, 7]
      *    → lessThanA = 2, i = 4
      *
      * 5) i=4, arr[4]=5 in range → i++
      *    → i = 5
      *
-     * 6) i=5, arr[5]=6 > upperBound → swap arr[5]=6 with arr[greaterThanB=6]=7
+     * 6) i=5, arr[5]=6 > b → swap arr[5]=6 with arr[greaterThanB=6]=7
      *    → arr = [1, 2, 3, 4, 5, 7, 6]
      *    → greaterThanB = 5
      *    → DO NOT increment i because new arr[5] must be evaluated
      *
-     * 7) i=5, arr[5]=7 > upperBound → swap arr[5]=7 with arr[greaterThanB=5]=7
+     * 7) i=5, arr[5]=7 > b → swap arr[5]=7 with arr[greaterThanB=5]=7
      *    → arr = [1, 2, 3, 4, 5, 7, 6]
      *    → greaterThanB = 4
      *    → DO NOT increment i
@@ -118,15 +118,15 @@ class Solution {
      *    The element swapped from the back may belong to any region
      *    and must be evaluated again (Dutch National Flag logic).
      */
-    public void threeWayPartition(int arr[], int lowerBound, int upperBound) {
+    public void threeWayPartition(int arr[], int a, int b) {
         int lessThanA = 0, greaterThanB = arr.length - 1, i = 0;
 
         while (i <= greaterThanB) {
-            if (arr[i] < lowerBound) {
+            if (arr[i] < a) {
                 swap(arr, lessThanA, i);
                 lessThanA++;
                 i++;
-            } else if (arr[i] > upperBound) {
+            } else if (arr[i] > b) {
                 swap(arr, i, greaterThanB);
                 greaterThanB--;
             } else {
