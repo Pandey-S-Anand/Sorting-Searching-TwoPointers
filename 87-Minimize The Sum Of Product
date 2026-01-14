@@ -1,0 +1,50 @@
+class Solution {
+    /*
+     Problem:
+     --------
+     You are given two arrays arr1 and arr2 of equal size N.
+     You are allowed to rearrange (shuffle) the elements of both arrays.
+
+     Your task is to minimize the value:
+         arr1[0] * arr2[0] + arr1[1] * arr2[1] + ... + arr1[N-1] * arr2[N-1]
+
+     Optimal Strategy:
+     -----------------
+     To obtain the minimum possible sum:
+     - Sort arr1 in ascending order
+     - Sort arr2 in descending order
+     - Multiply corresponding elements and add them
+
+     Why this works:
+     ---------------
+     Pairing the smallest element from one array with the largest element
+     from the other array minimizes the contribution of each product.
+
+     Intuition:
+     ----------
+     Large numbers increase the product magnitude.
+     By multiplying large values with small ones (instead of large-large),
+     we keep the overall sum as small as possible.
+
+     This strategy is a direct application of the Rearrangement Inequality,
+     which states that the minimum scalar product is achieved when two sequences
+     are sorted in opposite orders.
+    */
+
+    public long minValue(List<Integer> arr1, List<Integer> arr2) {
+        // Sort arr1 in ascending order
+        Collections.sort(arr1);
+
+        // Sort arr2 in descending order
+        Collections.sort(arr2, Collections.reverseOrder());
+
+        long sum = 0;
+
+        // Compute the minimum sum of products
+        for (int i = 0; i < arr1.size(); i++) {
+            sum += (long) arr1.get(i) * arr2.get(i);
+        }
+
+        return sum;
+    }
+}
