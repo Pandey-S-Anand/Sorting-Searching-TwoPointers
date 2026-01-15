@@ -1,0 +1,111 @@
+//Bruteforce Approach
+
+public class Solution extends VersionControl {
+    /*
+     Brute Force Approach:
+     --------------------
+     - Check each version sequentially starting from version 1.
+     - The first version for which isBadVersion(version) returns true
+       is the first bad version.
+
+     Time Complexity:
+     ----------------
+     O(n) API calls in the worst case.
+
+     Note:
+     -----
+     The problem guarantees that a bad version exists, so the return
+     statement at the end will never be reached.
+    */
+    public int firstBadVersion(int n) {
+        for (int version = 1; version <= n; version++) {
+            if (isBadVersion(version)) {
+                return version;
+            }
+        }
+
+        return -1; // will never be reached due to problem guarantee
+    }
+}
+
+
+//Optimal Approach
+
+/*
+ Problem:
+ --------
+ You are given n versions [1, 2, ..., n].
+
+ Each version is built on top of the previous one.
+ If a version introduces a defect, that defect is inherited by all
+ subsequent versions.
+
+ Hence, once a version becomes bad, all versions after it are also bad.
+
+ You are provided with an API:
+     boolean isBadVersion(int version)
+
+ Goal:
+ -----
+ Find the FIRST bad version while minimizing the number of API calls.
+
+ Key Observation:
+ ----------------
+ The versions follow a monotonic pattern, for example:
+     [good, good, good, bad, bad, bad]
+
+ Once the transition from good → bad happens, it never switches back.
+ This monotonic behavior makes the problem ideal for Binary Search.
+
+ Intuition:
+ ----------
+ - If a version `mid` is bad, then the first bad version must be
+   at `mid` or somewhere to the left.
+ - If a version `mid` is good, then the first bad version must be
+   strictly to the right.
+
+ Using this logic, we repeatedly shrink the search space until the
+ earliest bad version is found.
+
+ Complexity:
+ -----------
+ Time  : O(log n) API calls
+ Space : O(1)
+*/
+public class Solution extends VersionControl {
+    public int firstBadVersion(int n) {
+        /*
+         Why the search range is [1, n]:
+         ------------------------------
+         - Versions are numbered starting from 1 up to n.
+         - so the lowest possible candidate for the first bad version is 1.
+         - In the worst case, even version n itself could be the first bad version.
+         
+         Therefore, the complete and valid search space for Binary Search
+         is [1, n].
+        */
+        int low = 1, high = n;
+        int firstBadVersion = 0; // stores the earliest bad version found so far
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (isBadVersion(mid)) {
+                // mid is bad → it could be the first bad version
+                firstBadVersion = mid;
+                // search left to find an earlier bad version
+                high = mid - 1;
+            } else {
+                // mid is good → first bad version must be on the right
+                low = mid + 1;
+            }
+        }
+
+        /*
+        The problem guarantees that at least one bad version exists.
+        Therefore, firstBadVersion will always be updated during the search
+        and will never remain at its initial value (0).
+        */
+        return firstBadVersion;
+    }
+}
