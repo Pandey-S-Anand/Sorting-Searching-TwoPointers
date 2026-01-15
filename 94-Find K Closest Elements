@@ -1,0 +1,121 @@
+//Bruteforce Approach
+
+class Solution {
+    /*
+    Approach (Sort by Distance using Integer[]):
+    --------------------------------------------
+    - Convert the input array into a wrapper Integer[] so that a custom
+     comparator can be used with Arrays.sort().
+    - Sort all elements based on their "closeness" to x:
+     1) Smaller absolute distance from x comes first.
+     2) If distances are equal, the smaller value comes first (as required by the problem).
+        - Select the first k elements after sorting, which represent the k closest elements to x.
+        - Finally, sort these k elements in ascending order to match the required output format.
+    */
+    public List<Integer> findClosestElements(int[] nums, int k, int x) {
+        Integer[] arr = new Integer[nums.length];
+
+        for (int i = 0; i < nums.length; i++) {
+            arr[i] = nums[i];
+        }
+
+        Arrays.sort(arr, (a, b) -> {
+            int distA = Math.abs(a - x);
+            int distB = Math.abs(b - x);
+
+            if (distA != distB) {
+                return Integer.compare(distA, distB); // compare by distance
+            }
+            return Integer.compare(a, b); // tie-breaker: smaller value first
+        });
+
+        //Pick the first k elements (k closest to x)
+        List<Integer> kClosestElements = new ArrayList<>();
+        for (int i = 0; i < k; i++) {
+            kClosestElements.add(arr[i]);
+        }
+
+        //Result must be sorted in ascending order
+        Collections.sort(kClosestElements);
+
+        return kClosestElements;
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    /*
+     Approach (Max Heap of size K):
+     ------------------------------
+     We maintain only the K closest elements to x at any point in time.
+    
+     Key Idea:
+     ---------
+     - Use a Max Heap where each entry is:
+           [value, |value - x|]
+     - The heap is ordered by distance from x (largest distance at the top).
+     - This allows us to quickly remove the element that is farthest from x
+       whenever we encounter a better candidate.
+    
+     Algorithm:
+     ----------
+     1) Iterate through each number in the array.
+     2) If the heap size is less than k:
+        - Add the current number along with its distance from x.
+     3) If the heap already contains k elements:
+        - Look at the heap's top element (the farthest among the current k).
+        - Replace it with the current number if:
+            a) The current number is closer to x, OR
+            b) The distance is the same but the current number is smaller
+               (tie-breaking rule from the problem).
+     4) After processing all elements, the heap contains the k closest elements.
+     5) Extract the elements and sort them to return the result in ascending order.
+    
+     Why Max Heap:
+     -------------
+     At any moment, we want to know which of the current k elements is the
+     worst candidate (i.e., farthest from x). A max heap lets us access and
+     remove that element in O(log k) time.
+    
+     Complexity:
+     -----------
+     Time  : O(n log k)
+     Space : O(k)
+    */
+
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        // Max heap ordered by distance from x
+        Queue<int[]> maxHeap = new PriorityQueue<>((a, b) -> Integer.compare(b[1], a[1]));
+
+        for (int num : arr) {
+            int distance = Math.abs(num - x);
+
+            if (maxHeap.size() < k) {
+                maxHeap.offer(new int[] { num, distance });
+            } else {
+                int[] farthest = maxHeap.peek();
+
+                // Replace the farthest element if the current one is better
+                if (distance < farthest[1] || (distance == farthest[1] && num < farthest[0])) {
+                    maxHeap.poll();
+                    maxHeap.offer(new int[] { num, distance });
+                }
+            }
+        }
+
+        // Extract values from heap
+        List<Integer> kClosestElements = new ArrayList<>();
+        while (!maxHeap.isEmpty()) {
+            kClosestElements.add(maxHeap.poll()[0]);
+        }
+
+        // Final result must be sorted
+        Collections.sort(kClosestElements);
+
+        return kClosestElements;
+    }
+}
+
