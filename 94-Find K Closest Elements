@@ -44,7 +44,7 @@ class Solution {
 
 
 
-//Better Approach
+//Good Approach
 
 class Solution {
     /*
@@ -119,3 +119,273 @@ class Solution {
     }
 }
 
+
+//Better Approach
+
+class Solution {
+    /*
+     Why the k closest elements always form a contiguous subarray ?
+    
+     Key Observations:
+     -----------------
+     1) The array is sorted.
+     2) As we move away from x on either side, the distance from x increases
+       (or stays the same for equal values), but never decreases.
+    
+    
+     Core Reasoning:
+     ---------------
+     If we select an element farther from x while skipping an element
+     that lies between x and the selected element, then the skipped
+     element must be closer to x than the chosen one.
+    
+     Therefore, selecting non-contiguous elements can never be optimal.
+    
+     Conclusion:
+     -----------
+     The k closest elements must lie next to each other in the sorted array,
+     forming a contiguous subarray.
+    */
+
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        int lowerBoundIndex = findLowerBound(arr, x);
+
+        /*
+         Lower bound splits the array into two parts:
+         
+           Left  side : elements < x
+           Right side : elements >= x
+         
+         Since the closest elements must lie around x,
+         we expand outward from this boundary to pick k elements.
+        */
+
+        List<Integer> kClosestElements = new ArrayList<>();
+
+        if (lowerBoundIndex == 0) {
+            /*
+             Case 1: x is smaller than or equal to the smallest element.  
+             Since all elements are >= x, the closest k elements
+             are simply the first k elements of the array.
+            
+            Example 1:
+            arr = [1,1,2,3,4,5], k = 4, x = -1
+            Output: [1,1,2,3]
+            
+            Example 2:
+            arr = [1,1,2,3,4,5], k = 4, x = 1
+            Output: [1,1,2,3]
+            
+            In both cases, the first k elements are the closest.
+            */
+
+            for (int i = 0; i < k; i++) {
+                kClosestElements.add(arr[i]);
+            }
+
+            // Already sorted since the input array is sorted
+            return kClosestElements;
+        }
+
+        if (lowerBoundIndex == arr.length) {
+            /*
+             Case 2: x is greater than or equal to the largest element.
+             Since all elements are <= x, the closest k elements
+             are the last k elements of the array.
+            
+            Example 1:
+            arr = [1,1,2,3,4,5], k = 4, x = 6
+            Output: [2,3,4,5]
+            
+            Example 2:
+            arr = [1,1,2,3,4,5], k = 4, x = 5
+            Output: [2,3,4,5]
+            
+            In both cases, the last k elements are the closest.
+            */
+
+            for (int i = arr.length - k; i < arr.length; i++) {
+                kClosestElements.add(arr[i]);
+            }
+
+            return kClosestElements;
+        }
+
+        int left = lowerBoundIndex - 1; // points to the largest element < x
+        int right = lowerBoundIndex; // points to the smallest element >= x
+
+        /*
+        Expand outward from the lower bound.
+        At each step, compare distances from x and choose the closer element.
+        This continues until either k elements are chosen or
+        one side gets exhausted.
+        */
+        while (k > 0 && left != -1 && right != arr.length) {
+            int leftDist = Math.abs(arr[left] - x);
+            int rightDist = Math.abs(arr[right] - x);
+
+            if (leftDist == rightDist) {
+                /*
+                Tie-breaking rule:
+                When distances are equal, choose the smaller value.
+                Since the array is sorted, the smaller value lies on the left.
+                */
+                kClosestElements.add(arr[left--]);
+            } else if (leftDist < rightDist) {
+                // Left element is strictly closer to x
+                kClosestElements.add(arr[left--]);
+            } else {
+                // Right element is strictly closer to x
+                kClosestElements.add(arr[right++]);
+            }
+
+            k--;
+        }
+
+        /*
+          All elements on the left have been used.
+          Remaining closest elements must come from the right.
+        */
+        if (left == -1) {
+            while (k > 0) {
+                kClosestElements.add(arr[right++]);
+                k--;
+            }
+        }
+
+        /*
+          All elements on the right have been used.
+          Remaining closest elements must come from the left.
+        */
+        if (right == arr.length) {
+            while (k > 0) {
+                kClosestElements.add(arr[left--]);
+                k--;
+            }
+        }
+
+        /*
+        Elements were collected based on closeness, not order.
+        Final result must be sorted in ascending order as required.
+        */
+        Collections.sort(kClosestElements);
+
+        return kClosestElements;
+    }
+
+    /*
+    Lower Bound:
+    ------------
+    Finds the index of the first element such that arr[i] >= target.
+    
+    - If target exists, returns its first occurrence.
+    - If target does not exist, returns the index where it should be
+    inserted to keep the array sorted (i.e., the first index where arr[i] > target).
+    */
+    private int findLowerBound(int[] arr, int target) {
+        int low = 0, high = arr.length - 1, lowerBoundIndex = arr.length;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] >= target) {
+                lowerBoundIndex = mid;
+                high = mid - 1;
+            } else if (arr[mid] < target) {
+                low = mid + 1;
+            }
+        }
+        /*
+         lowerBoundIndex remains arr.length when all elements in the array
+         are smaller than the target.
+        */
+        return lowerBoundIndex;
+    }
+}
+
+
+
+//Optimal Approach
+
+class Solution {
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        int lowerBoundIndex = findLowerBound(arr, x);
+
+        if (lowerBoundIndex == 0) {
+            List<Integer> kClosestElements = new ArrayList<>();
+            for (int i = 0; i < k; i++) {
+                kClosestElements.add(arr[i]);
+            }
+
+            return kClosestElements;
+        }
+
+        if (lowerBoundIndex == arr.length) {
+            List<Integer> kClosestElements = new ArrayList<>();
+            for (int i = arr.length - k; i < arr.length; i++) {
+                kClosestElements.add(arr[i]);
+            }
+
+            return kClosestElements;
+        }
+
+        /*
+        LinkedList is used to maintain sorted order while expanding:
+        - Elements chosen from the left (smaller values) are added at the front.
+        - Elements chosen from the right (larger values) are added at the back.
+        
+        This keeps the result sorted in ascending order and avoids
+        an additional sorting step.
+        */
+        LinkedList<Integer> kClosestElements = new LinkedList<>();
+
+        int left = lowerBoundIndex - 1;
+        int right = lowerBoundIndex;
+
+        while (k > 0 && left != -1 && right != arr.length) {
+            int leftDist = Math.abs(arr[left] - x);
+            int rightDist = Math.abs(arr[right] - x);
+
+            if (leftDist <= rightDist) {
+                kClosestElements.addFirst(arr[left--]);
+            } else if (leftDist > rightDist) {
+                kClosestElements.addLast(arr[right++]);
+            }
+
+            k--;
+        }
+
+        if (left == -1) {
+            while (k > 0) {
+                kClosestElements.addLast(arr[right++]);
+                k--;
+            }
+        }
+
+        if (right == arr.length) {
+            while (k > 0) {
+                kClosestElements.addFirst(arr[left--]);
+                k--;
+            }
+        }
+
+        return kClosestElements;
+    }
+
+    private int findLowerBound(int[] arr, int target) {
+        int low = 0, high = arr.length - 1, lowerBoundIndex = arr.length;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] >= target) {
+                lowerBoundIndex = mid;
+                high = mid - 1;
+            } else if (arr[mid] < target) {
+                low = mid + 1;
+            }
+        }
+
+        return lowerBoundIndex;
+    }
+}
