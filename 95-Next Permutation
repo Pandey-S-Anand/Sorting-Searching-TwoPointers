@@ -169,30 +169,6 @@ NOTE 2: Next Permutation
 
 • Example:
   – Next permutation of [4,3,2,1] → [1,2,3,4]
-
-------------------------------------------------------------
-
-NOTE 3: Structural Observation
-------------------------------
-• Every permutation (except the LAST one, which is fully descending) has the following structure:
-
-  [unchanged prefix from the immediate previous permutation] | [break point] | [suffix in descending order]
-
-• Example:
-
-  Previous permutation : [4,1,2,3]
-  Current permutation  : [4,1,3,2]
-
-  Structure:
-       4 | 1 | 3, 2 
-           ↑
-       break point
-
-Note:
------
-- For the FIRST permutation (fully ascending order), there is no
-  immediate previous permutation, so this observation about the
-  unchanged prefix does not apply.
 */
 
 
@@ -245,9 +221,7 @@ class Solution {
     Every permutation (except the LAST one, which is fully descending)
     follows the structure:
     
-     [unchanged prefix from the immediate previous permutation]
-     | [break point]
-     | [suffix in descending order]
+     [prefix] | [break point] | [suffix in descending order]
     
     Explanation:
     - Traverse the array from the rightmost end, i.e., arr.length - 1
@@ -255,14 +229,6 @@ class Solution {
     - As long as arr[i] >= arr[i + 1], the descending order continues.
     - The first index i where arr[i] < arr[i + 1] is identified as the break point.
     
-    The prefix before the break point remains unchanged in the next permutation;
-    that is, the next permutation will have the same prefix.
-    
-    Note:
-    -----
-    - For the FIRST permutation (fully ascending order), there is no
-      immediate previous permutation, so this observation about the
-      unchanged prefix does not apply.
     
     The subarray to the right of the break point is always
     sorted in descending order.
