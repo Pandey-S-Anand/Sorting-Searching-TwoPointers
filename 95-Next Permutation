@@ -39,7 +39,7 @@ class Solution {
     private List<List<Integer>> uniquePermutations;
 
     public void nextPermutation(int[] arr) {
-        // Generate all unique permutations of arr in lexicographically sorted order
+        // Generate all unique permutations of arr in lexicographical order
         generateUniquePermutations(arr);
         // Convert current array to list format for comparison
         List<Integer> target = Arrays.stream(arr).boxed().collect(Collectors.toList());
