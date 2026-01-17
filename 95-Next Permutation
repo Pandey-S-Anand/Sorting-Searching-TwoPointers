@@ -51,7 +51,7 @@ class Solution {
                 if (i == uniquePermutations.size() - 1) {
                     nextPermutation = uniquePermutations.get(0);
                 } else {
-                    // If the target permutation is the first permutation, then the next permutation is the last one in the lexicographical order
+                    // Otherwise, the next permutation is simply the immediate next permutation in lexicographical order
                     nextPermutation = uniquePermutations.get(i + 1);
                 }
                 // Copy the next permutation back into the input array
