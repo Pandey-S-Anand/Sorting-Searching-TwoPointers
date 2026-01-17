@@ -1,34 +1,36 @@
 /*
-* Why does lexicographically greater,smaller or equal mean ?
-* 
-* Case1 : List1 and List2 are of same size
-* 
-* 1 :Contain the same elements in the same order,then the two lists are lexicographically equal.
-* 
-* 2:Contain the same elements till certain point in the same order, but
-* afterwards the list1 element is greater than the corresponding element in
-* list2 then the list1 is lexicographically greater than list2
-* 
-* 3:Contain the same elements till certain point in the same order, but
-* afterwards the list1 element is smaller than the corresponding element in
-* list2 then the list1 is lexicographically smaller than list2
-* 
-* Case2: List1 and List2 are of different size (size of list1 > size of list2 )
-* 
-* 1: Contain the same elements (till list2 is exhanusted) in the same order,
-* then the list1 is lexicographically greater than list2
-* 
-* 2: Contain the same elements till certain point in the same order but
-* afterwards the list1 element is greater than the corresponding element in
-* list2 then the list1 is lexicographically greater than list2
-* 
-* 3: Contain the same elements till certain point in the same order but
-* afterwards the list1 element is smaller than the corresponding element in
-* list2 then the list1 is lexicographically smaller than list2
-* 
-* Note : In our case, List<List<Integer>> uniquePermutations will always
-* contain list of same size only.
+ What does lexicographically greater / smaller / equal mean?
+ -----------------------------------------------------------
+
+ Lexicographical comparison is performed element by element,
+ from left to right.
+
+ Case 1: Both lists have the SAME size
+ ------------------------------------
+ 1) If all elements are identical and in the same order,
+    the lists are lexicographically equal.
+
+ 2) If elements are equal up to some index, and at the first
+    differing index:
+      - list1[i] > list2[i] → list1 is lexicographically greater
+      - list1[i] < list2[i] → list1 is lexicographically smaller
+
+ Case 2: Lists have DIFFERENT sizes (size of list1 > size of list2)
+ -----------------------------------------------------------------
+ 1) If all elements of list2 match list1 in the same order until
+    list2 is exhausted, then list1 is lexicographically greater.
+
+ 2) If elements are equal up to some index, and at the first
+    differing index:
+      - list1[i] > list2[i] → list1 is lexicographically greater
+      - list1[i] < list2[i] → list1 is lexicographically smaller
+
+ Note:
+ -----
+ In our use case, List<List<Integer>> uniquePermutations always
+ contains lists of the same size, so only Case 1 applies.
 */
+
 
 //Bruteforce Approach
 
@@ -108,169 +110,126 @@ class Solution {
 }
 
 /*
+NOTE 1: Permutations
+-------------------
+• An array (or string) of length N has N! permutations.
 
-Note 1:
+• Example:
+  For arr = [1, 2, 3, 4], all permutations are:
 
-An array/string of length N has N! permutations. 
+  [1,2,3,4]
+  [1,2,4,3]
+  [1,3,2,4]
+  [1,3,4,2]
+  [1,4,2,3]
+  [1,4,3,2]
+  [2,1,3,4]
+  [2,1,4,3]
+  [2,3,1,4]
+  [2,3,4,1]
+  [2,4,1,3]
+  [2,4,3,1]
+  [3,1,2,4]
+  [3,1,4,2]
+  [3,2,1,4]
+  [3,2,4,1]
+  [3,4,1,2]
+  [3,4,2,1]
+  [4,1,2,3]
+  [4,1,3,2]
+  [4,2,1,3]
+  [4,2,3,1]
+  [4,3,1,2]
+  [4,3,2,1]
 
-For example, for arr = [1,2,3.4]
+• Important:
+  – The given array itself is already one valid permutation.
+  – A permutation is simply a unique arrangement of all elements
+    across all indices.
+  – Therefore, if we generate all permutations of the elements
+    of this array, the given array will still appear
+    somewhere in the list of permutations.
 
-The following are all the permutations of arr: 
+------------------------------------------------------------
 
-[1, 2, 3, 4] 
-[1, 2, 4, 3] 
-[1, 3, 2, 4] 
-[1, 3, 4, 2] 
-[1, 4, 3, 2] 
-[1, 4, 2, 3] 
-[2, 1, 3, 4] 
-[2, 1, 4, 3] 
-[2, 3, 1, 4] 
-[2, 3, 4, 1] 
-[2, 4, 3, 1] 
-[2, 4, 1, 3] 
-[3, 2, 1, 4] 
-[3, 2, 4, 1] 
-[3, 1, 2, 4] 
-[3, 1, 4, 2] 
-[3, 4, 1, 2] 
-[3, 4, 2, 1] 
-[4, 2, 3, 1] 
-[4, 2, 1, 3] 
-[4, 3, 2, 1] 
-[4, 3, 1, 2] 
-[4, 1, 3, 2]
-[4, 1, 2, 3] 
+NOTE 2: Next Permutation
+-----------------------
+• If all permutations are sorted in ascending (lexicographical) order,
+  the next permutation is the one that appears immediately after
+  the given permutation.
 
-If all the permutations of the array are sorted in ascending order ,then the next permutation of that array is the permutation that follows it in the sorted(Ascending) order.
+• Example:
+  – Next permutation of [1,2,3,4] → [1,2,4,3]
 
-The following are all the permutations of arr in sorted order: 
+• If the array is already sorted in descending order,
+  then it is the last permutation.
 
-[1,2,3,4] 
-[1,2,4,3] 
-[1,3,2,4] 
-[1,3,4,2] 
-[1,4,2,3] 
-[1,4,3,2] 
-[2,1,3,4] 
-[2,1,4,3] 
-[2,3,1,4] 
-[2,3,4,1] 
-[2,4,1,3] 
-[2,4,3,1] 
-[3,1,2,4] 
-[3,1,4,2] 
-[3,2,1,4] 
-[3,2,4,1] 
-[3,4,1,2] 
-[3,4,2,1] 
-[4,1,2,3] 
-[4,1,3,2] 
-[4,2,1,3] 
-[4,2,3,1] 
-[4,3,1,2] 
-[4,3,2,1]
+• In that case, the next permutation is the first permutation,
+  i.e., the array sorted in ascending order.
 
-so the next permutation of {1,2,3,4} is {1,2,4,3}
+• Example:
+  – Next permutation of [4,3,2,1] → [1,2,3,4]
 
-Note 2:
-If we  initially sort the array in ascending order and then generate all its permutations they will naturally appear in **sorted lexicographical order**.
+------------------------------------------------------------
 
-Note 3:
+NOTE 3: Structural Observation
+------------------------------
+• Every permutation (except the LAST one, which is fully descending) has the following structure:
 
-If all the permutations of an array are sorted in ascending order,On careful observation we find that every permutation has the following structure :
+  [unchanged prefix from the immediate previous permutation] | [break point] | [suffix in descending order]
 
-same as immediate previous permutation | break point | Sorted in Descending Order 
+• Example:
 
-Ex:
+  Previous permutation : [4,1,2,3]
+  Current permutation  : [4,1,3,2]
 
-[4,1,2,3]
-   ^  
-   |
-[4,1,3,2]
-4 | 1 | 3, 2
+  Structure:
+       4 | 1 | 3, 2 
+           ↑
+       break point
 
-(Immediate previous permutation of [4,1,3,2] is [4,1,2,3])
-
-Note 4:
-
-Approach to solve the problem :
-
-The steps are the following:
-
-1: Find the break-point, break-point means the first index 'i' from the back of the given array where arr[i] becomes smaller than arr[i+1].
-For example, if the given array is {2,1,5,4,3,0,0}, the break-point will be index 1(0-based indexing), traversing from the back, index 1 is the first index where arr[1] (i.e. 1) is smaller than arr[i+1] (i.e. 5).
-
-2:
-If a break-point does not exist i.e. if the array is sorted in decreasing order, the given permutation is the last one in the sorted order of all possible permutations. 
-So, the next permutation will be the first permutation in the sorted order Note that first permutation in the sorted order of all possible permutations is in increasing order.
-
-3:
-If a break-point exists:
-(Note: In every permutation after breakpoint(index) the sequence is sorted in descending order)
-Find the smallest number in the right half of the breakpoint which is greater than arr[breakPoint] 
-and swap it with arr[breakPoint].
-
-Now sort the right half of the breakpoint in ascending order.
-(Note: Right half range: (breakpoint+1) to (arr.length-1)) 
-
-Optimisation Tip:
-Since the right half of the breakpoint is already sorted in descending order and an array sorted in descending order can be sorted into ascending order either by using Arrays.sort() or by reversing the array and finally, return the array.
-(Note : Reversing the array is the effecient way to sort an array in descending order into ascending order)
+Note:
+-----
+- For the FIRST permutation (fully ascending order), there is no
+  immediate previous permutation, so this observation about the
+  unchanged prefix does not apply.
 */
+
 
 //Optimal Approach
 
-//Naive Implementation 
-
 class Solution {
     public void nextPermutation(int[] arr) {
         int breakPoint = findBreakPoint(arr);
 
-        if (breakPoint == -1) {
-            Arrays.sort(arr);
-            return;
-        }
-
-        for (int i = arr.length - 1; i >= 0; i--) {
-            if (arr[i] > arr[breakPoint]) {
-                swap(arr, breakPoint, i);
-                Arrays.sort(arr, breakPoint + 1, arr.length);
-                return;
-            }
-        }
-    }
-
-    private void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-
-    private int findBreakPoint(int[] arr) {
-        for (int i = arr.length - 2; i >= 0; i--) {
-            if (arr[i] < arr[i + 1]) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-}
-
-
-//Optimal Implementation 
-
-class Solution {
-    public void nextPermutation(int[] arr) {
-        int breakPoint = findBreakPoint(arr);
-
-        if (breakPoint == -1) {
+        /*
+         If breakPoint == arr.length:
+         -------------------
+         - The array is sorted in descending order.
+         - This represents the LAST permutation.
+         - Hence, the next permutation is the FIRST one, i.e., the array sorted in ascending order.
+         - Example: Next permutation of [4,3,2,1] → [1,2,3,4] (refer the above example)
+        */
+        if (breakPoint == arr.length) {
             reverse(arr, 0, arr.length - 1);
             return;
         }
 
-        for (int i = arr.length - 1; i >= 0; i--) {
+        /*
+         If a break point exists:
+         -----------------------
+         - The subarray to the right of the break point is guaranteed
+           to be sorted in descending order.
+         - Find the smallest element in the right half that is
+           strictly greater than arr[breakPoint].
+         - Swap it with arr[breakPoint].
+        
+         After the swap:
+         - The right half is still in descending order.
+         - Reverse it to convert it into ascending order.
+         - This produces the next lexicographical permutation.
+        */
+        for (int i = arr.length - 1; i > breakPoint; i--) {
             if (arr[i] > arr[breakPoint]) {
                 swap(arr, breakPoint, i);
                 reverse(arr, breakPoint + 1, arr.length - 1);
@@ -279,27 +238,69 @@ class Solution {
         }
     }
 
-    private void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-
+    /*
+    Finds the break point:
+    ---------------------
+    Observation:
+    Every permutation (except the LAST one, which is fully descending)
+    follows the structure:
+    
+     [unchanged prefix from the immediate previous permutation]
+     | [break point]
+     | [suffix in descending order]
+    
+    Explanation:
+    - Traverse the array from the rightmost end, i.e., arr.length - 1
+      (the descending suffix).
+    - As long as arr[i] >= arr[i + 1], the descending order continues.
+    - The first index i where arr[i] < arr[i + 1] is identified as the break point.
+    
+    The prefix before the break point remains unchanged in the next permutation;
+    that is, the next permutation will have the same prefix.
+    
+    Note:
+    -----
+    - For the FIRST permutation (fully ascending order), there is no
+      immediate previous permutation, so this observation about the
+      unchanged prefix does not apply.
+    
+    The subarray to the right of the break point is always
+    sorted in descending order.
+    */
     private int findBreakPoint(int[] arr) {
         for (int i = arr.length - 2; i >= 0; i--) {
             if (arr[i] < arr[i + 1]) {
                 return i;
             }
         }
-
-        return -1;
+        return arr.length;
     }
 
+    // Reverses elements between indices i and j (inclusive)
     private void reverse(int[] arr, int i, int j) {
         while (i < j) {
-            swap(arr, i, j);
-            i++;
-            j--;
+            swap(arr, i++, j--);
         }
     }
+
+    // Swaps elements at indices i and j
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
+
+/*
+ CRUX: Why the Rightmost Position Matters
+ ---------------------------------------
+ To generate the NEXT permutation, we must make the smallest possible
+ lexicographical increase to the current permutation.
+
+ Changing an element at a more significant (left) position would cause
+ a much larger increase, whereas modifying the rightmost possible
+ position results in the minimal change.
+
+ Hence, selecting the rightmost position where an increase is possible
+ guarantees the immediate next permutation.
+*/
