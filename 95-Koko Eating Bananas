@@ -1,0 +1,134 @@
+//Bruteforce Approach
+
+class Solution {
+    /*
+        Problem Insight:
+
+        Constraint:
+        h >= number of piles
+
+        This guarantees that finishing all piles is always possible.
+
+        Worst case:
+        If h == piles.length, Koko must finish exactly one pile per hour.
+        Hence, the minimum required speed becomes the size of the largest pile.
+
+        Why not consider speeds greater than the maximum pile size?
+        ------------------------------------------------------------
+        Koko is allowed to eat from only one pile per hour.
+        So even with a higher speed, she cannot reduce the total hours.
+        Therefore, speeds greater than the largest pile are useless.
+
+        Why is the minimum possible speed = 1?
+        --------------------------------------
+        If h is much larger than the number of piles, Koko has plenty of time
+        and can afford to eat at the slowest speed (1 banana/hour).
+
+        Valid search space for eating speed:
+        [1, max bananas in any pile]
+    */
+    public int minEatingSpeed(int[] piles, int hoursAvailable) {
+        int maxPileSize = findMaxPile(piles);
+
+        for (int speedPerHour = 1; speedPerHour <= maxPileSize; speedPerHour++) {
+            if (canFinishAllPiles(piles, speedPerHour, hoursAvailable)) {
+                return speedPerHour;
+            }
+        }
+
+        return -1; // logically unreachable due to constraints
+    }
+
+    private int findMaxPile(int[] piles) {
+        int left = 0, right = piles.length - 1;
+        int max = Integer.MIN_VALUE;
+
+        while (left <= right) {
+            max = Math.max(max, piles[left++]);
+            max = Math.max(max, piles[right--]);
+        }
+
+        return max;
+    }
+
+    private boolean canFinishAllPiles(int[] piles, int speedPerHour, int hoursLimit) {
+        int totalHoursRequired = 0;
+
+        for (int pile : piles) {
+            /*
+                Why Math.ceil is required?
+                --------------------------
+                If a pile has remaining bananas after eating for one hour,
+                Koko must spend an additional full hour to finish it.
+                Partial hours are not allowed.
+
+                Example:
+                pile = 7, speedPerHour = 3
+                7 / 3 = 2.33 → requires 3 full hours, not 2
+            */
+            int hoursForCurrentPile = (int) Math.ceil((double) pile / speedPerHour);
+
+            totalHoursRequired += hoursForCurrentPile;
+            // Early exit if hours exceed limit
+            if (totalHoursRequired > hoursLimit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+
+
+// Optimal Approach: (We can optimize using **Binary Search** because the search space is sorted. The possible values for minimum eating speed  range from `1` (slowest possible speed) to `max(piles)` forming a sorted sequence)
+
+class Solution {
+    public int minEatingSpeed(int[] piles, int hoursAvailable) {
+        int minSpeedPerHour = 0;
+        // Search space: [1, max pile size]
+        int low = 1, high = findMaxPile(piles);
+
+        while (low <= high) {
+            int speedPerHour = low + (high - low) / 2;
+
+            // If Koko can finish at this speed, try slower speed
+            if (canFinishAllPiles(piles, speedPerHour, hoursAvailable)) {
+                minSpeedPerHour = speedPerHour;
+                high = speedPerHour - 1;
+            } else { // Otherwise, increase speed
+                low = speedPerHour + 1;
+            }
+        }
+
+        return minSpeedPerHour;
+    }
+
+    private int findMaxPile(int[] piles) {
+        int left = 0, right = piles.length - 1;
+        int max = Integer.MIN_VALUE;
+
+        while (left <= right) {
+            max = Math.max(max, piles[left++]);
+            max = Math.max(max, piles[right--]);
+        }
+
+        return max;
+    }
+
+    private boolean canFinishAllPiles(int[] piles, int speedPerHour, int hoursLimit) {
+        int totalHoursRequired = 0;
+
+        for (int pile : piles) {
+            int hoursForCurrentPile = (int) Math.ceil((double) pile / speedPerHour);
+
+            totalHoursRequired += hoursForCurrentPile;
+
+            if (totalHoursRequired > hoursLimit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
