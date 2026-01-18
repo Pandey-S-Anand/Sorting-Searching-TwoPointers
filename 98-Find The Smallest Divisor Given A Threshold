@@ -1,0 +1,119 @@
+// Bruteforce approach
+
+class Solution {
+    /*
+    A number d is a valid divisor of n if:
+    n % d == 0 and d != 0
+    The condition d ≠ 0 is mandatory, since division by zero is undefined.
+    
+    The minimum possible divisor is always 1.
+    The maximum possible divisor is the maximum value present in the array.
+    
+    Reasoning:
+    We are required to divide each element of the array by the chosen divisor
+    and sum the results, where each division result is rounded up to the
+    nearest integer (i.e., ceiling division).
+    
+    When we choose the divisor equal to the maximum element in the array,
+    each division result becomes 1, and hence the total sum of divisions
+    equals the length of the array.
+    
+    If we choose any divisor greater than the maximum element in the array,
+    then for every element:
+        ceil(element / divisor) = 1
+    
+    As a result, the total sum of divisions remains the same as the array
+    length, making it unnecessary to extend the search range beyond this
+    value.
+    
+    Therefore, the valid search space for the divisor is:
+        [1, maximum element in the array]
+    */
+    public int smallestDivisor(int[] arr, int threshold) {
+        // Upper bound for divisor (largest possible divisor we need to check)
+        int maxElement = findMaxElement(arr);
+
+        // Try all possible divisors from 1 to maxElement (brute force)
+        for (int divisor = 1; divisor <= maxElement; divisor++) {
+            // Calculate sum after dividing all elements by current divisor
+            int totalSum = calculateDivisionSum(arr, divisor);
+
+            // If sum is within threshold, this is the smallest valid divisor
+            if (totalSum <= threshold) {
+                return divisor;
+            }
+        }
+
+        // Unreachable due to problem constraints
+        return -1;
+    }
+
+    private int findMaxElement(int[] arr) {
+        int max = Integer.MIN_VALUE;
+        int i = 0, j = arr.length - 1;
+
+        // Find maximum element using two-pointer approach
+        while (i <= j) {
+            max = Math.max(max, Math.max(arr[i++], arr[j--]));
+        }
+
+        return max;
+    }
+
+    private int calculateDivisionSum(int[] arr, int divisor) {
+        int totalSum = 0;
+
+        // Sum of ceiling divisions for the given divisor
+        for (int num : arr) {
+            totalSum += (int) Math.ceil((double) num / divisor);
+        }
+
+        return totalSum;
+    }
+}
+
+
+
+//Optimal approach (We can optimize this using Binary Search because: The range is sorted → The possible divisors from 1 to max(arr) form a sorted sequence)
+
+class Solution {
+    public int smallestDivisor(int[] arr, int threshold) {
+        int low = 1, high = findMaxElement(arr);
+        int minDivisor = -1;
+
+        while (low <= high) {
+            int divisor = low + (high - low) / 2;
+
+            // If the sum is within threshold, store answer and try a smaller divisor
+            if (calculateDivisionSum(arr, divisor) <= threshold) {
+                minDivisor = divisor;
+                high = divisor - 1; // Try to minimize the divisor
+            } else {
+                low = divisor + 1; // Increase divisor to reduce sum
+            }
+        }
+
+        return minDivisor;
+    }
+
+    private int findMaxElement(int[] arr) {
+        int max = Integer.MIN_VALUE;
+        int i = 0, j = arr.length - 1;
+
+        while (i <= j) {
+            max = Math.max(max, Math.max(arr[i++], arr[j--]));
+        }
+
+        return max;
+    }
+
+    private int calculateDivisionSum(int[] arr, int divisor) {
+        int totalSum = 0;
+
+        for (int num : arr) {
+            totalSum += (int) Math.ceil((double) num / divisor);
+        }
+
+        return totalSum;
+    }
+}
