@@ -14,7 +14,7 @@ class Solution {
         Problem Insight:
         
         Since requiredBouquets >= 1 and flowersPerBouquet >= 1, 
-        it implies that at minimum we need to form at least one bouquet consisting of at least one flower.
+        it implies that at minimum we need to form at least one bouquet consisting of one flower.
         Therefore, at least one flower must bloom before it is possible to
         form any bouquet.
         
