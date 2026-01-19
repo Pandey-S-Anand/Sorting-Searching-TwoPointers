@@ -1,0 +1,189 @@
+//Bruteforce approach
+
+class Solution {
+    /*
+    Problem Insight:
+    
+    According to the constraints:
+    - Number of students ≥ 1
+    - Number of books ≥ 1
+    - A book cannot be shared between two students
+    - Each student must receive at least one book
+    - Books assigned to a student must form a contiguous segment
+    
+    Consider the case where the number of books equals the number of students.
+    In this scenario, each student must be assigned exactly one book.
+    Therefore, one student will inevitably receive the book with the maximum
+    number of pages.
+    
+    Hence, the minimum possible value of the maximum pages assigned to any
+    student must be at least:
+        max(arr[0...n-1])
+    
+    Now consider the opposite extreme, where there is only one student.
+    That student must read all the books.
+    Therefore, the maximum pages assigned in this case becomes:
+        sum(arr[0...n-1])
+    
+    This represents the largest possible value of the minimum achievable
+    maximum pages.
+    
+    Therefore, the valid search space for the minimum possible maximum pages is:
+        [ max(arr[0...n-1]), sum(arr[0...n-1]) ]
+    
+    Edge Case:
+    If the number of books is less than the number of students, return -1,
+    since each student must be assigned at least one book.
+    */
+    public int findPages(int[] books, int studentCount) {
+        // If books are fewer than students, allocation is impossible
+        if (books.length < studentCount) {
+            return -1;
+        }
+
+        // Determine search space bounds: max single book and total pages
+        int[] maxAndTotalPages = getMaxAndTotalPages(books);
+        int minPages = maxAndTotalPages[0];
+        int totalPages = maxAndTotalPages[1];
+
+        // Brute force all possible maximum page values
+        for (int maxPagesPerStudent = minPages; maxPagesPerStudent <= totalPages; maxPagesPerStudent++) {
+            if (canAllocatePages(books, maxPagesPerStudent, studentCount)) {
+                return maxPagesPerStudent;
+            }
+        }
+
+        return -1; // Unreachable due to constraints
+    }
+
+    private int[] getMaxAndTotalPages(int[] books) {
+        int maxPages = Integer.MIN_VALUE, totalPages = 0;
+        int left = 0, right = books.length - 1;
+
+        // Find maximum pages in a single book and total pages
+        while (left <= right) {
+            maxPages = Math.max(maxPages, Math.max(books[left], books[right]));
+            totalPages += books[left];
+
+            if (left != right) {
+                totalPages += books[right];
+            }
+
+            left++;
+            right--;
+        }
+
+        return new int[] { maxPages, totalPages };
+    }
+
+    private boolean canAllocatePages(int[] books, int maxPagesPerStudent, int studentCount) {
+        int bookIndex = 0;
+        int studentsUsed = 0;
+
+        // Try allocating books to students sequentially
+        while (bookIndex < books.length) {
+            int remainingPages = maxPagesPerStudent;
+
+            // Assign as many contiguous books as possible to the current student
+            while (bookIndex < books.length && remainingPages - books[bookIndex] >= 0) {
+                remainingPages -= books[bookIndex++];
+            }
+
+            studentsUsed++;
+
+            // If all students are used but books are still left, allocation is invalid
+            if (bookIndex < books.length && studentsUsed == studentCount) {
+                return false;
+            }
+        }
+
+                /*  
+        ### Key Insight:  
+        - If books can be allocated among **fewer than `k` students**,  
+          we can always adjust the allocation to exactly `k` students  without exceeding the maximum page limit.  
+        - Redistribution ensures each student gets at least one book.  
+        
+        ### Edge Case:  
+        - Given books: `[15, 10, 19, 10, 5, 18, 7]`, `k = 5`  
+        - If the **maximum pages per student** is set to `25`, one valid allocation is:  `[15,10]`, `[19]`, `[10,5]`, `[18,7]` → Uses only **4 students**.  
+        - However, we can adjust it to: `[15,10]`, `[19]`, `[10,5]`, `[18]`, `[7]`,  ensuring **each student gets at least one book**.  
+        - Since all books are allocated correctly, this is still a **valid allocation**.  
+        - If we set the limit **below `25`**, more than `5` students would be required (**invalid**).  
+        - If we increase the limit **beyond `25`** , the number of students used will be less than `5`.  
+        - Therefore, enforcing `studentsUsed == k` is **not necessary**,  
+          as long as all books are distributed correctly.  
+        */
+
+        return true;
+    }
+}
+
+
+//Optimal appraoch (We can optimize using Binary Search because the range is sorted →  The possible values for the minimum maximum allocated pages, ranging from (max element) to (sum of all elements), form a sorted sequence.)
+
+class Solution {
+    public int findPages(int[] books, int studentCount) {
+        if (books.length < studentCount) {
+            return -1;
+        }
+
+        int[] maxAndTotalPages = getMaxAndTotalPages(books);
+        int low = maxAndTotalPages[0];   // minimum possible max pages
+        int high = maxAndTotalPages[1];  // maximum possible max pages
+        int minMaxPages = -1;
+
+        while (low <= high) {
+            int maxPagesPerStudent = low + (high - low) / 2;
+
+            // Check if allocation is possible with this page limit
+            if (canAllocatePages(books, maxPagesPerStudent, studentCount)) {
+                minMaxPages = maxPagesPerStudent;      // valid candidate found
+                high = maxPagesPerStudent - 1;         // try smaller maximum
+            } else {
+                low = maxPagesPerStudent + 1;          // need a larger limit
+            }
+        }
+
+        return minMaxPages;
+    }
+
+    private int[] getMaxAndTotalPages(int[] books) {
+        int maxPages = Integer.MIN_VALUE, totalPages = 0;
+        int left = 0, right = books.length - 1;
+
+        while (left <= right) {
+            maxPages = Math.max(maxPages, Math.max(books[left], books[right]));
+            totalPages += books[left];
+
+            if (left != right) {
+                totalPages += books[right];
+            }
+
+            left++;
+            right--;
+        }
+
+        return new int[] { maxPages, totalPages };
+    }
+
+    private boolean canAllocatePages(int[] books, int maxPagesPerStudent, int studentCount) {
+        int bookIndex = 0;
+        int studentsUsed = 0;
+
+        while (bookIndex < books.length) {
+            int remainingPages = maxPagesPerStudent;
+
+            while (bookIndex < books.length && remainingPages - books[bookIndex] >= 0) {
+                remainingPages -= books[bookIndex++];
+            }
+
+            studentsUsed++;
+
+            if (bookIndex < books.length && studentsUsed == studentCount) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
