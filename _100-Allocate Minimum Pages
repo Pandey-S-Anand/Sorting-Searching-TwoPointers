@@ -97,7 +97,7 @@ class Solution {
             }
         }
 
-                /*  
+        /*  
         ### Key Insight:  
         - If books can be allocated among **fewer than `k` students**,  
           we can always adjust the allocation to exactly `k` students  without exceeding the maximum page limit.  
