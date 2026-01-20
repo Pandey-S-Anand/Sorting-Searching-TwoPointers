@@ -1,0 +1,172 @@
+//Bruteforce approach
+
+class Solution {
+    /*
+    Problem Insight:
+    
+    Consider the case where the array (of size n) must be partitioned into
+    n non-empty subarrays. In this scenario, each subarray contains exactly
+    one element, and therefore, one subarray will inevitably contain the
+    maximum element of the array.
+    
+    Hence, the minimum possible value of the maximum subarray sum must be at least:
+        max(arr[0...n-1])
+    
+    Now consider the opposite extreme, where the array is partitioned into
+    exactly one non-empty subarray. In this case, all elements belong to a
+    single subarray, and its sum becomes:
+        sum(arr[0...n-1])
+    
+    This represents the maximum possible value of the minimum achievable
+    maximum subarray sum.
+    
+    Therefore, the valid search space for the minimum possible maximum subarray sum is:
+        [ max(arr[0...n-1]), sum(arr[0...n-1]) ]
+    
+    Constraints:
+        1 <= arr.length <= 1000
+        1 <= k <= min(50, arr.length)
+    
+    These constraints guarantee that it is always possible to split the array
+    into k non-empty subarrays, since k never exceeds the array length.
+    */
+    public int splitArray(int[] arr, int k) {
+        // Determine lower and upper bounds of the search space
+        int[] maxAndTotalSum = findMaxAndTotalSum(arr);
+        int minSubarraySum = maxAndTotalSum[0];
+        int maxSubarraySum = maxAndTotalSum[1];
+
+        // Brute-force over all possible maximum subarray sums
+        for (int candidateSum = minSubarraySum; candidateSum <= maxSubarraySum; candidateSum++) {
+            // Check if array can be split with this maximum allowed subarray sum
+            if (canSplit(arr, candidateSum, k)) {
+                return candidateSum;
+            }
+        }
+
+        return -1; // Unreachable due to problem constraints
+    }
+
+    private int[] findMaxAndTotalSum(int[] arr) {
+        int max = Integer.MIN_VALUE, sum = 0;
+        int left = 0, right = arr.length - 1;
+
+        // Compute maximum element and total sum
+        while (left <= right) {
+            max = Math.max(max, Math.max(arr[left], arr[right]));
+            sum += arr[left];
+            if (left != right) {
+                sum += arr[right];
+            }
+            left++;
+            right--;
+        }
+
+        return new int[] { max, sum };
+    }
+
+    private boolean canSplit(int[] arr, int maxSumPerSubarray, int k) {
+        int index = 0;
+        int subarrayUsed = 0;
+
+        // Try to form subarrays greedily without exceeding maxSumPerSubarray
+        while (index < arr.length) {
+            int remainingSum = maxSumPerSubarray;
+
+            // Fill current subarray as much as possible
+            while (index < arr.length && (remainingSum - arr[index]) >= 0) {
+                remainingSum -= arr[index++];
+            }
+
+            subarrayUsed++;
+
+            // If k subarrays are already used but elements remain, split is invalid
+            if (index < arr.length && subarrayUsed == k) {
+                return false;
+            }
+        }
+
+        /*  
+        ### Key Insight:  
+        - If array can be split into **fewer than `k` non empty subarrays**,  
+        we can always adjust the allocation to exactly `k` non empty subarrays  
+        without exceeding the 'maxSumPerSubarray' limit.  
+        - Redistribution ensures each subarray gets at least one element.  
+        
+        ### Edge Case:  
+        - Given arr: `[15, 10, 19, 10, 5, 18, 7]`, `k = 5`  
+        - If the **max sum per subarray** is set to `25`, one valid allocation is:  
+          `[15,10]`, `[19]`, `[10,5]`, `[18,7]` → Uses only **4 subarrays**.  
+        - However, we can adjust it to:  
+          `[15,10]`, `[19]`, `[10,5]`, `[18]`, `[7]`, ensuring **each subarray gets at least one element**.  
+        - If we set the limit **below `25`**, more than `5` subarrays would be required (**invalid**).  
+        - If we increase the limit **beyond `25`**, the number of subarrays used will be less than `5`.  
+        - Therefore, enforcing `subarrayUsed == k` is **not necessary**,  
+          as long as all elements are distributed correctly.  
+        */
+
+        return true;
+    }
+}
+
+
+
+//Optimal appraoch (We can optimize using Binary Search because the range is sorted →  The possible values for the minimum maximum subarray sum, ranging from (max element) to (sum of all elements), form a sorted sequence.)
+
+class Solution {
+    public int splitArray(int[] arr, int k) {
+        int[] maxAndTotalSum = findMaxAndTotalSum(arr);
+        int low = maxAndTotalSum[0];
+        int high = maxAndTotalSum[1];
+        int minOfMaxSubarraySum = 0;
+
+        while (low <= high) {
+            int candidateSum = low + (high - low) / 2;
+
+            if (canSplit(arr, candidateSum, k)) {
+                // If it's possible to split with this sum, try a smaller sum
+                minOfMaxSubarraySum = candidateSum;
+                high = candidateSum - 1; // Search in the lower half
+            } else {
+                low = candidateSum + 1; // If it's not possible, increase the allowed subarray sum
+            }
+        }
+
+        return minOfMaxSubarraySum;
+    }
+
+    private int[] findMaxAndTotalSum(int[] arr) {
+        int max = Integer.MIN_VALUE, sum = 0, low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            max = Math.max(max, Math.max(arr[low], arr[high]));
+            sum += arr[low];
+            if (low != high) {
+                sum += arr[high];
+            }
+            low++;
+            high--;
+        }
+
+        return new int[] { max, sum };
+    }
+
+    private boolean canSplit(int[] arr, int maxSumPerSubarray, int k) {
+        int i = 0, subarrayUsed = 0;
+
+        while (i < arr.length) {
+            int subarraySum = maxSumPerSubarray;
+            while (i < arr.length && (subarraySum - arr[i]) >= 0) {
+                subarraySum -= arr[i++];
+            }
+
+            subarrayUsed++;
+
+            if (i < arr.length && subarrayUsed == k) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
