@@ -1,0 +1,154 @@
+//Bruteforce approach
+
+class Solution {
+    /*
+    Problem Insight:
+    
+    The minimum time required to paint all boards is bounded by the time
+    needed to paint the longest board.
+    
+    Consider the case where the number of painters equals the number of boards.
+    If all painters start simultaneously, each painter will paint exactly one board.
+    In this scenario, the total time required will be the time taken by the painter
+    assigned the longest board.
+    
+    Now consider the opposite extreme, where there is only one painter and multiple boards.
+    In this case, the single painter must paint all boards sequentially, and hence,
+    the total time required becomes the sum of lengths of all boards.
+    
+    Since the time taken to paint a board is proportional to its length,
+    the valid search space for the minimum time required to paint all boards is:
+        [ max(boards), sum(boards) ]
+    
+    Also, it is always possible to paint all the boards:
+    - In the worst case, a single painter can paint all boards sequentially.
+    - Therefore, a feasible solution always exists within this range.
+    */
+
+    public int minTime(int[] boards, int painters) {
+        // Determine lower and upper bounds of time
+        int[] maxAndTotalSum = findMaxAndSumInAnArray(boards, painters);
+        int minTime = maxAndTotalSum[0]; // At least the longest board
+        int maxTime = maxAndTotalSum[1]; // At most the sum of all boards
+
+        // Brute-force over all possible time values in the search space
+        for (int time = minTime; time <= maxTime; time++) {
+            // Check if all boards can be painted within this time
+            if (canPaint(boards, time, painters)) {
+                return time;
+            }
+        }
+
+        return -1; // Unreachable due to problem constraints
+    }
+
+    private int[] findMaxAndSumInAnArray(int[] arr, int k) {
+        int max = Integer.MIN_VALUE, sum = 0;
+        int low = 0, high = arr.length - 1;
+
+        // Compute maximum board length and total sum of boards
+        while (low <= high) {
+            max = Math.max(max, Math.max(arr[low], arr[high]));
+            sum += arr[low];
+            if (low != high) {
+                sum += arr[high];
+            }
+            low++;
+            high--;
+        }
+
+        return new int[] { max, sum };
+    }
+
+    private boolean canPaint(int[] boards, int maxTimePerPainter, int painters) {
+        int i = 0, paintersUsed = 0;
+
+        // Try assigning contiguous boards to each painter greedily
+        while (i < boards.length) {
+            int remainingTime = maxTimePerPainter;
+
+            // Assign as many boards as possible to the current painter
+            while (i < boards.length && (remainingTime - boards[i]) >= 0) {
+                remainingTime -= boards[i++];
+            }
+
+            paintersUsed++;
+
+            // If painters are exhausted but boards remain, allocation fails
+            if (i < boards.length && paintersUsed == painters) {
+                return false;
+            }
+        }
+
+        /*  
+          The problem does not require that every painter must paint at least one board. 
+          Some painters can remain idle, as long as all boards are painted respecting 
+          contiguity and the total time is minimized.  
+        */
+
+        return true; // All boards can be painted within the given time
+    }
+}
+
+
+// Optimal Approach: (We can optimize using Binary Search because the possible values for the minimum maximum painting time (ranging from the longest board to the sum of all board lengths) form a sorted sequence.)
+
+class Solution {
+    public int minTime(int[] boards, int painters) {
+        int[] maxAndTotalSum = findMaxAndSumInAnArray(boards, painters);
+        int low = maxAndTotalSum[0];
+        int high = maxAndTotalSum[1];
+        int minTime = -1;
+
+        while (low <= high) {
+            int time = low + (high - low) / 2;
+
+            // Check if boards can be painted within this time using given painters
+            if (canPaint(boards, time, painters)) {
+                minTime = time; // valid candidate
+                high = time - 1; // try smaller time
+            } else {
+                low = time + 1; // need more time
+            }
+        }
+
+        return minTime;
+    }
+
+    private int[] findMaxAndSumInAnArray(int[] arr, int k) {
+        int max = Integer.MIN_VALUE, sum = 0;
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            max = Math.max(max, Math.max(arr[low], arr[high]));
+            sum += arr[low];
+            if (low != high) {
+                sum += arr[high];
+            }
+            low++;
+            high--;
+        }
+
+        return new int[] { max, sum };
+    }
+
+    private boolean canPaint(int[] boards, int maxTimePerPainter, int painters) {
+        int i = 0, paintersUsed = 0;
+
+        while (i < boards.length) {
+            int painterTime = maxTimePerPainter;
+
+            while (i < boards.length && (painterTime - boards[i]) >= 0) {
+                painterTime -= boards[i++];
+            }
+
+            paintersUsed++;
+
+            if (i < boards.length && paintersUsed == painters) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
