@@ -1,0 +1,159 @@
+//Bruteforce Approach
+
+class Solution {
+    public int numMatchingSubseq(String text, String[] subsequences) {
+        int count = 0;
+
+        // Check every candidate subsequence
+        for (String subsequence : subsequences) {
+            if (isSubsequence(subsequence, text)) {
+                count++; // valid subsequence found
+            }
+        }
+
+        return count;
+    }
+
+    private boolean isSubsequence(String subsequence, String text) {
+        int subseqIndex = 0; // Pointer for current position in 'subsequence'
+
+        // Traverse through 'text' and try to match characters of 'subsequence' in order
+        for (int i = 0; i < text.length() && subseqIndex < subsequence.length(); i++) {
+            if ((text.length() - i) < (subsequence.length() - subseqIndex)) {
+                return false;
+            }
+            // If current characters match, move to the next character in 'subsequence'
+            if (subsequence.charAt(subseqIndex) == text.charAt(i)) {
+                subseqIndex++;
+            }
+        }
+
+        // If all characters of 'subsequence' were matched in order, it is a subsequence
+        return subseqIndex == subsequence.length();
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    /*
+    -------------------------------------------------------
+    Example Walkthrough
+    -------------------------------------------------------
+    
+    text = "abcaca"
+    
+    Index mapping:
+    
+    a → [0, 3, 5]
+    b → [1]
+    c → [2, 4]
+    
+    ---------------------------------
+    Positive Test Case:
+    ---------------------------------
+    subsequence = "acca"
+    
+    Step-by-step placement:
+    
+    a → first index > -1  → 0
+    c → first index > 0   → 2
+    c → first index > 2   → 4
+    a → first index > 4   → 5
+    
+    All characters placed successfully → TRUE
+    
+    ---------------------------------
+    Negative Test Case:
+    ---------------------------------
+    subsequence = "accca"
+    
+    a → first index > -1  → 0
+    c → first index > 0   → 2
+    c → first index > 2   → 4
+    c → first index > 4   → -1  (no valid index)
+    
+    Placement fails → FALSE
+    -------------------------------------------------------
+    */
+    public int numMatchingSubseq(String text, String[] subsequences) {
+        // Preprocess: map each character to all its occurrence indices in 'text'
+        Map<Character, List<Integer>> charToIndicesMap = new HashMap<>(26);
+
+        /*
+        Why the index lists are always sorted:
+        
+        We iterate over 'text' from left to right (i = 0 to n-1).
+        Whenever we see a character, we append its index to its list.
+        
+        Since indices are added in increasing order of i,
+        each list is naturally sorted without any extra work.
+        */
+        for (int i = 0; i < text.length(); i++) {
+            charToIndicesMap.computeIfAbsent(text.charAt(i), k -> new ArrayList<>()).add(i);
+        }
+
+        int matchingCount = 0;
+
+        // Check each subsequence independently
+        for (String subsequence : subsequences) {
+            if (isSubsequence(subsequence, charToIndicesMap)) {
+                matchingCount++;
+            }
+        }
+
+        return matchingCount;
+    }
+
+    private boolean isSubsequence(String subsequence, Map<Character, List<Integer>> charToIndicesMap) {
+        int prevMatchedIndex = -1; // Last matched position in 'text'
+
+        // Try to place each character of 'subsequence' into 'text' in order
+        for (int i = 0; i < subsequence.length(); i++) {
+            char currentChar = subsequence.charAt(i);
+
+            // If this character never appears in 'text', subsequence is impossible
+            if (!charToIndicesMap.containsKey(currentChar)) {
+                return false;
+            }
+
+            List<Integer> indicesList = charToIndicesMap.get(currentChar);
+
+            // Find the smallest index strictly greater than prevMatchedIndex
+            int nextIndex = findNextGreaterIndex(indicesList, prevMatchedIndex);
+
+            if (nextIndex == -1) {
+                return false; // No valid placement for this character
+            }
+
+            prevMatchedIndex = nextIndex; // Update lower bound for next search
+        }
+
+        return true; // All characters placed successfully
+    }
+
+    private int findNextGreaterIndex(List<Integer> indicesList, int lastIdx) {
+        // If nothing has been matched yet, take the first occurrence
+        if (lastIdx == -1) {
+            return indicesList.get(0);
+        }
+
+        int low = 0, high = indicesList.size() - 1;
+        int upperBound = -1;
+
+        // Binary search for the smallest index > lastIdx
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (indicesList.get(mid) > lastIdx) {
+                upperBound = indicesList.get(mid);
+                high = mid - 1; // Try to find a smaller valid index
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return upperBound;
+    }
+}
