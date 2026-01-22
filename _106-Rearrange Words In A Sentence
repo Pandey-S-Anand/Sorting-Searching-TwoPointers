@@ -1,0 +1,45 @@
+class Solution {
+    public String arrangeWords(String sentence) {
+        List<String> words = new ArrayList<>();
+        StringBuilder currentWord = new StringBuilder();
+
+        // Build words character by character, splitting on spaces
+        for (int i = 0; i < sentence.length(); i++) {
+            if (sentence.charAt(i) == ' ') {
+                words.add(currentWord.toString()); // end of one word
+                currentWord.setLength(0); // reset for next word
+            } else {
+                // Convert all characters to lowercase while parsing
+                currentWord.append(Character.toLowerCase(sentence.charAt(i)));
+            }
+        }
+
+        // Add the last word after the final space
+        words.add(currentWord.toString());
+
+        // Sort words by increasing length
+        Collections.sort(words, (word1, word2) -> Integer.compare(word1.length(), word2.length()));
+
+        StringBuilder arrangedWords = new StringBuilder();
+
+        // Rebuild the sentence with proper casing
+        for (int i = 0; i < words.size(); i++) {
+            String word = words.get(i);
+
+            if (i == 0) {
+                // Capitalize the first character of the first word
+                arrangedWords.append(Character.toUpperCase(word.charAt(0)) + word.substring(1));
+            } else {
+                // Append remaining words as already-lowercased
+                arrangedWords.append(word);
+            }
+
+            // Append space between words
+            if (i < words.size() - 1) {
+                arrangedWords.append(" ");
+            }
+        }
+
+        return arrangedWords.toString();
+    }
+}
