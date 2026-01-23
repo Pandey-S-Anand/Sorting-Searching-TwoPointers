@@ -1,0 +1,145 @@
+// Bruteforce Approach
+
+class Solution {
+    /**
+     * Sorts the input string by first separating vowels and consonants, sorting both groups,
+     * and then merging them alternately. The merge starts with the type (vowel/consonant)
+     * based on the first character of the input string.
+     *
+     * Example:
+     * Input: "banice"
+     * Vowels: [a, e, i] -> sorted: [a, e, i]
+     * Consonants: [b, n, c] -> sorted: [b, c, n]
+     * If input starts with consonant -> Result: b a c e n i
+     * Output: "bacen i"
+     */
+    public String SortedString(String str) {
+        // Lists to store separated vowels and consonants
+        List<Character> vowels = new ArrayList<>();
+        List<Character> consonants = new ArrayList<>();
+
+        // Separate characters into vowels and consonants
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (isVowel(ch)) {
+                vowels.add(ch);
+            } else {
+                consonants.add(ch);
+            }
+        }
+
+        // Sort both lists individually
+        Collections.sort(vowels);
+        Collections.sort(consonants);
+
+        StringBuilder sortedString = new StringBuilder();
+
+        // Determine the starting group based on the first character
+        boolean startWithVowel = isVowel.contains(str.charAt(0));
+
+        int vowelPtr = 0, consonantPtr = 0;
+
+       // Alternate vowel and consonant while both are available
+        while (vowelPtr < vowels.size() && consonantPtr < consonants.size()) {
+            if (startWithVowel) {
+                sortedString.append(vowels.get(vowelPtr++)).append(consonants.get(consonantPtr++));
+            } else {
+                sortedString.append(consonants.get(consonantPtr++)).append(vowels.get(vowelPtr++));
+            }
+        }
+
+        // Append remaining vowels, if any
+        while (vowelPtr < vowels.size()) {
+            sortedString.append(vowels.get(vowelPtr++));
+        }
+
+        // Append remaining consonants, if any
+        while (consonantPtr < consonants.size()) {
+            sortedString.append(consonants.get(consonantPtr++));
+        }
+
+        return sortedString.toString();
+    }
+    
+    // Checks if a character is a vowel
+    private boolean isVowel(char ch) {
+        return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
+    }
+}
+
+
+
+//Better Approach
+
+class Solution {
+    public String SortedString(String input) {
+        int[] vowelFreq = new int[26];       // Frequency of each vowel
+        int[] consonantFreq = new int[26];  // Frequency of each consonant
+
+        // Count vowels and consonants separately
+        for (int i = 0; i < input.length(); i++) {
+            char ch = input.charAt(i);
+            if (isVowel(ch)) {
+                vowelFreq[ch - 'a']++;
+            } else {
+                consonantFreq[ch - 'a']++;
+            }
+        }
+        
+        char[] sortedChars = new char[input.length()];
+        int idx = 0;
+
+        // Add all vowels in sorted order: a -> e -> i -> o -> u
+        for (int ch = 0; ch < 26; ch++) {
+            while (vowelFreq[ch] > 0) {
+                sortedChars[idx++] = (char) (ch + 'a');
+                vowelFreq[ch]--;
+            }
+        }
+
+        int vowelCount = idx;          // Total number of vowels
+
+        // Add all consonants in sorted order: b -> c -> d -> ...
+        for (int ch = 0; ch < 26; ch++) {
+            while (consonantFreq[ch] > 0) {
+                sortedChars[idx++] = (char) (ch + 'a');
+                consonantFreq[ch]--;
+            }
+        }
+
+        StringBuilder sortedString = new StringBuilder();
+        
+        // Decide starting type based on first character
+        boolean startWithVowel = isVowel(input.charAt(0));
+
+        int vowelPtr = 0;   // Pointer over vowels
+        int consonantPtr = vowelCount;  // Pointer over consonants
+
+        // Alternate vowel and consonant while both are available
+        while (vowelPtr < vowelCount && consonantPtr < sortedChars.length) {
+            if (startWithVowel) {
+                sortedString.append(sortedChars[vowelPtr++]).append(sortedChars[consonantPtr++]);
+            } else {
+                sortedString.append(sortedChars[consonantPtr++]).append(sortedChars[vowelPtr++]);
+            }
+        }
+
+        // Append remaining vowels (if any)
+        while (vowelPtr < vowelCount) {
+            sortedString.append(sortedChars[vowelPtr++]);
+        }
+
+        // Append remaining consonants (if any)
+        while (consonantPtr < sortedChars.length) {
+            sortedString.append(sortedChars[consonantPtr++]);
+        }
+
+        return sortedString.toString();
+    }
+
+
+    // Checks if a character is a vowel
+    private boolean isVowel(char ch) {
+        return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
+    }
+}
