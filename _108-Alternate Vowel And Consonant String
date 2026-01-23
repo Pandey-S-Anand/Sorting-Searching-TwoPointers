@@ -1,0 +1,151 @@
+class Solution {
+    public String rearrange(String str, int n) {
+        // If the string has only one character, it is already valid
+        if (str.length() == 1) {
+            return str;
+        }
+
+        int[] vowels = new int[26];       // Frequency of each vowel
+        int[] consonants = new int[26];  // Frequency of each consonant
+
+        // Count frequency of vowels and consonants separately
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (isVowel(ch)) {
+                vowels[ch - 'a']++;
+            } else {
+                consonants[ch - 'a']++;
+            }
+        }
+
+        // Build a sorted array: [all vowels in order][all consonants in order]
+        char[] sortedChars = new char[str.length()];
+        int idx = 0;
+
+        // Add all vowels in sorted order: a -> e -> i -> o -> u
+        for (int ch = 0; ch < 26; ch++) {
+            while (vowels[ch] != 0) {
+                sortedChars[idx++] = (char) (ch + 'a');
+                vowels[ch]--;
+            }
+        }
+
+        int vowelsCount = idx;  // Total number of vowels in the string
+
+        // Add all consonants in sorted order: b -> c -> d -> ...
+        for (int ch = 0; ch < 26; ch++) {
+            while (consonants[ch] != 0) {
+                sortedChars[idx++] = (char) (ch + 'a');
+                consonants[ch]--;
+            }
+        }
+
+        int consonantCount = n - vowelsCount;  // Total number of consonants
+
+        // Feasibility checks:
+        // - For even length, vowel and consonant counts must be equal
+        // - For odd length, their difference must be exactly 1
+        if (n % 2 == 0 && vowelsCount != consonantCount) {
+            return "-1";
+        }
+
+        if (n % 2 != 0 && Math.abs(vowelsCount - consonantCount) != 1) {
+            return "-1";
+        }
+
+        /*
+         * In the case of an odd-length string, starting with the group that has more
+         * characters is mandatory to preserve the alternating pattern throughout
+         * the entire string.
+         *
+         * Even if the smallest character of the smaller group (vowel or consonant)
+         * is lexicographically smaller, we are forced to start with the larger group.
+         * Otherwise, we would run out of characters from that group before reaching
+         * the end, and the alternation would break.
+         *
+         * In short:
+         * - For odd length, feasibility of alternation has higher priority than
+         *   lexicographic minimality.
+         * - Therefore, we must start with the group that has more characters.
+         *
+         * Ex:
+         * Input : "aeibb"
+         * Output: "abebi"
+         *
+         * Input : "oeibb"
+         * Output: "ebibo"
+         *
+         * Input : "aecbb"
+         * Output: "babec"
+         *
+         * Input : "aecdz"
+         * Output: "cadez"
+         *
+         * ------------------------------------------------------------
+         *
+         * In the case of an even-length string, both vowels and consonants occur
+         * an equal number of times. Therefore, either group can safely be placed
+         * at the first position without breaking the alternating pattern.
+         *
+         * Hence, for even length strings, we always start with the
+         * lexicographically smallest character between:
+         *   - the smallest vowel
+         *   - the smallest consonant
+         *
+         * This greedy choice guarantees the lexicographically smallest valid string.
+         *
+         * Ex:
+         * Input : "eazb"
+         * Output: "abez"
+         *
+         * Input : "euzb"
+         * Output: "bezu"
+         */
+         
+        int vowelPtr = 0;                 // Pointer over vowel segment
+        int constPtr = vowelsCount;      // Pointer over consonant segment
+
+        // Smallest vowel and smallest consonant (for lexicographic comparison)
+        char firstVowel = sortedChars[0];
+        char firstConst = sortedChars[vowelsCount];
+
+        boolean startWithVowel = false;
+
+        // Decide starting type:
+        // - Even length: start with lexicographically smaller of (smallest vowel, smallest consonant)
+        // - Odd length: start with the group that has more characters
+        if (n % 2 == 0 && firstVowel < firstConst) {
+            startWithVowel = true;
+        } else if (n % 2 != 0 && vowelsCount > consonantCount) {
+            startWithVowel = true;
+        }
+
+        StringBuilder alternatingString = new StringBuilder();
+
+        // Alternate vowel and consonant while both are available
+        while (vowelPtr < vowelsCount && constPtr < sortedChars.length) {
+            if (startWithVowel) {
+                alternatingString.append(sortedChars[vowelPtr++]).append(sortedChars[constPtr++]);
+            } else {
+                alternatingString.append(sortedChars[constPtr++]).append(sortedChars[vowelPtr++]);
+            }
+        }
+
+        // Append the remaining vowel (only possible for odd-length strings)
+        if (vowelPtr < vowelsCount) {
+            alternatingString.append(sortedChars[vowelPtr++]);
+        }
+
+        // Append the remaining consonant (only possible for odd-length strings)
+        if (constPtr < sortedChars.length) {
+            alternatingString.append(sortedChars[constPtr++]);
+        }
+
+        return alternatingString.toString();
+    }
+
+    // Checks if a character is a vowel
+    private boolean isVowel(char ch) {
+        return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
+    }
+}
