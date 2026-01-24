@@ -1,0 +1,66 @@
+class Solution {
+    static int checkCompressed(String normal, String compressed) {
+        int i = 0;  // Pointer for the original (normal) string
+        int j = 0;  // Pointer for the compressed string
+        int skipCount = 0; // Number formed from consecutive digits in compressed
+
+        // Traverse both strings simultaneously
+        while (i < normal.length() && j < compressed.length()) {
+
+            // If current character in compressed is a digit, build the full skip count (handles multi-digit numbers like "12")
+            if (Character.isDigit(compressed.charAt(j))) {
+                skipCount = (skipCount * 10) + (compressed.charAt(j) - '0');
+                j++;
+            } else {
+                // Skip 'skipCount' characters in the normal string
+                i += skipCount;
+
+                // If skipping goes out of bounds or the current characters don't match,
+                // then the compressed string is invalid
+                if (i >= normal.length() || normal.charAt(i) != compressed.charAt(j)) {
+                    return 0;
+                }
+
+                // Move to the next character in both strings after a successful match
+                i++;
+                j++;
+
+                // Reset skipCount for the next numeric block
+                skipCount = 0;
+            }
+        }
+
+        /*
+         * Example illustrating an invalid compression:
+         *
+         * normal     = "VAN"
+         * compressed = "VA1"
+         *
+         * Explanation:
+         * - 'V' matches 'V'
+         * - 'A' matches 'A'
+         * - '1' means skip 1 character in "VAN"
+         *   → Skipping 1 from index 2 moves i to index 3 (out of bounds)
+         *
+         * Since there is no character left in "VAN" to skip or match,
+         * this compression is invalid.
+         *
+         * Output: 0
+         */
+         /*
+       normal=  DAMPEDG
+       compressed = D4D
+         */
+
+        // Apply any remaining skip count after the loop ends
+        i += skipCount;
+        
+        if(i>normal.length() || i < normal.length()){
+           return 0;    
+        }
+        //also as per my undersand of case where i is exhausted and j is still there is handles within the main loop where we check i+=skip and i>=string.length() it means J is not yet exhausted and i is exhausted
+
+        // The compression is valid only if both strings are fully consumed
+        return 1;
+    }
+}
