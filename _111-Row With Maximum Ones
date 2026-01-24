@@ -1,0 +1,52 @@
+class Solution {
+    public int[] rowAndMaximumOnes(int[][] mat) {
+        int maxOnes = 0; // Tracks the maximum number of 1s found so far
+        int rowWithMaxOnes = -1; // Stores the index of the row with the most 1s
+
+        // Iterate through each row of the matrix
+        for (int row = 0; row < mat.length; row++) {
+
+            // Count number of 1s in the current row
+            int onesCount = countOnes(mat[row]);
+
+            // Update if this row has more 1s than previously recorded
+            if (onesCount > maxOnes) {
+                maxOnes = onesCount;
+                rowWithMaxOnes = row;
+            }
+        }
+
+        // If no row contains any 1s, return {0, 0} as specified in the problem statement
+        if (rowWithMaxOnes == -1) {
+            return new int[] { 0, 0 };
+        }
+
+        // Return the row index with maximum 1s and the count of 1s in that row
+        return new int[] { rowWithMaxOnes, maxOnes };
+    }
+
+    // Counts number of 1s in an unsorted binary row using two-pointer technique
+    private int countOnes(int[] row) {
+        int i = 0; // Left pointer
+        int j = row.length - 1; // Right pointer
+        int onesCount = 0; // Total count of 1s in the row
+
+        // Move both pointers towards the center
+        while (i <= j) {
+            // Check left pointer
+            if (row[i] == 1) {
+                onesCount++;
+            }
+
+            // Check right pointer (avoid double-counting when i == j)
+            if (i != j && row[j] == 1) {
+                onesCount++;
+            }
+
+            i++;
+            j--;
+        }
+
+        return onesCount;
+    }
+}
