@@ -1,0 +1,151 @@
+//Bruteforce approach
+
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        /*
+        * Converts the 2D matrix into a 1D sorted array.
+        *
+        * Since:
+        * - Rows are sorted in ascending order.
+        * - Each row starts with a value greater than the
+        *   last value of the previous row,
+        *
+        * Copying elements row by row preserves sorted order.
+        */
+        int[] sorted = getSortedArray(matrix);
+
+        // Perform a standard binary search on the sorted 1D array.
+        return binarySearch(sorted, target);
+    }
+
+    private int[] getSortedArray(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        int[] sorted = new int[rows * cols];
+        int idx = 0;
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                sorted[idx++] = matrix[row][col];
+            }
+        }
+
+        return sorted;
+    }
+
+    private boolean binarySearch(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (arr[mid] == target) {
+                return true;
+            }
+
+            if (target < arr[mid]) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return false;
+    }
+}
+
+
+// Optimal approach: Binary Search in a 2D Matrix
+
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        /*
+         * Perform a binary search directly on the matrix
+         * by treating it as a virtual 1D sorted array.
+         */
+        return binarySearch(matrix, target);
+    }
+
+    /**
+     * Binary Search on a 2D Matrix (treated as a 1D array)
+     *
+     * Given a 3 x 4 matrix:
+     *
+     *        0    1    2    3
+     *      +----+----+----+----+
+     *   0  |  0 |  6 |  8 |  9 |
+     *      +----+----+----+----+
+     *   1  | 11 | 15 | 16 | 17 |
+     *      +----+----+----+----+
+     *   2  | 19 | 29 |100 |110 |
+     *      +----+----+----+----+
+     *
+     * If this matrix were flattened into a sorted 1D array
+     * (row-major order), it would look like:
+     *
+     * sorted = [0, 6, 8, 9, 11, 15, 16, 17, 19, 29, 100, 110]
+     *
+     * We can now perform a standard binary search on this
+     * virtual 1D array using indices:
+     *
+     *   low = 0
+     *   high = rows * number_of_columns - 1
+     *
+     * Suppose:
+     *   mid = 6
+     *
+     * In the flattened array:
+     *   sorted[6] = 16
+     *
+     * In the original matrix, this value is located at:
+     *
+     *   row = mid / number_of_columns
+     *   col = mid % number_of_columns
+     *
+     * For mid = 6 and since the number of columns in the matrix is 4:
+     *
+     *   row = 6 / 4 = 1
+     *   col = 6 % 4 = 2
+     *
+     * So matrix[1][2] = 16
+     *
+     * This index-mapping technique allows us to perform
+     * binary search directly on the 2D matrix without
+     * using any extra space.
+     */
+    private boolean binarySearch(int[][] matrix, int target) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        /*
+         * Treat the matrix as a virtual 1D array of size rows * cols.
+         * Binary search boundaries are set accordingly.
+         */
+        int low = 0;
+        int high = (rows * cols) - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            // Convert the 1D index 'mid' into 2D matrix coordinates.
+            int row = mid / cols;
+            int col = mid % cols;
+
+            // If the current element matches the target, the search is successful.
+            if (matrix[row][col] == target) {
+                return true;
+            }
+
+            // if target is smaller, discard the right half.
+            if (target < matrix[row][col]) {
+                high = mid - 1;
+            } else { // Otherwise, discard the left half.
+                low = mid + 1;
+            }
+        }
+
+        // Target was not found in the matrix.
+        return false;
+    }
+}
