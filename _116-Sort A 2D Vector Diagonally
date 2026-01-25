@@ -172,12 +172,12 @@ class Solution {
                  * element for this diagonal in O(1) time.
                  * 
                  * If we used ArrayList instead:
- * - remove(0) would be O(n) due to shifting.
- * - This would make the write-back phase O(n^2) in worst case.
+                 * - remove(0) would be O(n) due to shifting.
+                 * - This would make the write-back phase O(n^2) in worst case.
                  *
                  * This is why LinkedList is crucial here.
                  */
-                matrix[row][col] = diagonalMap.get(key)).removeFirst();
+                matrix[row][col] = diagonalMap.get(key).removeFirst();
             }
         }
     }
