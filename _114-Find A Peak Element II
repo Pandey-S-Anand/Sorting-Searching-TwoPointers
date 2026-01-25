@@ -1,0 +1,187 @@
+//Bruteforce approach
+
+/*
+ * Why a peak element is guaranteed to exist:
+ *
+ * The problem guarantees that no two adjacent cells are equal.
+ * This means all comparisons with neighbors are always strict.
+ *
+ * Start from any arbitrary cell in the matrix:
+ * - If the current cell is strictly greater than all its neighbors,
+ *   then it is already a peak.
+ * - Otherwise, the current cell is NOT a peak. In this case, at least one
+ *   of its neighbors must be strictly larger.
+ *
+ *   This includes both situations:
+ *   1) Some neighbors are larger than the current cell.
+ *   2) The current cell is smaller than all of its neighbors (a local minimum).
+ *
+ * In either case, we can move to a strictly larger neighbor.
+ *
+ * Each move strictly increases the value, and since the matrix has a finite
+ * number of cells, this process cannot continue forever.
+ *
+ * Therefore, it must eventually terminate at a cell that has no strictly
+ * larger neighbor — which by definition is a peak.
+ *
+ * Hence, a peak element is always guaranteed to exist.
+ */
+
+class Solution {
+    public int[] findPeakGrid(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Check every cell to find a peak
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (isPeakCell(matrix, row, col, rows, cols)) {
+                    return new int[] { row, col };
+                }
+            }
+        }
+
+        // Fallback (problem guarantees at least one peak exists)
+        return new int[] { -1, -1 };
+    }
+
+    private boolean isPeakCell(int[][] matrix, int row, int col, int rows, int cols) {
+        // Get neighbor values; use -1 for out-of-bounds neighbors
+        int upValue = (row > 0) ? matrix[row - 1][col] : -1;
+        int downValue = (row < rows - 1) ? matrix[row + 1][col] : -1;
+        int leftValue = (col > 0) ? matrix[row][col - 1] : -1;
+        int rightValue = (col < cols - 1) ? matrix[row][col + 1] : -1;
+
+        // Current cell must be strictly greater than all four neighbors
+        return matrix[row][col] > upValue && matrix[row][col] > downValue && matrix[row][col] > leftValue && matrix[row][col] > rightValue;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public int[] findPeakGrid(int[][] mat) {
+        int rows = mat.length;
+        int cols = mat[0].length;
+
+        int low = 0, high = cols - 1;
+
+        while (low <= high) {
+            int midCol = low + (high - low) / 2;
+
+            /*
+            * Find the row with the maximum element in midCol.
+            *
+            * Why?
+            * Among all the elements in midCol, the one with the highest value
+            * will be greater than the elements above and below (i.e., top and bottom neighbors),
+            * since we are picking the maximum in that column.
+            * 
+            * So now, to determine if it's a 2D peak, we only need to compare it with its
+            * left and right neighbors — just like in the 1D peak-finding approach.
+            */
+            int rowOfColumnMax = getRowOfColoumnMax(mat, midCol, rows);
+
+            int currentValue = mat[rowOfColumnMax][midCol];
+            int leftValue = midCol > 0 ? mat[rowOfColumnMax][midCol - 1] : -1;
+            int rightValue = midCol < cols - 1 ? mat[rowOfColumnMax][midCol + 1] : -1;
+
+            /*
+            * Possible scenarios at the chosen cell (rowOfColumnMax, midCol):
+            *
+            * Let:
+            *   curr  = mat[rowOfColumnMax][midCol]
+            *   left  = mat[rowOfColumnMax][midCol - 1] (if exists)
+            *   right = mat[rowOfColumnMax][midCol + 1] (if exists)
+            *
+            * Note:
+            * - curr is already the maximum in its column,
+            *   so curr > top and curr > bottom are guaranteed.
+            * - No two adjacent cells are equal (given constraint),
+            *   so all comparisons are strictly < or >.
+            *
+            * ------------------------------------------------------
+            * Case 1: curr > left AND curr > right
+            *
+            *   curr is strictly greater than all 4 neighbors.
+            *   ⇒ curr is a peak. We can return it immediately.
+            *
+            * ------------------------------------------------------
+            * Case 2: left > curr AND right < curr
+            *
+            *   The left neighbor is strictly larger.
+            *
+            *   ⇒ A peak is GUARANTEED to exist in the LEFT half.
+            *   ⇒ A peak MAY or MAY NOT exist in the RIGHT half.
+            *
+            *   Reason:
+            *   We can move left to a strictly larger value.
+            *   From there, either we hit a peak or keep moving to
+            *   a strictly larger neighbor. Since values strictly
+            *   increase and the matrix is finite, this must end
+            *   at a peak in the left half.
+            *
+            *   Action:
+            *   Discard the right half → high = midCol - 1
+            *
+            * ------------------------------------------------------
+            * Case 3: right > curr AND left < curr
+            *
+            *   The right neighbor is strictly larger.
+            *
+            *   ⇒ A peak is GUARANTEED to exist in the RIGHT half.
+            *   ⇒ A peak MAY or MAY NOT exist in the LEFT half.
+            *
+            *   Reason:
+            *   Same logic as Case 2, but symmetric.
+            *
+            *   Action:
+            *   Discard the left half → low = midCol + 1
+            *
+            * ------------------------------------------------------
+            * Case 4: left > curr AND right > curr
+            *
+            *   Both neighbors are strictly larger.
+            *
+            *   ⇒ A peak is GUARANTEED to exist in BOTH halves.
+            *
+            *   Reason:
+            *   We can move either left or right to a strictly
+            *   larger value. From either direction, values strictly
+            *   increase and must eventually terminate at a peak.
+            *
+            *   Action:
+            *   We are free to choose either side.
+            *   In this implementation, we arbitrarily move LEFT
+            *   (by checking left first), which is still correct.
+            */
+
+            if (currentValue > leftValue && currentValue > rightValue) {
+                return new int[] { rowOfColumnMax, midCol };
+            }
+
+            if (leftValue > currentValue) {
+                high = midCol - 1;
+            } else if (rightValue > currentValue) {
+                low = midCol + 1;
+            }
+        }
+
+        // Guaranteed not to reach here due to problem constraints
+        return new int[] { -1, -1 };
+    }
+
+    private int getRowOfColoumnMax(int[][] mat, int col, int rows) {
+        int maxInCol = Integer.MIN_VALUE;
+        int rowOfColumnMax = 0;
+        for (int row = 0; row < rows; row++) {
+            if (mat[row][col] > maxInCol) {
+                maxInCol = mat[row][col];
+                rowOfColumnMax = row;
+            }
+        }
+
+        return rowOfColumnMax;
+    }
+}
