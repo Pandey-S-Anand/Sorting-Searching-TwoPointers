@@ -1,0 +1,122 @@
+//Bruteforce approach
+
+class Solution {
+    public int[][] diagonalSort(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Temporary list to store elements of one diagonal at a time
+        List<Integer> diagonalValues = new ArrayList<>(Math.min(rows, cols));
+
+        /*
+         * Process diagonals starting from the first column (lower diagonals + main diagonal)
+         * Start points: (0,0), (1,0), (2,0), ...
+         */
+        for (int startRow = 0; startRow < rows; startRow++) {
+            // Collect all elements along the current diagonal
+            collectDiagonal(matrix, diagonalValues, startRow, 0, rows, cols);
+
+            // Sort the diagonal values in ascending order
+            Collections.sort(diagonalValues);
+
+            // Write the sorted values back into the same diagonal positions
+            writeDiagonal(matrix, diagonalValues, startRow, 0, rows, cols);
+
+            diagonalValues.clear(); // Reuse the list for the next diagonal
+        }
+
+        /*
+         * Process diagonals starting from the first row (upper diagonals)
+         * Start points: (0,1), (0,2), (0,3), ...
+         */
+        for (int startCol = 1; startCol < cols; startCol++) {
+            // Collect all elements along the current diagonal
+            collectDiagonal(matrix, diagonalValues, 0, startCol, rows, cols);
+
+            // Sort the diagonal values in ascending order
+            Collections.sort(diagonalValues);
+
+            // Write the sorted values back into the same diagonal positions
+            writeDiagonal(matrix, diagonalValues, 0, startCol, rows, cols);
+
+            diagonalValues.clear(); // Reuse the list for the next diagonal
+        }
+
+        return matrix;
+    }
+
+    // Collect all elements along a diagonal starting at (row, col)
+    private void collectDiagonal(int[][] matrix, List<Integer> diagonalValues, int row, int col, int rows, int cols) {
+        while (row < rows && col < cols) {
+            diagonalValues.add(matrix[row++][col++]);
+        }
+    }
+
+    // Write values back into a diagonal starting at (row, col)
+    private void writeDiagonal(int[][] matrix, List<Integer> diagonalValues, int row, int col, int rows, int cols) {
+        int index = 0;
+
+        while (row < rows && col < cols) {
+            matrix[row++][col++] = diagonalValues.get(index++);
+        }
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public int[][] diagonalSort(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        /*
+         * Map each diagonal (identified by key = row - col) to a list of its elements.
+         *
+         * We use LinkedList here because:
+         * - During reconstruction, we will consume elements from the front.
+         * - removeFirst() runs in O(1), which is crucial for efficiency.
+         */
+        Map<Integer, List<Integer>> diagonalMap = new HashMap<>();
+
+        /*
+         * Group matrix elements by diagonals.
+         * -------------------------------------------
+         * Key insight: All elements on the same top-left → bottom-right diagonal have the same value of (row - col).
+         */
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int key = row - col;
+                diagonalMap.computeIfAbsent(key, k -> new LinkedList<Integer>()).add(matrix[row][col]);
+            }
+        }
+
+        //Sort each diagonal in ascending order.
+        for (int key : diagonalMap.keySet()) {
+            List<Integer> diagonalElements = diagonalMap.get(key);
+            Collections.sort(diagonalElements);
+        }
+
+        /*
+         * Refill the matrix using sorted diagonals.
+         * -------------------------------------------------
+         * For each cell (row, col):
+         *   - Identify its diagonal using key = row - col.
+         *   - Take and remove the smallest remaining element
+         *     from that diagonal’s list.
+         *
+         * removeFirst():
+         * --------------
+         * - Retrieves AND removes the front element.
+         * - Runs in O(1) for LinkedList.
+         */
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int key = row - col;
+                matrix[row][col] = diagonalMap.get(key).removeFirst();
+            }
+        }
+
+        return matrix;
+    }
+}
