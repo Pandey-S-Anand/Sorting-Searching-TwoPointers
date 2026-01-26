@@ -1,0 +1,126 @@
+//Bruteforce approach
+
+class Solution {
+    public int countDays(int totalDays, int[][] meetings) {
+        /*
+        * Note:
+        * Although totalDays is given, we do NOT use (totalDays + 1) to size the array.
+        *
+        * Reason:
+        * Meetings only occupy days up to their maximum end day.
+        * Any day beyond the last meeting day will never be accessed or marked.
+        *
+        * So we size the boolean array using the lastMeetingDay instead of totalDays
+        * to avoid unnecessary memory usage, especially when totalDays is very large
+        * but meetings span only a small range of days.
+        */
+        // Find the latest end day among all meetings
+        int lastMeetingDay = findLastMeetingDay(meetings);
+
+        // Boolean array to mark whether a particular day is occupied by any meeting
+        boolean[] isDayOccupied = new boolean[lastMeetingDay + 1];
+
+        for (int[] meeting : meetings) {
+            int startDay = meeting[0];
+            int endDay = meeting[1];
+
+            for (int day = startDay; day <= endDay; day++) {
+                /*
+                 * If this day has not been marked as occupied yet,
+                 * mark it and decrement totalDays.
+                 *
+                 * This check avoids double-counting the same day
+                 * when meetings overlap.
+                 */
+                if (!isDayOccupied[day]) {
+                    isDayOccupied[day] = true;
+                    totalDays--;
+                }
+            }
+        }
+        /*
+        * At this point, totalDays =
+        * original total days − number of unique days with at least one meeting.
+        *
+        * So the returned value represents the number of free (non-meeting) days.
+        */
+        return totalDays;
+    }
+
+    /*
+     * Returns the maximum end day among all meetings.
+     *
+     * This value is used to size the boolean array
+     * that tracks which days are occupied.
+     */
+    private int findLastMeetingDay(int[][] meetings) {
+        int left = 0, right = meetings.length - 1;
+        int maximumEndDay = Integer.MIN_VALUE;
+
+        while (left <= right) {
+            maximumEndDay = Math.max(maximumEndDay, Math.max(meetings[left++][1], meetings[right--][1]));
+        }
+
+        return maximumEndDay;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public int countDays(int totalDays, int[][] meetings) {
+        /*
+         * Merge all overlapping meeting intervals.
+         * Each merged interval represents a continuous range of occupied days.
+         */
+        List<int[]> nonOverlappingMeetings = mergeOverlappingMeetings(meetings);
+
+        /*
+         * Subtract the total number of days covered by meetings from totalDays.
+         *
+         * For each merged interval [start, end],
+         * number of meeting days = (end - start + 1).
+         */
+        for (int[] meeting : nonOverlappingMeetings) {
+            totalDays -= (meeting[1] - meeting[0] + 1);
+        }
+
+        /*
+         * At this point, totalDays represents:
+         * original total days − total days covered by meetings.
+         *
+         * So the returned value is the number of free (non-meeting) days.
+         */
+        return totalDays;
+    }
+
+    private List<int[]> mergeOverlappingMeetings(int[][] meetings) {
+        Arrays.sort(meetings, (meeting1, meeting2) -> Integer.compare(meeting1[0], meeting2[0]));
+
+        List<int[]> mergedMeetings = new ArrayList<>();
+
+        int[] mergedMeeting = meetings[0];
+
+        for (int i = 1; i < meetings.length; i++) {
+            if (isOverlapping(mergedMeeting, meetings[i])) {
+                mergeOverlappingMeetings(mergedMeeting, meetings[i]);
+            } else {
+                mergedMeetings.add(mergedMeeting);
+                mergedMeeting = meetings[i];
+            }
+        }
+
+        mergedMeetings.add(mergedMeeting);
+
+        return mergedMeetings;
+    }
+
+    private boolean isOverlapping(int[] meeting1, int[] meeting2) {
+        return meeting1[1] >= meeting2[0];
+    }
+
+    private void mergeOverlappingMeetings(int[] meeting1, int[] meeting2) {
+        meeting1[1] = Math.max(meeting1[1], meeting2[1]);
+    }
+}
