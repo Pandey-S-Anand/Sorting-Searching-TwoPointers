@@ -1,0 +1,208 @@
+//Bruteforce approach
+
+class Solution {
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        // Create a new array that includes all existing intervals plus the new interval to be inserted.
+        int[][] allIntervals = appendNewInterval(intervals, newInterval);
+
+        /*
+         * Merge all overlapping intervals.
+         * This will combine the new interval with any existingintervals it overlaps with.
+         */
+        return mergeOverlappingIntervals(allIntervals);
+    }
+
+    private int[][] appendNewInterval(int[][] intervals, int[] newInterval) {
+        // Create a new array to hold all intervals including the new one
+        int[][] updatedIntervals = new int[intervals.length + 1][2];
+        int index = 0;
+
+        // Copy existing intervals into the new array
+        for (int[] interval : intervals) {
+            updatedIntervals[index++] = interval;
+        }
+
+        // Add the new interval at the end
+        updatedIntervals[index] = newInterval;
+
+        return updatedIntervals;
+    }
+
+    private int[][] mergeOverlappingIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (interval1, interval2) -> Integer.compare(interval1[0], interval2[0]));
+
+        List<int[]> nonOverlappingIntervals = new ArrayList<>();
+
+        int[] mergedInterval = intervals[0];
+
+        for (int i = 1; i < intervals.length; i++) {
+            if (isOverlapping(mergedInterval, intervals[i])) {
+                mergeIntervals(mergedInterval, intervals[i]);
+            } else {
+                nonOverlappingIntervals.add(mergedInterval);
+                mergedInterval = intervals[i];
+            }
+        }
+
+        nonOverlappingIntervals.add(mergedInterval);
+
+        return nonOverlappingIntervals.toArray(new int[nonOverlappingIntervals.size()][2]);
+    }
+
+    private boolean isOverlapping(int[] interval1, int[] interval2) {
+        return interval1[1] >= interval2[0];
+    }
+
+    private void mergeIntervals(int[] interval1, int[] interval2) {
+        interval1[1] = Math.max(interval1[1], interval2[1]);
+    }
+}
+
+
+
+//Optimal approach
+
+class Solution {
+    /*
+     * The given intervals are already sorted by start time.
+     *
+     * Step 1:
+     * Find the correct insertion index for the new interval while preserving
+     * the sorted order by start time, and simultaneously collect all intervals
+     * that lie completely to the left of newInterval.
+     * These intervals are guaranteed to be non-overlapping.
+     *
+     * This splits the intervals into two parts:
+     * - Left part  : intervals before the insertion index (sorted by start time)
+     * - Right part : intervals starting from the insertion index (also sorted by start time)
+     *
+     * Step 2:
+     * The new interval may overlap with intervals in the right part.
+     * So we merge the new interval with all overlapping intervals on the right
+     * using the standard merge-overlapping-intervals logic.
+     *
+     * After this step, the right part becomes a set of non-overlapping intervals
+     * that is still sorted by start time.
+     *
+     * Step 3:
+     * There may still be an overlap between the last interval of the left part
+     * and the first interval of the merged right part.
+     * We explicitly check this boundary case and merge them if required.
+     *
+     * Step 4:
+     * Finally, we combine the left part and the updated right part
+     * to produce the final list of non-overlapping intervals.
+     *
+     * -------------------------------------------------------------------------
+     *
+     * Example 1:
+     * intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]],
+     * newInterval = [4,8]
+     *
+     * Left part  = [[1,2], [3,5]]
+     * Right part = [[6,7], [8,10], [12,16]]
+     *
+     * After merging overlapping intervals on the right side:
+     * Right part becomes [[4,10], [12,16]]
+     *
+     * The last interval of the left part ([3,5]) overlaps with
+     * the first interval of the right part ([4,10]), so they are merged:
+     * Resulting interval = [3,10]
+     *
+     * Final result:
+     * [[1,2], [3,10], [12,16]]
+     *
+     * -------------------------------------------------------------------------
+     *
+     * Example 2:
+     * intervals = [[1,2],[3,3],[6,7],[8,10],[12,16]],
+     * newInterval = [4,8]
+     *
+     * Left part  = [[1,2], [3,3]]
+     * Right part = [[6,7], [8,10], [12,16]]
+     *
+     * After merging overlapping intervals on the right side:
+     * Right part becomes [[4,10], [12,16]]
+     *
+     * The last interval of the left part ([3,3]) does NOT overlap with
+     * the first interval of the right part ([4,10]).
+     *
+     * Final result:
+     * [[1,2], [3,3], [4,10], [12,16]]
+     */
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        /*
+         * Collect all intervals that lie completely to the left of newInterval.
+         * These intervals are guaranteed to be non-overlapping and unchanged.
+         */
+        List<int[]> leftIntervals = new ArrayList<>();
+
+        int insertionIndex = 0;
+        while (insertionIndex < intervals.length && intervals[insertionIndex][0] < newInterval[0]) {
+            leftIntervals.add(intervals[insertionIndex++]);
+        }
+
+        /*
+         * Merge the new interval with intervals on the right side.
+         * Any overlaps introduced by the insertion are resolved,
+         * producing a list of non-overlapping right-side intervals.
+         */
+        List<int[]> mergedRightIntervals = mergeOverlappingIntervals(intervals, insertionIndex, newInterval);
+
+        /*
+         * Handle the boundary case where the last interval of the left part
+         * may overlap with the first interval of the merged right part.
+         */
+        mergeBoundaryIfNeeded(leftIntervals, mergedRightIntervals);
+
+        /*
+         * Combine the left part and the merged right part.
+         * The final list is sorted by start time and contains no overlapping intervals.
+         */
+        leftIntervals.addAll(mergedRightIntervals);
+
+        return leftIntervals.toArray(new int[leftIntervals.size()][2]);
+    }
+
+    private List<int[]> mergeOverlappingIntervals(int[][] intervals, int index, int[] newInterval) {
+        List<int[]> nonOverlappingIntervals = new LinkedList<>();
+        int[] mergedInterval = newInterval;
+
+        for (int i = index; i < intervals.length; i++) {
+            if (isOverlapping(mergedInterval, intervals[i])) {
+                mergeOverlapping(mergedInterval, intervals[i]);
+            } else {
+                nonOverlappingIntervals.add(mergedInterval);
+                mergedInterval = intervals[i];
+            }
+        }
+
+        nonOverlappingIntervals.add(mergedInterval);
+        return nonOverlappingIntervals;
+    }
+
+    private boolean isOverlapping(int[] interval1, int[] interval2) {
+        return interval1[1] >= interval2[0];
+    }
+
+    private void mergeOverlapping(int[] interval1, int[] interval2) {
+        interval1[1] = Math.max(interval1[1], interval2[1]);
+    }
+
+    private void mergeBoundaryIfNeeded(List<int[]> leftIntervals, List<int[]> rightMergedIntervals) {
+        if (leftIntervals.isEmpty()) {
+            return;
+        }
+
+        int[] lastLeftInterval = leftIntervals.get(leftIntervals.size() - 1);
+        int[] firstRightInterval = rightMergedIntervals.getFirst();
+
+        if (isOverlapping(lastLeftInterval, firstRightInterval)) {
+            firstRightInterval[0] = lastLeftInterval[0];
+            firstRightInterval[1] = Math.max(lastLeftInterval[1], firstRightInterval[1]);
+
+            // The last left interval has already been merged into the first right interval, so remove it to avoid duplication.
+            leftIntervals.remove(leftIntervals.size() - 1);
+        }
+    }
+}
