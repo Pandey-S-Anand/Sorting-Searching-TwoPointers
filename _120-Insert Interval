@@ -195,7 +195,7 @@ class Solution {
         }
 
         int[] lastLeftInterval = leftIntervals.get(leftIntervals.size() - 1);
-        int[] firstRightInterval = rightMergedIntervals.getFirst();
+        int[] firstRightInterval = rightMergedIntervals.get(0);
 
         if (isOverlapping(lastLeftInterval, firstRightInterval)) {
             firstRightInterval[0] = lastLeftInterval[0];
