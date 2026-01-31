@@ -1,0 +1,157 @@
+//Bruteforce approach
+
+class Solution {
+    public int removeCoveredIntervals(int[][] intervals) {
+        // count of intervals that are fully covered by others
+        int coveredIntervals = 0;
+
+        for (int i = 0; i < intervals.length; i++) {
+            int j;
+            for (j = 0; j < intervals.length; j++) {
+                //Check if interval1[i] is completely inside interval2[j]
+                if (i != j && isCovered(intervals[i], intervals[j])) {
+                    break;
+                }
+            }
+
+            if (j < intervals.length) {
+                coveredIntervals++; // Increment the count of covered intervals
+            }
+        }
+        //Remaining intervals = Total intervals - Covered intervals
+        return intervals.length - coveredIntervals;
+    }
+
+    private boolean isCovered(int[] interval1, int[] interval2) {
+        return interval1[0] >= interval2[0] && interval1[1] <= interval2[1];
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public int removeCoveredIntervals(int[][] intervals) {
+        /*
+          Sort intervals by start time in ascending order.
+          If two intervals have the same start time,
+          sort them by end time in descending order.
+        
+          This ensures that any potentially covered intervals
+          appear adjacent to each other.
+        */
+        Arrays.sort(intervals, (interval1, interval2) -> {
+            int res = Integer.compare(interval1[0], interval2[0]);
+
+            if (res != 0) {
+                return res;
+            }
+
+            return Integer.compare(interval2[1], interval1[1]);
+        });
+
+        /*
+         * Example:
+         * [1,10], [2,8], [3,6]
+         *
+         * After sorting by start time in ascending order,
+         * and by end time in descending order when starts are equal,
+         * we observe the following:
+         *
+         * The first interval can never be covered.
+         * Why?
+         *
+         * For interval [a,b] to be covered by [c,d]:
+         *   a >= c AND b <= d
+         *
+         * Since we sorted by start time in ascending order,
+         * we always have c >= a.
+         *
+         * When c == a, sorting by end time in descending order
+         * ensures that the interval with the larger end time
+         * appears first.
+         *
+         * Example:
+         * [[1,2], [1,4], [3,4]]
+         * After sorting → [1,4] appears before [1,2]
+         *
+         * This guarantees the first interval cannot be covered.
+         *
+         * Starting from the second interval onward,
+         * we check whether it is covered by the last
+         * uncovered interval.
+         *
+         * Suppose:
+         * lastInterval = [a,b]
+         * currentInterval = [c,d]
+         *
+         * For [c,d] to be covered by [a,b]:
+         *   c >= a AND d <= b
+         *
+         * Since sorting guarantees c >= a,
+         * we only need to check:
+         *   d <= b
+         *
+         * If the current interval is covered,
+         * we simply ignore it.
+         *
+         * If the current interval is NOT covered:
+         *
+         * lastInterval = [a, b]
+         * currentInterval = [c, d]
+         *
+         * Since c >= a (implicitly guaranteed because we sorted
+         * intervals by start time in ascending order),
+         * and d > b (since the current interval is not covered),
+         * the current interval extends further than the last one.
+         *
+         * Therefore, the current interval becomes the new
+         * last uncovered interval.
+         *
+         * All future intervals will have start times greater than
+         * or equal to c (the start time of the current interval),
+         * so we update:
+         *
+         * lastInterval = currentInterval
+         */
+
+        /*
+         * - lastInterval keeps track of the most recent
+         *   interval that is not covered.
+         * - remainingIntervals counts how many intervals
+         *   remain after removing covered ones i.e count of uncovered intervals.
+         *
+         * The first interval is always uncovered
+         * due to our sorting strategy.
+         */
+        int[] lastInterval = intervals[0];
+        int remainingIntervals = 1;
+        /*
+         * Iterate through remaining intervals
+         *
+         * For each interval:
+         * - Check if it is covered by lastInterval.
+         * - If not covered, update lastInterval
+         *   and increment the count.
+         */
+        for (int i = 1; i < intervals.length; i++) {
+            if (!isCovered(lastInterval, intervals[i])) {
+                remainingIntervals++;
+                lastInterval = intervals[i];
+            }
+        }
+
+        return remainingIntervals;
+    }
+
+    /*
+     * Checks if interval2 is covered by interval1.
+     *
+     * Since sorting guarantees start2 >= start1,
+     * we only need to check whether:
+     * end2 <= end1
+     */
+    private boolean isCovered(int[] interval1, int[] interval2) {
+        return interval2[1] <= interval1[1];
+    }
+}
