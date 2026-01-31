@@ -1,0 +1,326 @@
+//Bruteforce approach
+
+class Solution {
+    public int maxTwoEvents(int[][] events) {
+        int maxSum = 0;
+
+        // Compare every pair of events
+        for (int i = 0; i < events.length; i++) {
+            for (int j = i + 1; j < events.length; j++) {
+                if (!isOverlapping(events[i], events[j])) { // If the two events are non-overlapping
+                    maxSum = Math.max(maxSum, events[i][2] + events[j][2]); // Update max value considering both events
+                }
+            }
+            /*
+            Important:
+            -----------------------------------
+            - "At most two" means we are allowed to pick:
+            - Only 1 event, OR
+            - 2 non-overlapping events.
+            - Hence, after checking all pairs, we also compare the value of taking a single event alone.
+            */
+            maxSum = Math.max(maxSum, events[i][2]); // Also consider the case of taking only a single event
+        }
+
+        return maxSum;
+    }
+
+    private boolean isOverlapping(int[] events1, int[] events2) {
+        return events1[0] <= events2[1] && events1[1] >= events2[0];
+    }
+}
+
+
+//Improved approach
+
+class Solution {
+    public int maxTwoEvents(int[][] events) {
+        /*
+        * Step 1:
+        * Sort the events by start time.
+        *
+        * Sorting ensures that overlapping intervals, if any,
+        * are placed close to each other. This makes it easier
+        * to identify overlapping events and efficiently locate
+        * the next non-overlapping event using binary search.
+        */
+        Arrays.sort(events, (eventA, eventB) -> Integer.compare(eventA[0], eventB[0]));
+        // Start recursion from index 0 with 0 events selected
+
+        return findMaxValue(events, 0, 0);
+    }
+
+    /*
+     * Recursive function to compute the maximum total value.
+     *
+     * Parameters:
+     * - currentIndex → the index of the event currently under consideration
+     * - selectedCount → number of events selected so far
+     *
+     * We can select at most 2 events.
+     */
+    private int findMaxValue(int[][] events, int index, int selectedCount) {
+        // Base case: if 2 events already selected or no events left
+        if (selectedCount == 2 || index == events.length) {
+            return 0;
+        }
+
+        /*
+         * Find the next event that does NOT overlap
+         * with the current event.
+         */
+        int nextValidIndex = findNextNonOverlappingEvent(events, index);
+        /*
+         * Option 1: Take the current event.
+         *
+         * Even if no next non-overlapping event exists,
+         * taking the current event alone is allowed.
+         */
+        int takeCurrentEvent = events[index][2];
+        if (nextValidIndex != -1) {
+            takeCurrentEvent += findMaxValue(events, nextValidIndex, selectedCount + 1);
+        }
+        /*
+         * Option 2: Skip the current event
+         * and move to the next index.
+         */
+        int skipCurrentEvent = findMaxValue(events, index + 1, selectedCount);
+        // Choose the better of the two options
+
+        return Math.max(takeCurrentEvent, skipCurrentEvent);
+    }
+
+    private int findNextNonOverlappingEvent(int[][] events, int index) {
+        int[] currentEvent = events[index];
+        int nextNonOverlappingEventIndex = -1;
+
+        int low = index + 1;
+        int high = events.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (isOverlapping(currentEvent, events[mid])) {
+                low = mid + 1; // Move right if overlapping
+            } else {
+                nextNonOverlappingEventIndex = mid; // Possible candidate, try finding earlier one
+                high = mid - 1;
+            }
+        }
+
+        return nextNonOverlappingEventIndex;
+    }
+
+    /*
+     * According to the problem constraints, for any interval [a, b],
+     * we always have a ≤ b.
+     * Similarly, for another interval [c, d], we also have c ≤ d.
+     *
+     * Two intervals overlap if:
+     * a ≤ d AND b ≥ c
+     *
+     * After sorting by start time, we always have:
+     * a ≤ c
+     * and since c ≤ d (given),
+     * it follows that a ≤ d is automatically satisfied.
+     *
+     * Therefore, to check whether two intervals overlap,
+     * we only need to verify:
+     * b ≥ c
+     */
+    private boolean isOverlapping(int[] eventA, int[] eventB) {
+        return eventA[1] >= eventB[0];
+    }
+}
+
+
+//Better approach
+
+class Solution {
+    private int[][] cache;
+
+    public int maxTwoEvents(int[][] events) {
+        cache = new int[events.length][2];
+        /*
+         * Initialize the cache with -1.
+         *
+         * cache[index][selectedCount] stores the maximum value
+         * we can obtain starting from 'index' when we have already
+         * selected 'selectedCount' events.
+         *
+         * A value of -1 indicates that this state
+         * has not yet been computed.
+         */
+        intializeCache(cache);
+        Arrays.sort(events, (eventA, eventB) -> Integer.compare(eventA[0], eventB[0]));
+        return findMaxValue(events, 0, 0);
+    }
+
+    private int findMaxValue(int[][] events, int index, int selectedCount) {
+        if (selectedCount == 2 || index == events.length) {
+            return 0;
+        }
+
+        /*
+         * Memoization check:
+         * If this subproblem has already been solved,
+         * return the cached result instead of recomputing.
+         */
+        if (cache[index][selectedCount] != -1) {
+            return cache[index][selectedCount];
+        }
+
+        int nextValidIndex = findNextNonOverlappingEvent(events, index);
+
+        int takeCurrentEvent = events[index][2];
+        if (nextValidIndex != -1) {
+            takeCurrentEvent += findMaxValue(events, nextValidIndex, selectedCount + 1);
+        }
+
+        int skipCurrentEvent = findMaxValue(events, index + 1, selectedCount);
+        /*
+         * Store the computed result in cache
+         * before returning it.
+         *
+         * This ensures each state is solved only once,
+         * reducing the time complexity significantly.
+         */
+        return cache[index][selectedCount] = Math.max(takeCurrentEvent, skipCurrentEvent);
+    }
+
+    private int findNextNonOverlappingEvent(int[][] events, int index) {
+        int[] currentEvent = events[index];
+        int nextNonOverlappingEventIndex = -1;
+
+        int low = index + 1;
+        int high = events.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (isOverlapping(currentEvent, events[mid])) {
+                low = mid + 1;
+            } else {
+                nextNonOverlappingEventIndex = mid;
+                high = mid - 1;
+            }
+        }
+
+        return nextNonOverlappingEventIndex;
+    }
+
+    private boolean isOverlapping(int[] eventA, int[] eventB) {
+        return eventA[1] >= eventB[0];
+    }
+
+    private void intializeCache(int[][] cache) {
+        for (int[] arr : cache) {
+            Arrays.fill(arr, -1);
+        }
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public int maxTwoEvents(int[][] events) {
+        /*
+         * Step 1: Sort events by start time.
+         *
+         * Sorting ensures that potentially overlapping events
+         * appear close to each other. It also allows us to
+         * efficiently locate the next non-overlapping event
+         * using binary search.
+         */
+        Arrays.sort(events, (eventA, eventB) -> Integer.compare(eventA[0], eventB[0]));
+
+        /*
+         * Step 2: Build a suffix max array.
+         *
+         * Since events are sorted by start time, once we find the
+         * first non-overlapping event for the current event
+         * (i.e., currentEvent[end] < nextEvent[start]),
+         * all subsequent events will also be non-overlapping.
+         *
+         * The suffix array stores the maximum event value
+         * from a given index to the end of the array.
+         *
+         * This allows us to directly obtain the best possible
+         * future value without using recursive exploration.
+         */
+        int[] maxValueFromIndex = computeMaxValueFromIndex(events);
+
+        /*
+         * Step 3:
+         * For each event, consider attending that event and then
+         * try to pair it with the best future non-overlapping event
+         * that yields the maximum value.
+         *
+         * If no non-overlapping event exists, we simply
+         * consider the current event alone.
+         *
+         * We efficiently compute:
+         * 1️⃣ Next non-overlapping event → Binary Search
+         * 2️⃣ Best future value → Suffix Max Array
+         */
+        int maxSum = Integer.MIN_VALUE;
+
+        for (int i = 0; i < events.length; i++) {
+
+            int nextValidIndex = findNextNonOverlappingEvent(events, i);
+
+            int currentSum = events[i][2];
+
+            if (nextValidIndex != -1) {
+                currentSum += maxValueFromIndex[nextValidIndex];
+            }
+
+            maxSum = Math.max(maxSum, currentSum);
+        }
+
+        return maxSum;
+    }
+
+    private int findNextNonOverlappingEvent(int[][] events, int index) {
+        int[] currentEvent = events[index];
+        int nextValidIndex = -1;
+
+        int low = index + 1;
+        int high = events.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (isOverlapping(currentEvent, events[mid])) {
+                low = mid + 1;
+            } else {
+                nextValidIndex = mid;
+                high = mid - 1;
+            }
+        }
+
+        return nextValidIndex;
+    }
+
+    private boolean isOverlapping(int[] eventA, int[] eventB) {
+        return eventA[1] >= eventB[0];
+    }
+
+    /*
+     * Builds a suffix max array where:
+     * maxValueFromIndex[i] represents the
+     * maximum event value from index i to the end.
+     */
+    private int[] computeMaxValueFromIndex(int[][] events) {
+        int[] maxValueFromIndex = new int[events.length];
+
+        maxValueFromIndex[events.length - 1] = events[events.length - 1][2];
+
+        for (int i = events.length - 2; i >= 0; i--) {
+            maxValueFromIndex[i] = Math.max(events[i][2], maxValueFromIndex[i + 1]);
+        }
+
+        return maxValueFromIndex;
+    }
+}
