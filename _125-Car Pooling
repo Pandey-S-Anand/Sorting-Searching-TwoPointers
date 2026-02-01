@@ -128,7 +128,7 @@ class Solution {
 }
 
 
-//Optimal approach
+//Better approach
 
 /*
  * Explanation of the approach :
@@ -253,5 +253,40 @@ class Solution {
         }
 
         return true; // All trips are possible within capacity
+    }
+}
+
+
+//Optimal Approach
+
+class Solution {
+    public boolean carPooling(int[][] trips, int capacity) {
+        int[] passengerChangeByDistance = new int[1001];
+        int firstPickupDistance = Integer.MAX_VALUE;
+        int lastDropOffDistance = Integer.MIN_VALUE;
+
+        for (int[] trip : trips) {
+            int passengerCount = trip[0];
+            int pickupDistance = trip[1];
+            int dropOffDistance = trip[2];
+
+            passengerChangeByDistance[pickupDistance] += passengerCount;
+            passengerChangeByDistance[dropOffDistance] -= passengerCount;
+
+            firstPickupDistance = Math.min(firstPickupDistance, pickupDistance);
+            lastDropOffDistance = Math.max(lastDropOffDistance, dropOffDistance);
+        }
+
+        int passengersAtDistance = 0;
+
+        for (int distance = firstPickupDistance; distance <= lastDropOffDistance; distance++) {
+            passengersAtDistance += passengerChangeByDistance[distance];
+
+            if (passengersAtDistance > capacity) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
