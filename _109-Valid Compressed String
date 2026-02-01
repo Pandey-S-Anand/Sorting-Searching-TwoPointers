@@ -1,7 +1,7 @@
 class Solution {
     static int checkCompressed(String normal, String compressed) {
-        int i = 0;  // Pointer for the original (normal) string
-        int j = 0;  // Pointer for the compressed string
+        int i = 0; // Pointer for the original (normal) string
+        int j = 0; // Pointer for the compressed string
         int skipCount = 0; // Number formed from consecutive digits in compressed
 
         // Traverse both strings simultaneously
@@ -31,7 +31,9 @@ class Solution {
         }
 
         /*
-         * Example illustrating an invalid compression:
+         * Example illustrating an invalid compression: 
+         *
+         * Ex: 1
          *
          * normal     = "VAN"
          * compressed = "VA1"
@@ -45,20 +47,21 @@ class Solution {
          * Since there is no character left in "VAN" to skip or match,
          * this compression is invalid.
          *
-         * Output: 0
+         *  Output: 0
+         *
+         *
+         *  Ex: 2
+         *  normal=  DAMPEDG
+         *  compressed = D4D
+         *
+         *  Output : 0
          */
-         /*
-       normal=  DAMPEDG
-       compressed = D4D
-         */
-
         // Apply any remaining skip count after the loop ends
         i += skipCount;
-        
-        if(i>normal.length() || i < normal.length()){
-           return 0;    
+
+        if (i > normal.length() || i < normal.length()) {
+            return 0;
         }
-        //also as per my undersand of case where i is exhausted and j is still there is handles within the main loop where we check i+=skip and i>=string.length() it means J is not yet exhausted and i is exhausted
 
         // The compression is valid only if both strings are fully consumed
         return 1;
