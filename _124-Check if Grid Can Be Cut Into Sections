@@ -1,0 +1,330 @@
+// Bruteforce approach
+
+//Intuitive Implementation
+
+class Solution {
+    public boolean checkValidCuts(int gridSize, int[][] rectangles) {
+        /*
+         * Try all possible pairs of cuts on the X-axis.
+         * A cut on the X-axis splits the grid vertically.
+         *
+         * Important:
+         * We cannot cut exactly at 0 or at gridSize,
+         * otherwise one of the sections would have no space
+         * to contain any rectangle.
+         */
+        for (int x1 = 1; x1 < gridSize; x1++) {
+            for (int x2 = x1 + 1; x2 < gridSize; x2++) {
+
+                /*
+                 * Vertical split interpretation:
+                 * - Section 1: from 0 (inclusive) to x1 (inclusive)
+                 * - Section 2: from x1 (inclusive) to x2 (inclusive)
+                 * - Section 3: from x2 (inclusive) to gridSize
+                 */
+                if (canSplitVertically(rectangles, x1, x2, gridSize)) {
+                    return true;
+                }
+            }
+        }
+
+        /*
+         * Try all possible pairs of cuts on the Y-axis.
+         * A cut on the Y-axis splits the grid horizontally.
+         *
+         * Important:
+         * Similar to vertical cuts, we cannot cut exactly
+         * at 0 or gridSize.
+         */
+        for (int y1 = 1; y1 < gridSize; y1++) {
+            for (int y2 = y1 + 1; y2 < gridSize; y2++) {
+
+                /*
+                 * Horizontal split interpretation:
+                 * - Section 1: from 0 (inclusive) to y1 (inclusive)
+                 * - Section 2: from y1 (inclusive) to y2 (inclusive)
+                 * - Section 3: from y2 (inclusive) to gridSize (n)
+                 */
+                if (canSplitHorizontally(rectangles, y1, y2, gridSize)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean canSplitVertically(int[][] rectangles, int cut1, int cut2, int n) {
+        boolean[] sectionHasRectangle = new boolean[3];
+
+        for (int[] rectangle : rectangles) {
+            int x1 = rectangle[0];
+            int x2 = rectangle[2];
+
+            /*
+             * As per the problem constraint, every rectangle
+             * must lie completely within exactly one section.
+             *
+             * A valid cut must NOT bisect any rectangle.
+             *
+             * Example:
+             * rectangles = [[0,2,2,4],[1,0,3,2],[2,2,3,4],[3,0,4,2],[3,2,4,4]]
+             * gridSize = 4
+             *
+             * Even though cut1 = 2 and cut2 = 3 may seem to
+             * satisfy the condition of having at least one
+             * rectangle in each section, one rectangle gets
+             * bisected by the cut, which violates the requirement.
+             *
+             * Therefore:
+             * - If cut1 bisects any rectangle → invalid split
+             * - If cut2 bisects any rectangle → invalid split
+             */
+            if ((x1 < cut1 && x2 > cut1) || (x1 < cut2 && x2 > cut2)) {
+                return false;
+            }
+
+            /*
+             * Determine which section the current rectangle
+             * belongs to (since it is not bisected).
+             */
+            if (!sectionHasRectangle[0] && (x1 >= 0 && x2 <= cut1)) {
+                sectionHasRectangle[0] = true; // first section
+            } else if (!sectionHasRectangle[1] && (x1 >= cut1 && x2 <= cut2)) {
+                sectionHasRectangle[1] = true; // second section
+            } else if (!sectionHasRectangle[2] && (x1 >= cut2 && x2 <= n)) {
+                sectionHasRectangle[2] = true; // third section
+            }
+
+            /*
+            * Note:
+            * Even if all three sections appear to contain at least one rectangle,
+            * we cannot conclude that the split is valid yet.
+            *
+            * All rectangles must be checked, because a rectangle processed later
+            * may still be bisected by one of the cuts, which would invalidate
+            * the entire split.
+            */
+        }
+
+        return sectionHasRectangle[0] && sectionHasRectangle[1] && sectionHasRectangle[2];
+    }
+
+    private boolean canSplitHorizontally(int[][] rectangles, int cut1, int cut2, int n) {
+        boolean[] sectionHasRectangle = new boolean[3];
+
+        for (int[] rectangle : rectangles) {
+            int y1 = rectangle[1];
+            int y2 = rectangle[3];
+
+            /*
+             * Similar to vertical cuts:
+             * A horizontal cut must not bisect any rectangle.
+             */
+            if ((y1 < cut1 && y2 > cut1) || (y1 < cut2 && y2 > cut2)) {
+                return false;
+            }
+
+            /*
+             * Assign the rectangle to the appropriate section.
+             */
+            if (!sectionHasRectangle[0] && (y1 >= 0 && y2 <= cut1)) {
+                sectionHasRectangle[0] = true;
+            } else if (!sectionHasRectangle[1] && (y1 >= cut1 && y2 <= cut2)) {
+                sectionHasRectangle[1] = true;
+            } else if (!sectionHasRectangle[2] && (y1 >= cut2 && y2 <= n)) {
+                sectionHasRectangle[2] = true;
+            }
+        }
+
+        return sectionHasRectangle[0] && sectionHasRectangle[1] && sectionHasRectangle[2];
+    }
+}
+
+
+//Optimal Implementation
+
+class Solution {
+    public boolean checkValidCuts(int gridSize, int[][] rectangles) {
+        if (tryAllCuts(rectangles, gridSize, true)) {
+            return true;
+        }
+
+        if (tryAllCuts(rectangles, gridSize, false)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean tryAllCuts(int[][] rectangles, int gridSize, boolean isVerticalSplit) {
+        for (int cut1 = 1; cut1 < gridSize; cut1++) {
+            for (int cut2 = cut1 + 1; cut2 < gridSize; cut2++) {
+                if (isValidSplit(rectangles, cut1, cut2, gridSize, isVerticalSplit)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isValidSplit(int[][] rectangles, int cut1, int cut2, int gridSize, boolean isVerticalSplit) {
+        boolean[] sectionHasRectangle = new boolean[3];
+
+        for (int[] rectangle : rectangles) {
+            int rectStart = isVerticalSplit ? rectangle[0] : rectangle[1];
+            int rectEnd = isVerticalSplit ? rectangle[2] : rectangle[3];
+
+            if (isRectangleBisected(rectStart, rectEnd, cut1, cut2)) {
+                return false;
+            }
+
+            if (!sectionHasRectangle[0] && (rectStart >= 0 && rectEnd <= cut1)) {
+                sectionHasRectangle[0] = true;
+            } else if (!sectionHasRectangle[1] && (rectStart >= cut1 && rectEnd <= cut2)) {
+                sectionHasRectangle[1] = true;
+            } else if (!sectionHasRectangle[2] && (rectStart >= cut2 && rectEnd <= gridSize)) {
+                sectionHasRectangle[2] = true;
+            }
+        }
+
+        return sectionHasRectangle[0] && sectionHasRectangle[1] && sectionHasRectangle[2];
+    }
+
+    private boolean isRectangleBisected(int rectStart, int rectEnd, int cut1, int cut2) {
+        return (rectStart < cut1 && rectEnd > cut1) || (rectStart < cut2 && rectEnd > cut2);
+    }
+}
+
+
+
+// Optimal approach
+
+//Naive implementation
+
+class Solution {
+    /*
+    * Approach:
+    * 
+    * - The goal is to determine if we can make two vertical or two horizontal cuts
+    *   on the grid such that:
+    *   1. Each resulting section i.e 3 sections has at least one rectangle.
+    *   2. No rectangle is split by a cut (rectangles must lie fully inside one section).
+    * 
+    * - Instead of trying all possible cut positions, we use a merging intervals approach:
+    * 
+    *   1. Collect all x-axis intervals [startx, endx] for rectangles.
+    *   2. Merge overlapping x-intervals.
+    *      - If we find 3 or more non-overlapping merged x-intervals, we can place two vertical cuts safely.
+    *   
+    *   3. Collect all y-axis intervals [starty, endy].
+    *      - Merge overlapping y-intervals.
+    *      - If we find 3 or more non-overlapping merged y-intervals, we can place two horizontal cuts.
+    * 
+    * - Important:
+    *   - Rectangles are allowed to share the boundary (i.e., touch the cut lines exactly) but not go inside each other.
+    */
+    public boolean checkValidCuts(int n, int[][] rectangles) {
+        int[][] xIntervals = new int[rectangles.length][2];
+        int[][] yIntervals = new int[rectangles.length][2];
+        int index = 0;
+
+        for (int[] rectangle : rectangles) {
+            xIntervals[index] = new int[] { rectangle[0], rectangle[2] };
+            yIntervals[index] = new int[] { rectangle[1], rectangle[3] };
+            index++;
+        }
+
+        // Merges overlapping intervals and returns true if there are at least three non-overlapping intervals found either in the vertical or horizontal direction.
+        return hasAtLeastThreeNonOverlappingIntervals(xIntervals) || hasAtLeastThreeNonOverlappingIntervals(yIntervals);
+    }
+
+    private boolean hasAtLeastThreeNonOverlappingIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (interval1, interval2) -> Integer.compare(interval1[0], interval2[0]));
+
+        int nonOverlappingIntervalsCount = 0;
+        int[] mergedInterval = { intervals[0][0], intervals[0][1] };
+
+        for (int i = 1; i < intervals.length; i++) {
+            int[] currentInterval = intervals[i];
+            if (isOverlapping(mergedInterval, currentInterval)) {
+                mergeOverlappingIntervals(mergedInterval, currentInterval);
+            } else {
+                nonOverlappingIntervalsCount++; // Found a new non overlapping interval
+                if (nonOverlappingIntervalsCount == 3) {
+                    return true; // nonOverlappingIntervalsCount == 2 → 3 sections are formed!
+                }
+                mergedInterval = currentInterval;
+            }
+        }
+
+        nonOverlappingIntervalsCount++; //Count the last non overlapping interval
+
+        return nonOverlappingIntervalsCount == 3;
+    }
+
+    private boolean isOverlapping(int[] interval1, int[] interval2) {
+         // Two intervals overlap if merged interval's end > current interval's start (Boundary touching is allowed)
+        return interval1[1] > interval2[0];
+    }
+
+    private void mergeOverlappingIntervals(int[] interval1, int[] interval2) {
+        // Extend merged interval's end if needed to include the current rectangle
+        interval1[1] = Math.max(interval1[1], interval2[1]);
+    }
+}
+
+//Optimal implementation
+
+class Solution {
+    public boolean checkValidCuts(int n, int[][] rectangles) {
+        // Check if either a vertical cut (based on x-axis) or a horizontal cut (based on y-axis) can divide the plane into 3 valid sections
+        return hasAtLeastThreeNonOverlappingIntervals(rectangles, true) || hasAtLeastThreeNonOverlappingIntervals(rectangles, false);
+    }
+
+    private boolean hasAtLeastThreeNonOverlappingIntervals(int[][] rectangles, boolean isVerticalCut) {
+        // Decide which coordinate to sort by:  x-coordinate for vertical cuts, y-coordinate for horizontal cuts
+        int sortIndex = isVerticalCut ? 0 : 1;
+
+        // Sort rectangles based on starting x or y coordinate
+        Arrays.sort(rectangles, (a, b) -> Integer.compare(a[sortIndex], b[sortIndex]));
+
+        // Determine which columns (indexes) to use for start and end of intervals
+        int start = isVerticalCut ? 0 : 1;
+        int end = isVerticalCut ? 2 : 3;
+
+        int[] mergedInterval = { rectangles[0][start], rectangles[0][end] };
+
+        int nonOverlappingIntervalsCount = 0;
+
+        for (int i = 1; i < rectangles.length; i++) {
+            int currentStart = rectangles[i][start];
+            int currentEnd = rectangles[i][end];
+
+            if (isOverlapping(mergedInterval, currentStart)) {
+                mergeOverlappingIntervals(mergedInterval, currentEnd);
+            } else {
+                nonOverlappingIntervalsCount++;
+
+                if (nonOverlappingIntervalsCount == 3) {
+                    return true;
+                }
+
+                mergedInterval = new int[] { currentStart, currentEnd };
+            }
+        }
+
+        nonOverlappingIntervalsCount++;
+
+        return nonOverlappingIntervalsCount == 3;
+    }
+
+    private boolean isOverlapping(int[] mergedInterval, int currentStart) {
+        return mergedInterval[1] > currentStart;
+    }
+
+    private void mergeOverlappingIntervals(int[] mergedInterval, int currentEnd) {
+        mergedInterval[1] = Math.max(mergedInterval[1], currentEnd);
+    }
+}
