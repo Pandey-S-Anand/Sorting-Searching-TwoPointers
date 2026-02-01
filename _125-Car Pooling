@@ -1,0 +1,257 @@
+//Bruteforce approach
+
+class Solution {
+    public boolean carPooling(int[][] trips, int capacity) {
+        // Find the earliest pickup and the farthest drop-off distance
+        int[] minAndMaxDistance = findMinPickupAndMaxDropOffDistance(trips);
+
+        int firstPickupDistance = minAndMaxDistance[0];
+        int lastDropOffDistance = minAndMaxDistance[1];
+
+        // passengersAtDistance[d] represents number of passengers in the car at distance d
+        int[] passengersAtDistance = new int[lastDropOffDistance + 1];
+
+        // Simulate passenger count for every distance
+        for (int[] trip : trips) {
+            int numberOfPassengers = trip[0];
+            int pickUp = trip[1];
+            int dropOff = trip[2];
+
+            /*
+             * IMPORTANT:
+             * Passengers are in the car from pickUp (inclusive)
+             * to dropOff (exclusive).
+             *
+             * At distance == dropOff, passengers are already dropped off,
+             * so we do NOT add them at dropOff.
+             */
+            for (int distance = pickUp; distance < dropOff; distance++) {
+                passengersAtDistance[distance] += numberOfPassengers;
+            }
+        }
+
+        // Check capacity only from the first pickup point onward
+        for (int distance = firstPickupDistance; distance <= lastDropOffDistance; distance++) {
+            // At any distance, if total passengers exceed capacity, return false.
+            if (passengersAtDistance[distance] > capacity) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int[] findMinPickupAndMaxDropOffDistance(int[][] trips) {
+        int minDistance = Integer.MAX_VALUE;
+        int maxDistance = Integer.MIN_VALUE;
+        int low = 0, high = trips.length - 1;
+
+        while (low <= high) {
+            minDistance = Math.min(minDistance, Math.min(trips[low][1], trips[high][1]));
+            maxDistance = Math.max(maxDistance, Math.max(trips[low++][2], trips[high--][2]));
+        }
+
+        return new int[] { minDistance, maxDistance };
+    }
+}
+
+
+// Improved approach
+
+class Solution {
+    public boolean carPooling(int[][] trips, int capacity) {
+        /**
+         * Distance range is bounded by constraints:
+         *   0 <= distance <= 1000
+         *
+         * For each possible distance on the road,
+         * we calculate how many passengers are inside the car.
+         *
+         * If at any distance the total passengers exceed capacity,
+         * we can immediately return false.
+         */
+
+        /*
+         * Sort trips by pickup location ('from').
+         * This allows us to break early while iterating trips
+         * once distance < from, since all further trips
+         * will also start after this distance.
+         */
+        Arrays.sort(trips, (trip1, trip2) -> Integer.compare(trip1[1], trip2[1]));
+
+        // Iterate over all possible distances on the road
+        for (int distance = 0; distance <= 1000; distance++) {
+
+            int passengers = 0;
+
+            // Check which trips are active at this distance
+            for (int[] trip : trips) {
+
+                int passengerCount = trip[0];
+                int from = trip[1];
+                int to = trip[2];
+
+                /**
+                 * If distance < from:
+                 *   - This trip has not started yet
+                 *   - Since trips are sorted by 'from',
+                 *     all subsequent trips will also start later
+                 *
+                 * Hence, we can break early to avoid unnecessary checks.
+                 */
+                if (distance < from) {
+                    break;
+                }
+
+                /**
+                 * A trip is active when:
+                 *   from <= distance < to
+                 *
+                 * Why `distance < to`?
+                 * At distance == to, passengers have already been dropped off
+                 * and should NOT be counted.
+                 */
+                if (distance < to) {
+                    passengers += passengerCount;
+                }
+
+                // If capacity is exceeded at this distance, return false
+                if (passengers > capacity) {
+                    return false;
+                }
+            }
+        }
+
+        // Capacity was never exceeded at any distance
+        return true;
+    }
+}
+
+
+//Optimal approach
+
+/*
+ * Explanation of the approach :
+ *
+ * 1. Why we store "change" (delta) instead of actual passenger count:
+ *    ---------------------------------------------------------------
+ *    Passengers do not enter or leave the car at every distance.
+ *    They only change at specific points:
+ *      - Pick-up location  -> passengers increase
+ *      - Drop-off location -> passengers decrease
+ *
+ *    Between these points, the number of passengers remains the same.
+ *    Therefore, instead of tracking passengers at every distance,
+ *    we record ONLY these changes (called "delta").
+ *
+ *
+ * 2. Why sorting locations is REQUIRED:
+ *    ----------------------------------
+ *    The TreeMap keeps all locations sorted automatically.
+ *
+ *    This is important because:
+ *      - Capacity at any distance depends on how many passengers
+ *        are inside the car at that distance.
+ *      - The number of passengers at a distance depends on all
+ *        pick-ups and drop-offs that happened BEFORE that distance.
+ *
+ *    Sorting ensures we process events exactly in the same order
+ *    in which the car travels (from left to right on the road).
+ *
+ *
+ * 3. How the running sum gives the ACTUAL passenger count:
+ *    -----------------------------------------------------
+ *    The map does NOT store the number of passengers at a distance.
+ *    It stores how many passengers CHANGE at that distance.
+ *
+ *    By maintaining a running sum:
+ *
+ *        passengersAtDistance += changeAtThisDistance
+ *
+ *    we reconstruct the actual number of passengers inside the car,
+ *    even across distances where no event happens.
+ *
+ *
+ * 4. Example Dry Run (with gaps between distances):
+ *    ----------------------------------------------
+ *    Input:
+ *      trips = [[3,2,10], [4,5,12], [2,9,15]]
+ *      capacity = 7
+ *
+ *    Meaning of trips:
+ *      - 3 passengers from distance 2 to 10
+ *      - 4 passengers from distance 5 to 12
+ *      - 2 passengers from distance 9 to 15
+ *
+ *    Step A: Populating the TreeMap (delta events)
+ *    ---------------------------------------------
+ *    For each trip, we:
+ *      - Add passengers at pick-up distance
+ *      - Remove passengers at drop-off distance
+ *
+ *    Trip [3,2,10]:
+ *      passengerChangeByDistance[2]  += 3
+ *      passengerChangeByDistance[10] -= 3
+ *
+ *    Trip [4,5,12]:
+ *      passengerChangeByDistance[5]  += 4
+ *      passengerChangeByDistance[12] -= 4
+ *
+ *    Trip [2,9,15]:
+ *      passengerChangeByDistance[9]  += 2
+ *      passengerChangeByDistance[15] -= 2
+ *
+ *    After processing all trips, TreeMap looks like:
+ *      passengerChangeByDistance = {2=+3, 5=+4, 9=+2, 10=-3, 12=-4, 15=-2}
+ *
+ *    (TreeMap automatically keeps the keys sorted)
+ *
+ *
+ *    Step B: Processing events using running sum
+ *    --------------------------------------------
+ *    Process distance in increasing order:
+ *
+ *      Distance 2:
+ *        passengersAtDistance = 0 + 3 = 3
+ *        (Passengers remain 3 from distance 2 to 4)
+ *
+ *      Distance 5:
+ *        passengersAtDistance = 3 + 4 = 7
+ *        (Passengers remain 7 from distance 5 to 8)
+ *
+ *      Distance 9:
+ *        passengersAtDistance = 7 + 2 = 9  ❌ exceeds capacity
+ */
+
+class Solution {
+    public boolean carPooling(int[][] trips, int capacity) {
+        TreeMap<Integer, Integer> passengerChangeByDistance = new TreeMap<>();
+
+        // Record pick-up and drop-off events for each trip
+        for (int[] trip : trips) {
+            int passengerCount = trip[0];
+            int pickupDistance = trip[1];
+            int dropOffDistance = trip[2];
+
+            // Increment passenger count at pickup distance
+            passengerChangeByDistance.put(pickupDistance, passengerChangeByDistance.getOrDefault(pickupDistance, 0) + passengerCount);
+
+            // Decrement passenger count at drop-off distance
+            passengerChangeByDistance.put(dropOffDistance, passengerChangeByDistance.getOrDefault(dropOffDistance, 0) - passengerCount);
+        }
+
+        int passengersAtDistance = 0;
+
+        // Process each distance in sorted order
+        for (int distance : passengerChangeByDistance.keySet()) {
+            passengersAtDistance += passengerChangeByDistance.get(distance);
+
+            // If capacity exceeded at any distance, trips are not feasible
+            if (passengersAtDistance > capacity) {
+                return false;
+            }
+        }
+
+        return true; // All trips are possible within capacity
+    }
+}
