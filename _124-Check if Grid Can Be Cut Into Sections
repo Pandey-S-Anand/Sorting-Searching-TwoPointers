@@ -12,6 +12,14 @@ class Solution {
          * We cannot cut exactly at 0 or at gridSize,
          * otherwise one of the sections would have no space
          * to contain any rectangle.
+         *
+         * Problem Constraints (Important Observation):
+         *
+         * 0 <= rectangles[i][0] < rectangles[i][2] <= gridSize
+         * 0 <= rectangles[i][1] < rectangles[i][3] <= gridSize
+         *
+         * These constraints guarantee that every rectangle lies completely
+         * within the grid boundaries.
          */
         for (int x1 = 1; x1 < gridSize; x1++) {
             for (int x2 = x1 + 1; x2 < gridSize; x2++) {
