@@ -201,130 +201,241 @@ class Solution {
 
 // Optimal approach
 
-//Naive implementation
+/*
+ * Overall Intuition (Optimal Solution):
+ *
+ * The problem asks whether we can make exactly 2 cuts (vertical or horizontal)
+ * such that all rectangles are divided into 3 non-empty regions and
+ * no rectangle is intersected by a cut.
+ *
+ * Key Insight:
+ * ------------
+ * Instead of trying all possible cut positions, we can project all rectangles
+ * onto a single axis (X-axis for vertical cuts, Y-axis for horizontal cuts).
+ *
+ * Once projected, the problem reduces to:
+ *   "Do these intervals form at least 3 disjoint merged segments?"
+ *
+ * Why this works:
+ * --------------
+ * - Each merged interval segment represents one continuous occupied region.
+ * - Rectangles may touch at boundaries but must not overlap internally.
+ * - To place 2 valid cuts, we need at least 3 such disjoint regions.
+ *
+ * Approach:
+ * ---------
+ * 1. Choose an axis (X or Y).
+ * 2. Sort the projected intervals by start coordinate.
+ * 3. Merge overlapping intervals.
+ * 4. Count the number of merged segments.
+ *
+ * If at least 3 merged segments exist along either axis,
+ * we can place 2 cuts between them without intersecting any rectangle.
+ */
+
+//Intuitive implementation
 
 class Solution {
-    /*
-    * Approach:
-    * 
-    * - The goal is to determine if we can make two vertical or two horizontal cuts
-    *   on the grid such that:
-    *   1. Each resulting section i.e 3 sections has at least one rectangle.
-    *   2. No rectangle is split by a cut (rectangles must lie fully inside one section).
-    * 
-    * - Instead of trying all possible cut positions, we use a merging intervals approach:
-    * 
-    *   1. Collect all x-axis intervals [startx, endx] for rectangles.
-    *   2. Merge overlapping x-intervals.
-    *      - If we find 3 or more non-overlapping merged x-intervals, we can place two vertical cuts safely.
-    *   
-    *   3. Collect all y-axis intervals [starty, endy].
-    *      - Merge overlapping y-intervals.
-    *      - If we find 3 or more non-overlapping merged y-intervals, we can place two horizontal cuts.
-    * 
-    * - Important:
-    *   - Rectangles are allowed to share the boundary (i.e., touch the cut lines exactly) but not go inside each other.
-    */
     public boolean checkValidCuts(int n, int[][] rectangles) {
+        /*
+         * Project each rectangle onto the X-axis and Y-axis separately.
+         *
+         * If we can make valid cuts along either axis,
+         * the answer is true.
+         */
         int[][] xIntervals = new int[rectangles.length][2];
         int[][] yIntervals = new int[rectangles.length][2];
-        int index = 0;
 
-        for (int[] rectangle : rectangles) {
-            xIntervals[index] = new int[] { rectangle[0], rectangle[2] };
-            yIntervals[index] = new int[] { rectangle[1], rectangle[3] };
-            index++;
+        for (int i = 0; i < rectangles.length; i++) {
+            xIntervals[i] = new int[] { rectangles[i][0], rectangles[i][2] };
+            yIntervals[i] = new int[] { rectangles[i][1], rectangles[i][3] };
         }
 
-        // Merges overlapping intervals and returns true if there are at least three non-overlapping intervals found either in the vertical or horizontal direction.
-        return hasAtLeastThreeNonOverlappingIntervals(xIntervals) || hasAtLeastThreeNonOverlappingIntervals(yIntervals);
+        return hasAtLeastThreeDisjointRegions(xIntervals) || hasAtLeastThreeDisjointRegions(yIntervals);
     }
 
-    private boolean hasAtLeastThreeNonOverlappingIntervals(int[][] intervals) {
+    private boolean hasAtLeastThreeDisjointRegions(int[][] intervals) {
+        /*
+        * Sorting intervals by start time places any potentially
+        * overlapping intervals next to each other.
+        * This allows us to efficiently merge overlapping intervals
+        * in a single pass.
+        */
         Arrays.sort(intervals, (interval1, interval2) -> Integer.compare(interval1[0], interval2[0]));
+        /*
+         * mergedSegments counts the number of disjoint
+         * merged intervals after combining overlaps.
+         *
+         * Each merged segment represents one continuous
+         * occupied region on the axis.
+         */
+        int mergedSegments = 0;
 
-        int nonOverlappingIntervalsCount = 0;
-        int[] mergedInterval = { intervals[0][0], intervals[0][1] };
+        int[] mergedInterval = intervals[0];
 
         for (int i = 1; i < intervals.length; i++) {
-            int[] currentInterval = intervals[i];
-            if (isOverlapping(mergedInterval, currentInterval)) {
-                mergeOverlappingIntervals(mergedInterval, currentInterval);
+            /*
+             * If the current interval overlaps with the
+             * ongoing merged interval, extend it.
+             */
+            if (isOverlapping(mergedInterval, intervals[i])) {
+                mergeOverlappingInterval(mergedInterval, intervals[i]);
             } else {
-                nonOverlappingIntervalsCount++; // Found a new non overlapping interval
-                if (nonOverlappingIntervalsCount == 3) {
-                    return true; // nonOverlappingIntervalsCount == 2 → 3 sections are formed!
-                }
-                mergedInterval = currentInterval;
+                /*
+                 * We have completed one merged segment.
+                 * Start tracking a new merged interval.
+                 */
+                mergedSegments++;
+                mergedInterval = intervals[i];
             }
         }
 
-        nonOverlappingIntervalsCount++; //Count the last non overlapping interval
+        //Count the final merged interval.
+        mergedSegments++;
 
-        return nonOverlappingIntervalsCount == 3;
+        /*
+           Ex1: [[0, 2], [0, 4], [1, 5], [3, 5]]
+           
+           On the number line:
+                          
+            0----------1------------2----------3---------4---------5
+            <----------------------->      
+                    [0, 2]
+            <-------------------------------------------->
+                        [0, 4]
+                       <-------------------------------------------->
+                                   [1, 5] 
+                                               <-------------------->
+                                                       [3, 5]
+        
+           All intervals overlap and merge into a single segment:
+           [0, 5]
+        
+           Only 1 merged segment is formed.
+           Since making 2 cuts requires at least 3 disjoint regions,
+           it is NOT possible to make 2 valid cuts here.
+        
+        
+           Ex2: [[0, 2], [2, 4], [2, 3], [4, 5]]
+           
+           On the number line:
+                          
+            0----------1------------2----------3---------4---------5
+            <----------------------->      
+                    [0, 2] 
+                                    <--------------------->
+                                             [2, 4]
+                                    <---------->
+                                       [2, 3] 
+                                                           <--------->
+                                                              [4, 5]
+            
+           Three merged segments are formed:
+           [0, 2], [2, 4], [4, 5]
+        
+           We can place cuts at 2 and 4,
+           dividing the grid into three regions,
+           each containing at least one rectangle,
+           without intersecting any rectangle.
+        
+        
+           Ex3: [[0, 2], [2, 4], [2, 3], [3, 5]]
+           
+           On the number line:
+                          
+            0----------1------------2----------3---------4---------5
+            <----------------------->      
+                    [0, 2] 
+                                    <--------------------->
+                                             [2, 4]
+                                    <---------->
+                                       [2, 3] 
+                                                <------------------>
+                                                         [3, 5]
+            
+           Only two merged segments are formed:
+           [0, 2] and [2, 5]
+        
+           Since at least 3 disjoint regions are required
+           to make 2 cuts, it is NOT possible in this case.
+        */
+
+        /*
+         * What does having 3 disjoint regions mean?
+         *
+         * Three disjoint regions mean that rectangles can be grouped
+         * into three separate contiguous spaces. They may touch at
+         * boundaries but must not overlap internally.
+         *
+         * Each merged interval segment represents one continuous
+         * occupied region on the axis.
+         *
+         * To make 2 valid cuts, we need at least 3 such disjoint
+         * merged segments, so that we can place the cuts at the
+         * boundaries between them without intersecting any rectangle.
+         */
+        return mergedSegments >= 3;
     }
 
     private boolean isOverlapping(int[] interval1, int[] interval2) {
-         // Two intervals overlap if merged interval's end > current interval's start (Boundary touching is allowed)
+        /*
+         * Intervals are allowed to touch at the boundary
+         * (end == start) but must not overlap internally.
+         */
         return interval1[1] > interval2[0];
     }
 
-    private void mergeOverlappingIntervals(int[] interval1, int[] interval2) {
-        // Extend merged interval's end if needed to include the current rectangle
+    private void mergeOverlappingInterval(int[] interval1, int[] interval2) {
+        /*
+         * Extend the current merged interval
+         * to include the overlapping interval.
+         */
         interval1[1] = Math.max(interval1[1], interval2[1]);
     }
 }
+
 
 //Optimal implementation
 
 class Solution {
     public boolean checkValidCuts(int n, int[][] rectangles) {
-        // Check if either a vertical cut (based on x-axis) or a horizontal cut (based on y-axis) can divide the plane into 3 valid sections
-        return hasAtLeastThreeNonOverlappingIntervals(rectangles, true) || hasAtLeastThreeNonOverlappingIntervals(rectangles, false);
+        return hasAtLeastThreeDisjointRegions(rectangles, true) || hasAtLeastThreeDisjointRegions(rectangles, false);
     }
 
-    private boolean hasAtLeastThreeNonOverlappingIntervals(int[][] rectangles, boolean isVerticalCut) {
-        // Decide which coordinate to sort by:  x-coordinate for vertical cuts, y-coordinate for horizontal cuts
-        int sortIndex = isVerticalCut ? 0 : 1;
+    private boolean hasAtLeastThreeDisjointRegions(int[][] rectangles, boolean isVerticalSplit) {
+        /*
+        * Depending on the split direction:
+        * - Vertical split  → use xStart (index 0) and xEnd (index 2)
+        * - Horizontal split → use yStart (index 1) and yEnd (index 3)
+        */
+        int start = isVerticalSplit ? 0 : 1;
+        int end = start + 2;
 
-        // Sort rectangles based on starting x or y coordinate
-        Arrays.sort(rectangles, (a, b) -> Integer.compare(a[sortIndex], b[sortIndex]));
+        //Sort rectangles by their start coordinate along the chosen axis.
+        Arrays.sort(rectangles, (rectangle1, rectangle2) -> Integer.compare(rectangle1[start], rectangle2[start]));
 
-        // Determine which columns (indexes) to use for start and end of intervals
-        int start = isVerticalCut ? 0 : 1;
-        int end = isVerticalCut ? 2 : 3;
-
-        int[] mergedInterval = { rectangles[0][start], rectangles[0][end] };
-
-        int nonOverlappingIntervalsCount = 0;
+        int mergedSegments = 0;
+        int[] mergedInterval = new int[] { rectangles[0][start], rectangles[0][end] };
 
         for (int i = 1; i < rectangles.length; i++) {
-            int currentStart = rectangles[i][start];
-            int currentEnd = rectangles[i][end];
-
-            if (isOverlapping(mergedInterval, currentStart)) {
-                mergeOverlappingIntervals(mergedInterval, currentEnd);
+            if (isOverlapping(mergedInterval, rectangles[i], start)) {
+                mergeOverlappingInterval(mergedInterval, rectangles[i], end);
             } else {
-                nonOverlappingIntervalsCount++;
-
-                if (nonOverlappingIntervalsCount == 3) {
-                    return true;
-                }
-
-                mergedInterval = new int[] { currentStart, currentEnd };
+                mergedSegments++;
+                mergedInterval = new int[] { rectangles[i][start], rectangles[i][end] };
             }
         }
 
-        nonOverlappingIntervalsCount++;
+        mergedSegments++;
 
-        return nonOverlappingIntervalsCount == 3;
+        return mergedSegments >= 3;
     }
 
-    private boolean isOverlapping(int[] mergedInterval, int currentStart) {
-        return mergedInterval[1] > currentStart;
+    private boolean isOverlapping(int[] interval1, int[] interval2, int startIdx) {
+        return interval1[1] > interval2[startIdx];
     }
 
-    private void mergeOverlappingIntervals(int[] mergedInterval, int currentEnd) {
-        mergedInterval[1] = Math.max(mergedInterval[1], currentEnd);
+    private void mergeOverlappingInterval(int[] interval1, int[] interval2, int endIdx) {
+        interval1[1] = Math.max(interval1[1], interval2[endIdx]);
     }
 }
